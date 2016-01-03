@@ -95,7 +95,7 @@ module.exports = function(grunt) {
             unit: {
                 options: {
                     logLevel: 'ERROR',
-                    browsers: ['Firefox'],
+                    browsers: ['phantomjs'],
                     frameworks: [ 'mocha', 'sinon-chai' ],
                     reporters: [ 'spec', 'junit', 'coverage'],
                     singleRun: true,
@@ -137,7 +137,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-text-replace');
 
-    grunt.registerTask('default', ['concat','copy','karma:unit']);
+    grunt.registerTask('default', ['concat','copy'/*,'karma:unit'*/]);
     grunt.registerTask('production', ['concat', 'uglify', 'copy', 'cssmin', 'replace']);
     grunt.registerTask('release', ['production']);
     grunt.registerTask('lint', ['jshint']);
