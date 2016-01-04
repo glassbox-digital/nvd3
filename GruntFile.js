@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
     var _pkg = grunt.file.readJSON('package.json');
 
     //Project configuration.
@@ -9,7 +9,7 @@ module.exports = function(grunt) {
                 options: {
                     separator: '\n',
                     banner: '/* nvd3 version ' + _pkg.version + ' (' + _pkg.url + ') ' +
-                        '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
                 },
                 src: [
                     'src/css/*.css'
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
                 options: {
                     separator: '',
                     banner: '/* nvd3 version ' + _pkg.version + ' (' + _pkg.url + ') ' +
-                        '<%= grunt.template.today("yyyy-mm-dd") %> */\n' + '(function(){\n',
+                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n' + '(function(){\n',
                     footer: '\nnv.version = "' + _pkg.version + '";\n})();'
                 },
                 src: [
@@ -40,7 +40,7 @@ module.exports = function(grunt) {
             options: {
                 sourceMap: true,
                 banner: '/* nvd3 version ' + _pkg.version + ' (' + _pkg.url + ') ' +
-                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             js: {
                 files: {
@@ -72,12 +72,16 @@ module.exports = function(grunt) {
             js: {
                 files: ["src/**/*.js"],
                 tasks: ['concat']
+            },
+            less: {
+                files: ["src/**/*.less"],
+                tasks: ['less', 'concat']
             }
         },
         copy: {
             css: {
                 files: [
-                    { src: 'src/nv.d3.css', dest: 'build/nv.d3.css' }
+                    {src: 'src/nv.d3.css', dest: 'build/nv.d3.css'}
                 ]
             }
         },
@@ -87,7 +91,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'build/nv.d3.min.css' : ['build/nv.d3.css']
+                    'build/nv.d3.min.css': ['build/nv.d3.css']
                 }
             }
         },
@@ -96,8 +100,8 @@ module.exports = function(grunt) {
                 options: {
                     logLevel: 'ERROR',
                     browsers: ['phantomjs'],
-                    frameworks: [ 'mocha', 'sinon-chai' ],
-                    reporters: [ 'spec', 'junit', 'coverage'],
+                    frameworks: ['mocha', 'sinon-chai'],
+                    reporters: ['spec', 'junit', 'coverage'],
                     singleRun: true,
                     preprocessors: {
                         'src/*.js': ['coverage'],
@@ -125,9 +129,29 @@ module.exports = function(grunt) {
                     ]
                 }
             }
+        },
+
+        less: {
+            development: {
+                options: {
+                    paths: ["src/less/"]
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'src/less',
+                        // Compile each LESS component excluding "bootstrap.less",
+                        // "mixins.less" and "variables.less"
+                        src: ['*.less', '!{boot,var,mix}*.less'],
+                        dest: 'src/css/',
+                        ext: '.css'
+                    }
+                ]
+            }
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -137,8 +161,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-text-replace');
 
-    grunt.registerTask('default', ['concat','copy'/*,'karma:unit'*/]);
-    grunt.registerTask('production', ['concat', 'uglify', 'copy', 'cssmin', 'replace']);
+    grunt.registerTask('default', ['less', 'concat', 'copy'/*,'karma:unit'*/]);
+    grunt.registerTask('production', ['less', 'concat', 'uglify', 'copy', 'cssmin', 'replace']);
     grunt.registerTask('release', ['production']);
     grunt.registerTask('lint', ['jshint']);
 };

@@ -1,0 +1,29 @@
+.nvd3 {
+  .nv-sankey {
+
+    .node {
+      rect {
+        cursor: move;
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+      }
+
+      text {
+
+        pointer-events: none;
+        text-shadow: 0 1px 0 #fff;
+      }
+    }
+
+    .link {
+      fill: none;
+      stroke: #888;
+      stroke-opacity: .5;
+
+      &:hover {
+        stroke-opacity: .8;
+      }
+    }
+
+  }
+}
