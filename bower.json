@@ -22,7 +22,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "d3": "^3.4.4",
-    "d3-cloud": "https://github.com/shilon5/d3-cloud.git#~1.2.1"
+    "d3-cloud": "https://github.com/shilon5/d3-cloud.git#~1.2.1",
+    "d3-plugins": "https://github.com/shilon5/d3-plugins.git"
   },
   "ignore": [
     "**/.*",
