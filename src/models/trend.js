@@ -41,6 +41,8 @@ nv.models.trend = function() {
 
             var g = container.selectAll('.nv-wrap.nv-trend');
 
+            g.selectAll('*').remove();
+
             function addAxesAndLegend (svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
                 var legendWidth  = 200,
                     legendHeight = 100;
@@ -147,6 +149,9 @@ nv.models.trend = function() {
                     .y0(function (d) { return y(d.pct25); })
                     .y1(function (d) { return y(d.pct05); });
 
+
+                svg.selectAll('path').remove();
+
                 svg.datum(data);
 
                 svg.append('path')
@@ -216,13 +221,11 @@ nv.models.trend = function() {
 
             function startTransitions (svg, chartWidth, chartHeight, rectClip, markers, x) {
                 rectClip.transition()
-                    .duration(1000*markers.length)
+                    .duration(1000)
                     .attr('width', chartWidth);
 
-                markers.forEach(function (marker, i) {
-                    setTimeout(function () {
-                        addMarker(marker, svg, chartHeight, x);
-                    }, 1000 + 500*i);
+                markers.forEach(function (marker) {
+                    addMarker(marker, svg, chartHeight, x);
                 });
             }
 
