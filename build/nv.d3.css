@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-04 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-05 */
 .nvd3 .nv-axis {
     pointer-events:none;
     opacity: 1;
@@ -661,4 +661,63 @@ Interactive Layer
 }
 .nvd3 line.nv-guideline {
     stroke: #ccc;
+}
+
+.nv-trend .axis path,
+.nv-trend .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.nv-trend .axis text {
+  fill: #000;
+}
+.nv-trend .axis .tick line {
+  stroke: rgba(0, 0, 0, 0.1);
+}
+.nv-trend .area {
+  stroke-width: 1;
+}
+.nv-trend .area.outer,
+.nv-trend .legend .outer {
+  fill: rgba(230, 230, 255, 0.8);
+  stroke: rgba(216, 216, 255, 0.8);
+}
+.nv-trend .area.inner,
+.nv-trend .legend .inner {
+  fill: rgba(127, 127, 255, 0.8);
+  stroke: rgba(96, 96, 255, 0.8);
+}
+.nv-trend .median-line,
+.nv-trend .legend .median-line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3;
+}
+.nv-trend .legend .legend-bg {
+  fill: rgba(0, 0, 0, 0.5);
+  stroke: rgba(0, 0, 0, 0.5);
+}
+.nv-trend .marker.client .marker-bg,
+.nv-trend .marker.client path {
+  fill: rgba(255, 127, 0, 0.8);
+  stroke: rgba(255, 127, 0, 0.8);
+  stroke-width: 3;
+}
+.nv-trend .marker.server .marker-bg,
+.nv-trend .marker.server path {
+  fill: rgba(0, 153, 51, 0.8);
+  stroke: rgba(0, 153, 51, 0.8);
+  stroke-width: 3;
+}
+.nv-trend .marker path {
+  fill: none;
+}
+.nv-trend .legend text,
+.nv-trend .marker text {
+  fill: #fff;
+  font-weight: bold;
+}
+.nv-trend .marker text {
+  text-anchor: middle;
 }

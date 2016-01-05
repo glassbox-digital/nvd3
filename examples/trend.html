@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
+    <link href="../bower_components/d3-more-plugins/build/d3-plugins.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
+    <script src="../bower_components/d3-more-plugins/build/d3-plugins.min.js" charset="utf-8"></script>
+    <script src="../build/nv.d3.js"></script>
+    <script src="lib/stream_layers.js"></script>
+
+    <style>
+        html, body, svg {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <!--<style>-->
+
+        <!--/*@import url(../style.css?aea6f0a);*/-->
+
+        <!--#chart {-->
+            <!--height: 500px;-->
+        <!--}-->
+
+        <!--.node rect {-->
+            <!--cursor: move;-->
+            <!--fill-opacity: .9;-->
+            <!--shape-rendering: crispEdges;-->
+        <!--}-->
+
+        <!--.node text {-->
+            <!--pointer-events: none;-->
+            <!--text-shadow: 0 1px 0 #fff;-->
+        <!--}-->
+
+        <!--.link {-->
+            <!--fill: none;-->
+            <!--stroke: #000;-->
+            <!--stroke-opacity: .2;-->
+        <!--}-->
+
+        <!--.link:hover {-->
+            <!--stroke-opacity: .5;-->
+        <!--}-->
+
+    <!--</style>-->
+</head>
+<body>
+
+<svg id="test1"></svg>
+
+<script>
+
+    var parseDate  = d3.time.format('%Y-%m-%d').parse;
+
+    d3.json('trend.json', function (rawSeries) {
+        var chart;
+
+        var series = rawSeries.map(function (d) {
+            return {
+                date:  parseDate(d.date),
+                pct05: d.pct05 / 1000,
+                pct25: d.pct25 / 1000,
+                pct50: d.pct50 / 1000,
+                pct75: d.pct75 / 1000,
+                pct95: d.pct95 / 1000
+            };
+        });
+
+        d3.json('trend-markers.json', function (rawMarkers){
+            nv.addGraph(function () {
+
+                var markers = rawMarkers.map(function (marker) {
+                    return {
+                        date: parseDate(marker.date),
+                        type: marker.type,
+                        version: marker.version
+                    };
+                });
+
+                chart = nv.models.trendChart();
+
+                chart.color(d3.scale.category20())
+                        .font('cursive');
+
+                d3.select("#test1")
+                        .datum({series: series, markers: markers})
+                        .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+        });
+
+
+    });
+</script>
+</body>
+</html>
