@@ -181,6 +181,13 @@
                 d3.select(this).classed('selected', d.selected);
             })
 
+            d3.select('svg').selectAll('.link').each(function(d){
+
+                d.selected = d.source.selected && d.target.selected;
+
+                d3.select(this).classed('selected', d.selected);
+            })
+
         });
 
         d3.select("svg")
@@ -210,7 +217,7 @@
 
     function reload() {
 
-        d3.json('energy-sm.json', function (_) {
+        d3.json('energy.json', function (_) {
             data = _;
 
             slider.max = d3.max(data.links, function (l) {

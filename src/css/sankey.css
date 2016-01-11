@@ -16,6 +16,9 @@
   stroke: #aaa;
   stroke-opacity: .25;
 }
+.nvd3 .nv-sankey .link.selected {
+  stroke-opacity: .9;
+}
 .nvd3 .nv-sankey .link:hover {
   stroke-opacity: .7;
 }
