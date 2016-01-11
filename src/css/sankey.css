@@ -8,7 +8,7 @@
 }
 .nvd3 .nv-sankey .link {
   fill: none;
-  stroke: lightsteelblue;
+  stroke: #aaa;
   stroke-opacity: .25;
 }
 .nvd3 .nv-sankey .link:hover {

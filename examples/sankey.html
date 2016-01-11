@@ -6,7 +6,7 @@
     <link href="../bower_components/d3-more-plugins/build/d3-plugins.min.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
     <script src="../bower_components/d3-cloud/build/d3.layout.cloud.js" charset="utf-8"></script>
-    <script src="../bower_components/d3-more-plugins/build/d3-plugins.min.js" charset="utf-8"></script>
+    <script src="../bower_components/d3-more-plugins/build/d3-plugins.js" charset="utf-8"></script>
     <script src="../build/nv.d3.js"></script>
     <script src="lib/stream_layers.js"></script>
 
@@ -17,64 +17,205 @@
             height: 100%;
             width: 100%;
         }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            font-family: sans-serif;
+
+        }
+
+        header {
+            height: 50px;
+            background-color: lightgray;
+            box-shadow: 0px 3px 13px -2px rgba(0, 0, 0, 0.6);
+            z-index: 3;
+            align-items: stretch;
+            display: flex;
+            flex-direction: row;
+        }
+
+        header h4 {
+            height: 100%;
+            font-size: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 2px whitesmoke;
+            color: #888;
+            vertical-align: text-bottom;
+            margin: 10px;
+        }
+
+        header .flex {
+            flex: 100%;
+        }
+
+        header button {
+
+            margin: 2px;
+            width: 150px;
+            right: 0;
+        }
+
+        .content {
+            display: flex;
+            flex: 100%;
+            align-items: stretch;
+            flex-direction: row;
+        }
+
+        article {
+            display: flex;
+            flex: 100%;
+        }
+
+        aside {
+            width: 150px;
+            box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
+            z-index: 1;
+            background: whitesmoke;
+        }
+
+        article {
+            display: flex;
+            flex: 100%;
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        article svg {
+            display: flex;
+
+        }
+
     </style>
     <style>
+        /*
+                .node rect {
+                    cursor: move;
+                    fill-opacity: .9;
+                    shape-rendering: crispEdges;
+                }
 
-        /*@import url(../style.css?aea6f0a);*/
+                .node text {
+                    pointer-events: none;
+                    text-shadow: 0 1px 0 #fff;
+                }
+        */
 
-        #chart {
-            height: 500px;
-        }
+        /*
+                .link {
+                    fill: none;
+                    stroke: #000;
+                    stroke-opacity: .2;
+                }
 
-        .node rect {
-            cursor: move;
-            fill-opacity: .9;
-            shape-rendering: crispEdges;
-        }
-
-        .node text {
-            pointer-events: none;
-            text-shadow: 0 1px 0 #fff;
-        }
-
-        .link {
-            fill: none;
-            stroke: #000;
-            stroke-opacity: .2;
-        }
-
-        .link:hover {
-            stroke-opacity: .5;
-        }
+                .link:hover {
+                    stroke-opacity: .5;
+                }
+        */
 
     </style>
 </head>
 <body>
 
-<svg id="test1"></svg>
+<header><h4 class="flex">Clarisite - User Journeys Demo</h4>
+</header>
+<div class="content">
+    <aside>
+        <button id="reload" onclick="reload()">Reload</button>
+
+        <br>
+        <label for="weight">Limit Weight:</label>
+        <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
+        <span id="weightValue">10</span>&nbsp;#Visits
+
+
+    </aside>
+    <article>
+        <svg height="800"></svg>
+    </article>
+</div>
+<footer>
+
+</footer>
 
 <script>
 
+    var chart;
+    var data = [];
+    var colorA = d3.scale.ordinal().range(
+            ["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);
 
-    d3.json('energy.json', function (data) {
-        var chart;
+    var colorB = d3.scale.linear().range(['darkseagreen', 'darkseagreen', 'lightsalmon', 'salmon', 'brown']).domain([100, 0, -1, -30, -100]);
+    /*["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);*/
 
-        nv.addGraph(function () {
-            chart = nv.models.sankeyChart();
+    var slider = document.getElementById('weight');
+    var lowerLimit = document.getElementById('weightValue');
 
-            chart.color(d3.scale.category20())
-                    .font('cursive');
 
-            d3.select("#test1")
-                    .datum(data)
+    nv.addGraph(function () {
+        chart = nv.models.sankeyChart()
+                .duration(500);
+
+        chart
+                .color(colorB/*d3.scale.category20b()*/)
+                .font('cursive');
+
+        d3.select("svg")
+                .datum(data)
+                .call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+    });
+
+    function changeWeight(slider) {
+        lowerLimit.innerHTML = slider.value;
+
+        d3.select("svg")
+                .datum(filterLinks(data, slider.value ))
+                .call(chart);
+    }
+
+    function filterLinks( data, limit ){
+        var links = data.links.filter( function(l){ return l.value >= limit});
+
+        return {nodes: data.nodes, links: links};
+    }
+
+    function reload() {
+
+        d3.json('energy.json', function (_) {
+            data = _;
+
+            slider.max = d3.max( data.links, function(l){ return + l.value; });
+
+
+            d3.select("svg")
+                    .datum(filterLinks(data, slider.value ))
                     .call(chart);
 
-            nv.utils.windowResize(chart.update);
 
-            return chart;
+
+            /*
+
+             nv.addGraph(function () {
+             d3.select("svg")
+             .datum(data)
+             .call(chart);
+
+             nv.utils.windowResize(chart.update);
+
+             return chart;
+             });
+
+             */
         });
+    }
 
-    });
+    reload();
 </script>
 </body>
 </html>

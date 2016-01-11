@@ -16,12 +16,14 @@ nv.models.sankey = function () {
     //, groupColorByParent = true
         , duration = 500
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
-        , format = function (d) { return d3.format(",.0f")(d); }
+        , format = function (d) {
+            return d3.format(",.0f")(d);
+        }
         , labels = false
         ;
 
     var sankey = d3.sankey()
-        .nodeWidth(15)
+        .nodeWidth(25)
         .nodePadding(10);
 
 
@@ -66,25 +68,26 @@ nv.models.sankey = function () {
 
                 linkWrap = g.selectAll('g.linkWrap');
 
-                var linkEnter = linkWrap.selectAll(".link")
-                    .data(data.links)
-                    .enter().append("path")
-                    .attr("class", "link");
-
                 var link = linkWrap.selectAll(".link")
-                    .transition().duration(duration)
-                    .attr("d", path)
-                    .style("stroke-width", function (d) {
-                        return Math.max(1, d.dy);
-                    })
-                    .sort(function (a, b) {
-                        return b.dy - a.dy;
-                    });
+                    .data(data.links);
+
+                var linkEnter = link.enter().append("path")
+                    .attr("class", "link");
 
                 linkEnter.append("title")
                     .text(function (d) {
                         return "from " + d.source.name + " to " + d.target.name + ": " + format(d.value);
                     });
+
+                link
+                    .style('opacity', 0.1)
+                    .attr("d", path)
+                    .sort(function (a, b) {
+                        return b.dy - a.dy; // so that the lighter link will be hover-able
+                    });
+
+                link.exit().remove();
+
 
                 var nodeWrap = g.selectAll('g.nodeWrap')
                     .data([data.nodes])
@@ -94,16 +97,16 @@ nv.models.sankey = function () {
 
                 nodeWrap = g.selectAll('g.nodeWrap');
 
-                var nodeEnter = nodeWrap.selectAll(".node")
-                    .data(data.nodes)
-                    .enter().append("g")
-                    .attr("class", "node");
-
                 var node = nodeWrap.selectAll(".node")
-                    .classed(function(d){ return {'picked': d.picked}; } )
-                    .call(d3.behavior.drag().origin(function (d) {
-                        return d;
-                    })
+                    .data(data.nodes);
+
+                var nodeEnter = node
+                    .enter().append("g")
+                    .attr("class", "node")
+                    .call(d3.behavior.drag()
+                        .origin(function (d) {
+                            return d;
+                        })
                         .on("dragstart", function () {
                             this.parentNode.appendChild(this);
                         })
@@ -115,7 +118,7 @@ nv.models.sankey = function () {
                         dispatch.elementMouseover({
                             data: d,
                             i: i/*,
-                            color: d3.select(this).style("fill")*/
+                             color: d3.select(this).style("fill")*/
                         });
                     })
                     .on('mouseout', function (d, i) {
@@ -140,28 +143,22 @@ nv.models.sankey = function () {
                         });
                     });
 
-                node.transition().duration(duration)
-                    .attr("transform", function (d) {
-                        return "translate(" + d.x + "," + d.y + ")";
-                    })
-
                 nodeEnter.append("rect")
-                    .attr("height", function (d) {
-                        return d.dy;
-                    })
                     .attr("width", sankey.nodeWidth())
                     .style("fill", function (d) {
-                        return d.color = color(d.name.replace(/ .*/, ""));
+                        return d.color = color(d.ratio); /*color(d.name.replace(/ .*!/, ""));*/
                     })
+/*
                     .style("stroke", function (d) {
                         return d3.rgb(d.color).darker(2);
                     })
+*/
                     .append("title")
                     .text(function (d) {
-                        return d.name + "\n" + format(d.value);
+                        return d.name + "\n" + format(d.value) + ", " + format(d.ratio) + "%";
                     });
 
-                if ( labels ) {
+                if (labels) {
                     nodeEnter.append("text")
                         .attr("x", -6)
                         .attr("y", function (d) {
@@ -180,10 +177,53 @@ nv.models.sankey = function () {
                         .attr("text-anchor", "start");
                 }
 
+
+                node
+/*
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + ",0)";
+                    })
+*/
+                    .transition().duration(duration)
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    })
+                    .attr("height", function (d) {
+                        return d.dy;
+                    })
+                    .selectAll('rect').attr('height', function (d) {
+                        return d.dy;
+                    }).each('end', function () {
+                        link.transition().duration(duration)
+                            .style('opacity', 1)
+                            .style("stroke-width", function (d) {
+                                return Math.max(1, d.dy);
+                            });
+
+                    });
+
+                node.exit().remove();
+
+
             }
 
             function dragmove(d) {
-                d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+
+
+                var delta = d3.event.y - d.y;
+
+                d.y = Math.max(0, Math.min(height - d.dy, d3.event.y));
+                console.log(delta < 0 ? 'UP' : 'DOWN', d.y);
+
+
+                d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")");
+
+                // this logic should be contained within d3.sankey
+                /*
+                 function _symetric(d){ return d.y + d.dy/2; }
+                 g.selectAll('.node').filter(function(n){ return n.x === d.x; }).sort( function( a, b){ return _symetric(a) - _symetric(b)});
+                 */
+
                 sankey.relayout();
                 g.selectAll('.link').attr("d", path);
 

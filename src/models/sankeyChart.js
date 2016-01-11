@@ -92,6 +92,7 @@ nv.models.sankeyChart = function() {
     //------------------------------------------------------------
 
     sankey.dispatch.on('elementMouseover.tooltip', function(evt) {
+        console.log(evt);
         evt['series'] = {
             key: evt.data.name,
             value: evt.data.size,
