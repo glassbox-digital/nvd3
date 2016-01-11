@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "name": "Agricultural 'waste'"
+    },
+    {
+      "name": "Bio-conversion"
+    },
+    {
+      "name": "Liquid"
+    },
+    {
+      "name": "Losses"
+    },
+    {
+      "name": "Solid"
+    }
+  ],
+  "links": [
+    {
+      "source": 0,
+      "target": 1,
+      "value": 124.729
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "value": 10.597
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "value": 26.862
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "value": 280.322
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "value": 81.144
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "value": 81.144
+    }
+  ]
+}
