@@ -4,8 +4,14 @@
     .node {
       rect {
         cursor: move;
-        fill-opacity: .9;
+        fill-opacity: 1;
         shape-rendering: crispEdges;
+      }
+
+      &:not(.selected) rect{
+        cursor: default;
+        fill-opacity: .3;
+        stroke: white 2px;
       }
 
       text {

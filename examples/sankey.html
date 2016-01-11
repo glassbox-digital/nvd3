@@ -130,6 +130,11 @@
         <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
         <span id="weightValue">10</span>&nbsp;#Visits
 
+        <hr>
+        <ul id="selectedNodes">
+
+        </ul>
+
 
     </aside>
     <article>
@@ -152,15 +157,31 @@
 
     var slider = document.getElementById('weight');
     var lowerLimit = document.getElementById('weightValue');
+    var selectedNodes = document.getElementById('selectedNodes');
 
 
     nv.addGraph(function () {
         chart = nv.models.sankeyChart()
-                .duration(500);
+                .duration(500)
+                .labels(true);
 
         chart
                 .color(colorB/*d3.scale.category20b()*/)
                 .font('cursive');
+
+        chart.dispatch.on('changeState', function (states) {
+            selectedNodes.innerHTML = states.map(function (d) {
+                return '<li>' + d.name + '</li>'
+            }).join('') || 'None';
+
+            d3.select('svg').selectAll('.node').each(function(d){
+
+                d.selected = states.indexOf(d) !== -1;
+
+                d3.select(this).classed('selected', d.selected);
+            })
+
+        });
 
         d3.select("svg")
                 .datum(data)
@@ -175,28 +196,31 @@
         lowerLimit.innerHTML = slider.value;
 
         d3.select("svg")
-                .datum(filterLinks(data, slider.value ))
+                .datum(filterLinks(data, slider.value))
                 .call(chart);
     }
 
-    function filterLinks( data, limit ){
-        var links = data.links.filter( function(l){ return l.value >= limit});
+    function filterLinks(data, limit) {
+        var links = data.links.filter(function (l) {
+            return l.value >= limit
+        });
 
         return {nodes: data.nodes, links: links};
     }
 
     function reload() {
 
-        d3.json('energy.json', function (_) {
+        d3.json('energy-sm.json', function (_) {
             data = _;
 
-            slider.max = d3.max( data.links, function(l){ return + l.value; });
+            slider.max = d3.max(data.links, function (l) {
+                return +l.value;
+            });
 
 
             d3.select("svg")
-                    .datum(filterLinks(data, slider.value ))
+                    .datum(filterLinks(data, slider.value))
                     .call(chart);
-
 
 
             /*

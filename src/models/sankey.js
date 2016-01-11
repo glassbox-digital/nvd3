@@ -103,6 +103,7 @@ nv.models.sankey = function () {
                 var nodeEnter = node
                     .enter().append("g")
                     .attr("class", "node")
+/*
                     .call(d3.behavior.drag()
                         .origin(function (d) {
                             return d;
@@ -111,6 +112,7 @@ nv.models.sankey = function () {
                             this.parentNode.appendChild(this);
                         })
                         .on("drag", dragmove))
+*/
                     .on('mouseover', function (d, i) {
                         d3.select(this)
                             .classed('hover', true)
@@ -201,6 +203,10 @@ nv.models.sankey = function () {
                             });
 
                     });
+
+                node.each(function(d){
+                    d3.select(this).classed('selected', d.selected);
+                });
 
                 node.exit().remove();
 

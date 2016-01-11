@@ -1,7 +1,12 @@
 .nvd3 .nv-sankey .node rect {
   cursor: move;
-  fill-opacity: .9;
+  fill-opacity: 1;
   shape-rendering: crispEdges;
+}
+.nvd3 .nv-sankey .node:not(.selected) rect {
+  cursor: default;
+  fill-opacity: .3;
+  stroke: white 2px;
 }
 .nvd3 .nv-sankey .node text {
   pointer-events: none;

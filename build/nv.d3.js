@@ -11403,6 +11403,7 @@ nv.models.sankey = function () {
                 var nodeEnter = node
                     .enter().append("g")
                     .attr("class", "node")
+/*
                     .call(d3.behavior.drag()
                         .origin(function (d) {
                             return d;
@@ -11411,6 +11412,7 @@ nv.models.sankey = function () {
                             this.parentNode.appendChild(this);
                         })
                         .on("drag", dragmove))
+*/
                     .on('mouseover', function (d, i) {
                         d3.select(this)
                             .classed('hover', true)
@@ -11501,6 +11503,10 @@ nv.models.sankey = function () {
                             });
 
                     });
+
+                node.each(function(d){
+                    d3.select(this).classed('selected', d.selected);
+                });
 
                 node.exit().remove();
 
@@ -11744,11 +11750,11 @@ nv.models.sankeyChart = function() {
     //------------------------------------------------------------
 
     sankey.dispatch.on('elementMouseover.tooltip', function(evt) {
-        console.log(evt);
+        //console.log(evt);
         evt['series'] = {
             key: evt.data.name,
-            value: evt.data.size,
-            color: evt.color
+            value: d3.format(",.0f")(evt.data.value || 0),
+            color: evt.data.color
         };
         tooltip.data(evt).hidden(false);
     });
@@ -11761,6 +11767,49 @@ nv.models.sankeyChart = function() {
         tooltip();
     });
 
+    var selectedNodes = [];
+
+    sankey.dispatch.on('elementClick.node', function(evt) {
+
+        var d = evt.data;
+
+        var idx = selectedNodes.indexOf(d);
+
+        if (idx === -1){
+            selectedNodes.push(d);
+            d.selected = true;
+        }
+        else {
+            delete d.selected;
+            selectedNodes.splice(idx, 1);
+        }
+
+        dispatch.changeState( selectedNodes );
+    });
+
+    sankey.dispatch.on('elementDblClick.node', function(evt) {
+
+        var d = evt.data;
+
+        var idx = selectedNodes.indexOf(d);
+
+        if (idx === -1){
+            selectedNodes = [d];
+            d.selected = true;
+        }
+        else {
+            if ( selectedNodes.length === 1){
+                delete d.selected;
+                selectedNodes = [];
+            }
+            else {
+                delete d.selected;
+                selectedNodes.splice(idx, 1);
+            }
+        }
+
+        dispatch.changeState( selectedNodes );
+    });
     //============================================================
     // Expose Public Variables
     //------------------------------------------------------------
