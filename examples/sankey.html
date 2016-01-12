@@ -174,6 +174,8 @@
                 return '<li>' + d.name + '</li>'
             }).join('') || 'None';
 
+
+
             d3.select('svg').selectAll('.node').each(function(d){
 
                 d.selected = states.indexOf(d) !== -1;
