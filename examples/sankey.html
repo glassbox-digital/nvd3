@@ -2,8 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
     <link href="../bower_components/d3-more-plugins/build/d3-plugins.min.css" rel="stylesheet" type="text/css">
+    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
+    <link href="../src/css/sankey.css" rel="stylesheet" type="text/css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
     <script src="../bower_components/d3-cloud/build/d3.layout.cloud.js" charset="utf-8"></script>
     <script src="../bower_components/d3-more-plugins/build/d3-plugins.js" charset="utf-8"></script>
@@ -179,14 +181,12 @@
             d3.select('svg').selectAll('.node').each(function(d){
 
                 d.selected = states.indexOf(d) !== -1;
-
                 d3.select(this).classed('selected', d.selected);
             })
 
             d3.select('svg').selectAll('.link').each(function(d){
 
                 d.selected = d.source.selected && d.target.selected;
-
                 d3.select(this).classed('selected', d.selected);
             })
 
@@ -210,11 +210,18 @@
     }
 
     function filterLinks(data, limit) {
-        var links = data.links.filter(function (l) {
+        var links = limit > 0 ? data.links.filter(function (l) {
             return l.value >= limit
-        });
+        }) : data.links;
 
-        return {nodes: data.nodes, links: links};
+        var nodes = limit > 0 ? data.nodes.filter(function(n, i){
+            delete n.sourceLinks;
+            delete n.targetLinks;
+            delete n.dy;
+            return links.filter(function(l){ return (l.source=== i || l.source === n) || (l.target === i || l.target === n)}).length >0;
+        }) : data.nodes;
+
+        return {nodes: nodes, links: links};
     }
 
     function reload() {
@@ -249,6 +256,8 @@
     }
 
     reload();
+
+
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-11 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-13 */
 .nvd3 .nv-axis {
     pointer-events:none;
     opacity: 1;
@@ -422,29 +422,41 @@ svg.nvd3-svg {
     stroke-opacity: 0;
 }
 
-.nvd3 .nv-sankey .node rect {
-  cursor: move;
-  fill-opacity: 1;
-  shape-rendering: crispEdges;
+.nvd3 .nv-sankey .nodeWrap {
+  pointer-events: fill;
 }
-.nvd3 .nv-sankey .node:not(.selected) rect {
-  cursor: default;
-  fill-opacity: .3;
+.nvd3 .nv-sankey .node rect.item {
+  stroke-opacity: .6;
+  /*shape-rendering: crispEdges;*/
+  stroke: steelblue;
+  stroke-width: 25px;
+}
+.nvd3 .nv-sankey .node.selected rect.item {
+  stroke-opacity: 1;
   stroke: white 2px;
+  stroke: royalblue;
 }
 .nvd3 .nv-sankey .node text {
   pointer-events: none;
 }
+.nvd3 .nv-sankey .linkWrap {
+  pointer-events: fill;
+}
 .nvd3 .nv-sankey .link {
   fill: none;
   stroke: #aaa;
-  stroke-opacity: .25;
+  stroke-opacity: .3;
 }
 .nvd3 .nv-sankey .link.selected {
   stroke-opacity: .9;
 }
 .nvd3 .nv-sankey .link:hover {
   stroke-opacity: .7;
+}
+.nvd3 .nv-sankey rect.pane {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
 }
 
 /* scatter */

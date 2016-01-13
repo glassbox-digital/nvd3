@@ -13,6 +13,8 @@ nv.models.sankey = function () {
         , container = null
         , color = nv.utils.defaultColor()
         , font = 'serif'
+        , x = d3.scale.linear()
+        , y = d3.scale.linear()
     //, groupColorByParent = true
         , duration = 500
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
@@ -45,26 +47,82 @@ nv.models.sankey = function () {
 
             nv.utils.initSVG(container);
 
+            x.range([0, availableWidth - sankey.nodeWidth()]);
+            y.range([0, availableHeight - sankey.nodePadding()]);
+
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([1, 5]);
+
+            var linkPath = (function () {
+                var curvature = .5;
+
+                function link(d) {
+                    var x0 = x(d.source.x) + d.source.dx,
+                        x1 = x(d.target.x),
+                        xi = d3.interpolateNumber(x0, x1),
+                        x2 = xi(curvature),
+                        x3 = xi(1 - curvature),
+                        y0 = y(d.source.y + d.sy + d.dy / 2),
+                        y1 = y(d.target.y + d.ty + d.dy / 2);
+                    return "M" + x0 + "," + y0
+                        + "C" + x2 + "," + y0
+                        + " " + x3 + "," + y1
+                        + " " + x1 + "," + y1;
+                }
+
+                link.curvature = function (_) {
+                    if (!arguments.length) return curvature;
+                    curvature = +_;
+                    return link;
+                };
+
+                return link;
+            })();
+
+
             // Setup containers and skeleton of chart
-            var wrap = container.selectAll('.nv-wrap.nv-sankey').data([data], function () {
-                return data;
-            });
-            wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-sankey nv-chart-' + id);
+            var wrap = container.selectAll('.nv-wrap.nv-sankey').data([data]);
+
+            wrap.enter().append('g')
+                .attr('class', 'nvd3 nv-wrap nv-sankey nv-chart-' + id)
+                .append('rect')
+                .attr('class', 'pane');
 
             var g = container.select('.nv-wrap.nv-sankey');
+            g.append("clipPath")
+                .attr("id", "clip-" + id)
+                .append("rect");
+
+            g.select("clipPath#clip-" + id).select("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", availableWidth)
+                .attr("height", availableHeight);
+
+            g.select("rect.pane")
+                .attr("width", availableWidth)
+                .attr("height", availableHeight)
+                .call(zoom);
 
             if (data.nodes && data.nodes.length) {
+
                 sankey
                     .size([availableWidth, availableHeight])
                     .nodes(data.nodes)
                     .links(data.links)
                     .layout(32);
 
+                x.domain([0, d3.max(data.nodes, function(n){ return +n.x;})]);
+                y.domain([0, d3.max(data.nodes, function(n){ return +n.y + n.dy;})]);
+
+                zoom.x(x);
+
                 var linkWrap = g.selectAll('g.linkWrap')
                     .data([data.links])
                     .enter()
                     .append('g')
-                    .attr('class', 'linkWrap');
+                    .attr('class', 'linkWrap')
+                    .attr("clip-path", "url(#clip-" + id + ")");
 
                 linkWrap = g.selectAll('g.linkWrap');
 
@@ -76,12 +134,11 @@ nv.models.sankey = function () {
 
                 linkEnter.append("title")
                     .text(function (d) {
-                        return "from " + d.source.name + " to " + d.target.name + ": " + format(d.value);
+                        return d.source.name + "==" + d.target.name + ": " + format(d.value);
                     });
 
                 link
                     .style('opacity', 0.1)
-                    .attr("d", path)
                     .sort(function (a, b) {
                         return b.dy - a.dy; // so that the lighter link will be hover-able
                     });
@@ -93,7 +150,8 @@ nv.models.sankey = function () {
                     .data([data.nodes])
                     .enter()
                     .append('g')
-                    .attr('class', 'nodeWrap');
+                    .attr('class', 'nodeWrap')
+                    .attr("clip-path", "url(#clip-" + id + ")");
 
                 nodeWrap = g.selectAll('g.nodeWrap');
 
@@ -146,14 +204,34 @@ nv.models.sankey = function () {
                     });
 
                 nodeEnter.append("rect")
-                    .attr("width", sankey.nodeWidth())
+                    .attr("class", "item")
+                    .attr("width", 1/*sankey.nodeWidth()*/)
+/*
+                    .style("fill", "white"/!*function (d) {
+                        return d.color = color(d.ratio); /!*color(d.name.replace(/ .*!/, ""));*!/
+                    }*!/)
+*/
+                    /*
+                     .style("stroke", function (d) {
+                     return d3.rgb(d.color).darker(2);
+                     })
+                     */
+                    .append("title")
+                    .text(function (d) {
+                        return d.name + "\n" + format(d.value) + ", " + format(d.ratio) + "%";
+                    });
+
+                nodeEnter.append("rect")
+                    .attr("class", "overlay")
+                    .attr("x", 0)
+                    .attr("width", 3)
                     .style("fill", function (d) {
-                        return d.color = color(d.ratio); /*color(d.name.replace(/ .*!/, ""));*/
+                        return d.color = color(d.ratio); /*/!*color(d.name.replace(/ .*!/, ""));*!/*/
                     })
 /*
-                    .style("stroke", function (d) {
-                        return d3.rgb(d.color).darker(2);
-                    })
+                     .style("stroke", function (d) {
+                     return d3.rgb(d.color).darker(2);
+                     })
 */
                     .append("title")
                     .text(function (d) {
@@ -179,42 +257,84 @@ nv.models.sankey = function () {
                         .attr("text-anchor", "start");
                 }
 
+                draw(node, link);
 
-                node
-/*
-                    .attr("transform", function (d) {
-                        return "translate(" + d.x + ",0)";
-                    })
-*/
-                    .transition().duration(duration)
-                    .attr("transform", function (d) {
-                        return "translate(" + d.x + "," + d.y + ")";
-                    })
-                    .attr("height", function (d) {
-                        return d.dy;
-                    })
-                    .selectAll('rect').attr('height', function (d) {
-                        return d.dy;
-                    }).each('end', function () {
-                        link.transition().duration(duration)
-                            .style('opacity', 1)
-                            .style("stroke-width", function (d) {
-                                return Math.max(1, d.dy);
-                            });
+                zoom.on('zoom', function(){
+                    draw(node, link);
+                });
 
-                    });
+
+                /*
+                                node
+                                    .transition().duration(duration)
+                                    .attr("transform", function (d) {
+                                        return "translate(" + x(d.x) + "," + y(d.y) + ")";
+                                    })
+                                    .selectAll('rect.item').attr('height', function (d) {
+                                        return (d.dy);
+                                    }).each('end', function () {
+                                        link.transition().duration(duration)
+                                            .style('opacity', 1)
+                                            .style("stroke-width", function (d) {
+                                                return Math.max(1, d.dy);
+                                            });
+
+                                    });
+
+                                node.selectAll('rect.overlay').attr('height', function(d){
+                                    return Math.round(d.dy /2);
+                                });
+                */
 
                 node.each(function(d){
                     d3.select(this).classed('selected', d.selected);
                 });
 
                 node.exit().remove();
+            }
 
+            function draw(node, link){
+
+/*
+                var node = g.select('g.nodeWrap').selectAll(".node"),
+                    link = g.select('g.linkWrap').selectAll(".link");
+
+*/
+                node/*.transition()
+                    .duration(duration)
+                    */.attr("transform", function (d) {
+                        return "translate(" + Math.round(x(d.x)) + "," + Math.round(y(d.y)) + ")";
+                    });
+
+                link/*.transition()
+                    .duration(duration)
+                    */.attr("d", linkPath)
+                    .style('opacity', 1)
+                    .style("stroke-width", function (d) {
+                        return Math.max(1, (d.dy));
+                    });
+
+                node.selectAll('rect.item')
+/*                    .attr('fill', 'stealblue')*/
+                    .attr('height', function (d) {
+                        return y(d.dy);
+                    });
+
+                node.selectAll('rect.overlay')
+                    .attr('y', function(d){
+                        return Math.round(y(d.dy - Math.min(100,100 + d.ratio) * d.dy / 100.0));
+                    })
+                    .attr('height', function(d){
+                        return Math.round(y(Math.min(100,100 + d.ratio) * d.dy / 100.0));
+                    });
+
+                node.each(function(d){
+                    d3.select(this).classed('selected', d.selected);
+                });
 
             }
 
             function dragmove(d) {
-
 
                 var delta = d3.event.y - d.y;
 

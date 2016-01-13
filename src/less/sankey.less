@@ -1,39 +1,54 @@
 .nvd3 {
   .nv-sankey {
 
+    .nodeWrap {
+      pointer-events: fill;
+    }
+
     .node {
-      rect {
-        cursor: move;
-        fill-opacity: 1;
-        shape-rendering: crispEdges;
+      rect.item {
+        stroke-opacity: .6;
+        /*shape-rendering: crispEdges;*/
+        stroke: steelblue;
+        stroke-width: 25px;
       }
 
-      &:not(.selected) rect{
-        cursor: default;
-        fill-opacity: .3;
+      &.selected rect.item {
+        stroke-opacity: 1;
         stroke: white 2px;
+        stroke: royalblue;
       }
 
       text {
-
         pointer-events: none;
-        //text-shadow: 0 1px 0 #fff;
       }
+    }
+
+    .linkWrap {
+      pointer-events: fill;
     }
 
     .link {
       fill: none;
       stroke: #aaa;
-      stroke-opacity: .25;
+      stroke-opacity: .3;
 
-      &.selected{
+      &.selected {
         stroke-opacity: .9;
       }
 
       &:hover {
         stroke-opacity: .7;
       }
+
+
     }
 
+    rect.pane {
+      cursor: move;
+      fill: none;
+      pointer-events: all;
+    }
   }
+
 }
