@@ -379,7 +379,7 @@ svg.nvd3-svg {
 }
 .nvd3 .nv-sankey .node.selected rect {
   fill-opacity: 1;
-  fill: darksteelblue;
+  fill: #276fab);
 }
 .nvd3 .nv-sankey .node text {
   pointer-events: none;

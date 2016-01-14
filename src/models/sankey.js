@@ -72,7 +72,14 @@ nv.models.sankey = function () {
                     .data(data.links.filter(function(l){ return l.disabled !== true;}), function(d){ return d.source + "::" + d.target; });
 
                 var linkEnter = link.enter().append("path")
-                    .attr("class", "link");
+                    .attr("class", "link")
+                    .on('dblclick', function (d, i) {
+                        //d3.select(this).classed('hover', false).style('opacity', 1);
+                        dispatch.elementDblClick({
+                            data: d,
+                            i: i
+                        });
+                    });
 
                 linkEnter.append("title")
                     .text(function (d) {
@@ -151,10 +158,7 @@ nv.models.sankey = function () {
                         return d3.rgb(d.color).darker(2);
                     })
 */
-                    .append("title")
-                    .text(function (d) {
-                        return d.name + "\n" + format(d.value) + ", " + format(d.ratio) + "%";
-                    });
+                    .append("title");
 
                 nodeEnter.append('line')
                     .attr('class', 'meter')
@@ -205,6 +209,11 @@ nv.models.sankey = function () {
                             .transition()
                             .attr("y2", function( d){ return d.ratio * d.dy / 100; } );
 
+                        d3.select(this)
+                            .select('title')
+                            .text(function (d) {
+                                return d.name + "\n" + format(d.value) + "\n" + format(d.ratio) + "%";
+                        })
 
                     })
                     .selectAll('rect')

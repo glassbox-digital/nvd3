@@ -129,29 +129,55 @@ nv.models.sankeyChart = function() {
         dispatch.changeState( selectedNodes );
     });
 
-    sankey.dispatch.on('elementDblClick.node', function(evt) {
+    sankey.dispatch.on('elementDblClick.link', function(evt) {
 
         var d = evt.data;
 
-        var idx = selectedNodes.indexOf(d);
+        if (d.hasOwnProperty('source') && d.hasOwnProperty('target') ) {
 
-        if (idx === -1){
-            selectedNodes = [d];
-            d.selected = true;
-        }
-        else {
-            if ( selectedNodes.length === 1){
-                delete d.selected;
-                selectedNodes = [];
+            var idxS = selectedNodes.indexOf(d.sourceNode);
+            var idxT = selectedNodes.indexOf(d.targetNode);
+
+            if (idxS === -1 || idxT === -1) {
+                if (idxS === -1) {
+                    selectedNodes.push(d.sourceNode);
+                    d.sourceNode.selected = true;
+                }
+                if (idxT === -1) {
+                    selectedNodes.push(d.targetNode);
+                    d.targetNode.selected = true;
+                }
+
+                d.selected = true;
             }
             else {
                 delete d.selected;
-                selectedNodes.splice(idx, 1);
+                selectedNodes.splice(Math.max(idxS, idxT), 1);
+                selectedNodes.splice(Math.min(idxS, idxT), 1);
+            }
+        }
+        else {
+            var idx = selectedNodes.indexOf(d);
+
+            if (idx === -1){
+                selectedNodes = [d];
+                d.selected = true;
+            }
+            else {
+                if ( selectedNodes.length === 1){
+                    delete d.selected;
+                    selectedNodes = [];
+                }
+                else {
+                    delete d.selected;
+                    selectedNodes.splice(idx, 1);
+                }
             }
         }
 
         dispatch.changeState( selectedNodes );
     });
+
     //============================================================
     // Expose Public Variables
     //------------------------------------------------------------

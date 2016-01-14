@@ -11372,7 +11372,14 @@ nv.models.sankey = function () {
                     .data(data.links.filter(function(l){ return l.disabled !== true;}), function(d){ return d.source + "::" + d.target; });
 
                 var linkEnter = link.enter().append("path")
-                    .attr("class", "link");
+                    .attr("class", "link")
+                    .on('dblclick', function (d, i) {
+                        //d3.select(this).classed('hover', false).style('opacity', 1);
+                        dispatch.elementDblClick({
+                            data: d,
+                            i: i
+                        });
+                    });
 
                 linkEnter.append("title")
                     .text(function (d) {
@@ -11451,10 +11458,7 @@ nv.models.sankey = function () {
                         return d3.rgb(d.color).darker(2);
                     })
 */
-                    .append("title")
-                    .text(function (d) {
-                        return d.name + "\n" + format(d.value) + ", " + format(d.ratio) + "%";
-                    });
+                    .append("title");
 
                 nodeEnter.append('line')
                     .attr('class', 'meter')
@@ -11505,6 +11509,11 @@ nv.models.sankey = function () {
                             .transition()
                             .attr("y2", function( d){ return d.ratio * d.dy / 100; } );
 
+                        d3.select(this)
+                            .select('title')
+                            .text(function (d) {
+                                return d.name + "\n" + format(d.value) + "\n" + format(d.ratio) + "%";
+                        })
 
                     })
                     .selectAll('rect')
@@ -11818,29 +11827,55 @@ nv.models.sankeyChart = function() {
         dispatch.changeState( selectedNodes );
     });
 
-    sankey.dispatch.on('elementDblClick.node', function(evt) {
+    sankey.dispatch.on('elementDblClick.link', function(evt) {
 
         var d = evt.data;
 
-        var idx = selectedNodes.indexOf(d);
+        if (d.hasOwnProperty('source') && d.hasOwnProperty('target') ) {
 
-        if (idx === -1){
-            selectedNodes = [d];
-            d.selected = true;
-        }
-        else {
-            if ( selectedNodes.length === 1){
-                delete d.selected;
-                selectedNodes = [];
+            var idxS = selectedNodes.indexOf(d.sourceNode);
+            var idxT = selectedNodes.indexOf(d.targetNode);
+
+            if (idxS === -1 || idxT === -1) {
+                if (idxS === -1) {
+                    selectedNodes.push(d.sourceNode);
+                    d.sourceNode.selected = true;
+                }
+                if (idxT === -1) {
+                    selectedNodes.push(d.targetNode);
+                    d.targetNode.selected = true;
+                }
+
+                d.selected = true;
             }
             else {
                 delete d.selected;
-                selectedNodes.splice(idx, 1);
+                selectedNodes.splice(Math.max(idxS, idxT), 1);
+                selectedNodes.splice(Math.min(idxS, idxT), 1);
+            }
+        }
+        else {
+            var idx = selectedNodes.indexOf(d);
+
+            if (idx === -1){
+                selectedNodes = [d];
+                d.selected = true;
+            }
+            else {
+                if ( selectedNodes.length === 1){
+                    delete d.selected;
+                    selectedNodes = [];
+                }
+                else {
+                    delete d.selected;
+                    selectedNodes.splice(idx, 1);
+                }
             }
         }
 
         dispatch.changeState( selectedNodes );
     });
+
     //============================================================
     // Expose Public Variables
     //------------------------------------------------------------
