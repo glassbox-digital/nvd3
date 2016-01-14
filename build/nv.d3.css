@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-13 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-14 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -373,14 +373,13 @@ svg.nvd3-svg {
 }
 
 .nvd3 .nv-sankey .node rect {
-  cursor: move;
-  fill-opacity: 1;
+  fill-opacity: .6;
   shape-rendering: crispEdges;
+  fill: steelblue;
 }
-.nvd3 .nv-sankey .node:not(.selected) rect {
-  cursor: default;
-  fill-opacity: .3;
-  stroke: white 2px;
+.nvd3 .nv-sankey .node.selected rect {
+  fill-opacity: 1;
+  fill: darksteelblue;
 }
 .nvd3 .nv-sankey .node text {
   pointer-events: none;

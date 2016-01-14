@@ -70,10 +70,13 @@
         }
 
         aside {
-            width: 150px;
+            width: 250px;
             box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
             z-index: 1;
             background: whitesmoke;
+            resize: horizontal;
+            overflow: hidden;
+            max-width: 40%;
         }
 
         article {
@@ -123,17 +126,19 @@
 </header>
 <div class="content">
     <aside>
-        <button id="reload" onclick="reload()">Reload</button>
+
+       <label for="reload">Load Data:</label>
+        <button id="reload" onclick="reload()">GO!</button>
 
         <br>
-        <label for="weight">Limit Weight:</label>
+        <label for="weight">Limit: at least <span id="weightValue">10</span>&nbsp;#Visits </label>
         <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
-        <span id="weightValue">10</span>&nbsp;#Visits
+
 
         <hr>
-        <ul id="selectedNodes">
-
-        </ul>
+        <ol id="selectedNodes">
+            <comment>no selection</comment>
+        </ol>
 
 
     </aside>
