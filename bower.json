@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "d3": "^3.4.4",
-    "d3-more-plugins": "shilon5/d3-more-plugins#^1.0.5"
+    "d3-more-plugins": "shilon5/d3-more-plugins#^1.0.6"
   },
   "ignore": [
     "**/.*",
