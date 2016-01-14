@@ -15,7 +15,9 @@ nv.models.sankey = function () {
         , font = 'serif'
     //, groupColorByParent = true
         , duration = 500
-        , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
+        , x = d3.scale.linear()
+        , y = d3.scale.linear()
+        , dispatch = d3.dispatch('chartClick', 'elementClick', 'nodeClick', 'linkClick', 'nodeDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
         , format = function (d) {
             return d3.format(",.0f")(d);
         }
@@ -43,39 +45,112 @@ nv.models.sankey = function () {
             var availableWidth = nv.utils.availableWidth(width, container, margin);
             var availableHeight = nv.utils.availableHeight(height, container, margin);
 
+            x.range([0, availableWidth - sankey.nodeWidth()]);
+
+            y.range([0, availableHeight]);
+
+            x.domain([0, availableWidth]);
+            y.domain([0, availableHeight]);
+
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([1, 4])
+                .on("zoom", function () {
+                    container.selectAll('.node')
+                        .attr("transform", function (d) {
+                            return "translate(" + x(d.x) + "," + d.y + ")";
+                        });
+
+                    container.selectAll('.link')
+                        .attr("d", linkPath);
+                }).x(x);
+
+            var linkPath = (function () {
+                var curvature = .5;
+
+                function link(d) {
+                    var x0 = x(d.sourceNode.x) + d.sourceNode.dx,
+                        x1 = x(d.targetNode.x) ,
+                        xi = d3.interpolateNumber(x0, x1),
+                        x2 = xi(curvature),
+                        x3 = xi(1 - curvature),
+                        y0 = (d.sourceNode.y) + d.sy + d.dy / 2,
+                        y1 = (d.targetNode.y) + d.ty + d.dy / 2;
+                    return "M" + x0 + "," + y0
+                        + "C" + x2 + "," + y0
+                        + " " + x3 + "," + y1
+                        + " " + x1 + "," + y1;
+                }
+
+                link.curvature = function (_) {
+                    if (!arguments.length) return curvature;
+                    curvature = +_;
+                    return link;
+                };
+                return link;
+            })();
+
             nv.utils.initSVG(container);
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('.nv-wrap.nv-sankey').data([data], function () {
                 return data;
             });
-            wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-sankey nv-chart-' + id);
+            var wrapEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-sankey nv-chart-' + id);
+
+            wrapEnter
+                .append("clipPath")
+                .attr("id", "clip-" + id)
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0);
+
+            wrap
+                .select("clipPath#clip-" + id)
+                .select("rect")
+                .attr("width", availableWidth)
+                .attr("height", availableHeight);
+
+            wrapEnter.append("rect")
+                .attr("class", "pane")
+                .attr("x", 0)
+                .attr("y", 0);
 
             var g = container.select('.nv-wrap.nv-sankey');
+
+            g.select("rect.pane")
+                .attr("width", availableWidth)
+                .attr("height", availableHeight)
+                .call(zoom);
 
             if (data.nodes && data.nodes.length) {
                 sankey
                     .size([availableWidth, availableHeight])
                     .nodes(data.nodes)
-                    .links(data.links.filter(function(l){ return l.disabled !== true;}))
+                    .links(data.links.filter(function (l) {
+                        return l.disabled !== true;
+                    }))
                     .layout(32);
 
                 var linkWrap = g.selectAll('g.linkWrap')
                     .data([data.links])
                     .enter()
                     .append('g')
-                    .attr('class', 'linkWrap');
+                    .attr('class', 'linkWrap')
+                    .attr("clip-path", "url(#clip-" + id + ")");
 
                 linkWrap = g.selectAll('g.linkWrap');
 
                 var link = linkWrap.selectAll(".link")
-                    .data(data.links.filter(function(l){ return l.disabled !== true;}), function(d){ return d.source + "::" + d.target; });
+                    .data(data.links.filter(function (l) {
+                        return l.disabled !== true;
+                    }), function (d) {
+                        return d.source + "::" + d.target;
+                    });
 
                 var linkEnter = link.enter().append("path")
                     .attr("class", "link")
-                    .on('dblclick', function (d, i) {
-                        //d3.select(this).classed('hover', false).style('opacity', 1);
-                        dispatch.elementDblClick({
+                    .on('click', function (d, i) {
+                        dispatch.linkClick({
                             data: d,
                             i: i
                         });
@@ -83,12 +158,12 @@ nv.models.sankey = function () {
 
                 linkEnter.append("title")
                     .text(function (d) {
-                        return "from " + d.sourceNode.name + " to " + d.targetNode.name + ": " + format(d.value);
+                        return d.sourceNode.name + "=" + d.targetNode.name + ":" + format(d.value);
                     });
 
                 link
                     .style('opacity', 0.1)
-                    .attr("d", path)
+                    .attr("d", linkPath)
                     .sort(function (a, b) {
                         return b.dy - a.dy; // so that the lighter link will be hover-able
                     });
@@ -97,55 +172,65 @@ nv.models.sankey = function () {
                     .data([data.nodes])
                     .enter()
                     .append('g')
-                    .attr('class', 'nodeWrap');
+                    .attr('class', 'nodeWrap')
+                    .attr("clip-path", "url(#clip-" + id + ")");
 
                 nodeWrap = g.selectAll('g.nodeWrap');
 
-                var dataNodes = data.nodes.filter( function(n){ return n.value > 0; });
+                var dataNodes = data.nodes.filter(function (n) {
+                    return n.value > 0;
+                });
 
                 var node = nodeWrap.selectAll(".node")
-                    .data(dataNodes, function(d){ return d.name; });
+                    .data(dataNodes, function (d) {
+                        return d.name;
+                    });
 
                 var nodeEnter = node
                     .enter().append("g")
                     .attr("class", "node")
-/*
-                    .call(d3.behavior.drag()
-                        .origin(function (d) {
-                            return d;
-                        })
-                        .on("dragstart", function () {
-                            this.parentNode.appendChild(this);
-                        })
-                        .on("drag", dragmove))
-*/
+                    /*
+                     .call(d3.behavior.drag()
+                     .origin(function (d) {
+                     return d;
+                     })
+                     .on("dragstart", function () {
+                     this.parentNode.appendChild(this);
+                     })
+                     .on("drag", dragmove))
+                     */
                     .on('mouseover', function (d, i) {
                         d3.select(this)
                             .classed('hover', true)
                             .style('opacity', 0.8);
+
                         dispatch.elementMouseover({
                             data: d,
-                            i: i/*,
-                             color: d3.select(this).style("fill")*/
+                            i: i
                         });
+
                     })
                     .on('mouseout', function (d, i) {
                         d3.select(this).classed('hover', false).style('opacity', 1);
-                        dispatch.elementMouseout({
+
+                        dispatch.elementMousemove({
                             data: d,
                             i: i
                         });
+
                     })
-                    .on('dblclick', function (d, i) {
-                        //d3.select(this).classed('hover', false).style('opacity', 1);
-                        dispatch.elementDblClick({
-                            data: d,
-                            i: i
-                        });
-                    })
+                    /*
+                     .on('dblclick', function (d, i) {
+                     //d3.select(this).classed('hover', false).style('opacity', 1);
+                     dispatch.nodeDblClick({
+                     data: d,
+                     i: i
+                     });
+                     })
+                     */
                     .on('click', function (d, i) {
                         //d3.select(this).classed('hover', false).style('opacity', 1);
-                        dispatch.elementClick({
+                        dispatch.nodeClick({
                             data: d,
                             i: i
                         });
@@ -153,12 +238,12 @@ nv.models.sankey = function () {
 
                 nodeEnter.append("rect")
                     .attr("width", sankey.nodeWidth())
-/*
-                    .style("stroke", function (d) {
-                        return d3.rgb(d.color).darker(2);
-                    })
-*/
-                    .append("title");
+                    /*
+                     .style("stroke", function (d) {
+                     return d3.rgb(d.color).darker(2);
+                     })
+                     */
+                    /*.append("title")*/;
 
                 nodeEnter.append('line')
                     .attr('class', 'meter')
@@ -166,11 +251,11 @@ nv.models.sankey = function () {
                     .attr('x2', sankey.nodeWidth())
                     .attr('y1', 0)
                     .attr('y2', 0)
-                    .append("title")
+/*                    .append("title")
 
                     .text(function (d) {
                         return format(d.ratio) + "%";
-                    });
+                    })*/;
 
                 if (labels) {
                     nodeEnter.append("text")
@@ -195,45 +280,55 @@ nv.models.sankey = function () {
                 node
                     .transition().duration(duration)
                     .attr("transform", function (d) {
-                        return "translate(" + d.x + "," + d.y + ")";
+                        return "translate(" + x(d.x) + "," + d.y + ")";
                     })
                     .each('end', function () {
 
                         d3.select(this)
                             .select('line')
-                            .style("stroke", function( d){ return color(0); } )
-                            .style("stroke-opacity", .6 )
-                            .style("stroke-width", 5 )
-                            .attr("y1", function( d){ return d.dy; } )
-                            .attr("y2", function( d){ return d.dy; } )
+                            .style("stroke", function (d) {
+                                return color(0);
+                            })
+                            .style("stroke-opacity", .6)
+                            .style("stroke-width", 5)
+                            .attr("y1", function (d) {
+                                return d.dy;
+                            })
+                            .attr("y2", function (d) {
+                                return d.dy;
+                            })
                             .transition()
-                            .attr("y2", function( d){ return d.ratio * d.dy / 100; } );
+                            .attr("y2", function (d) {
+                                return d.ratio * d.dy / 100;
+                            });
 
+/*
                         d3.select(this)
                             .select('title')
                             .text(function (d) {
                                 return d.name + "\n" + format(d.value) + "\n" + format(d.ratio) + "%";
-                        })
+                            })
+*/
 
                     })
                     .selectAll('rect')
                     .attr('height', function (d) {
                         return d.dy;
                     })
-/*                    .style("fill", function (d) {
-                        return d.color = color(d.ratio); /!*color(d.name.replace(/ .*!/, ""));*!/
-                    })*/;
+                    /*                    .style("fill", function (d) {
+                     return d.color = color(d.ratio); /!*color(d.name.replace(/ .*!/, ""));*!/
+                     })*/;
 
-/*
-                node
-                    .selectAll('line')
-                    .attr("stroke", function( d){ return color(d.ratio); } )
-                    .attr("stroke-width", 2 )
-                    .attr("x1", function( d){ return d.dx - 2; } )
-                    .attr("x2", function( d){ return d.dx - 2; } )
-                    .attr("y2", function( d){ return Math.round(d.ratio * d.dy / 100); } )
-                    .attr("y1", function( d){ return d.dy; } );
-*/
+                /*
+                 node
+                 .selectAll('line')
+                 .attr("stroke", function( d){ return color(d.ratio); } )
+                 .attr("stroke-width", 2 )
+                 .attr("x1", function( d){ return d.dx - 2; } )
+                 .attr("x2", function( d){ return d.dx - 2; } )
+                 .attr("y2", function( d){ return Math.round(d.ratio * d.dy / 100); } )
+                 .attr("y1", function( d){ return d.dy; } );
+                 */
 
                 link.transition().duration(duration).delay(duration)
                     .style('opacity', 1)
@@ -241,11 +336,11 @@ nv.models.sankey = function () {
                         return Math.max(1, d.dy);
                     });
 
-                node.each(function(d){
+                node.each(function (d) {
                     d3.select(this).classed('selected', d.selected);
                 });
 
-                link.each(function(d){
+                link.each(function (d) {
                     d3.select(this).classed('selected', d.selected);
                 });
 

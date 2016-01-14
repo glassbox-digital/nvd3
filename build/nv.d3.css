@@ -405,6 +405,11 @@ svg.nvd3-svg {
 .nvd3 .nv-sankey .link:hover {
   stroke-opacity: .7;
 }
+.nvd3 .nv-sankey .pane {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
 
 /* scatter */
 .nvd3 .nv-groups .nv-point.hover {

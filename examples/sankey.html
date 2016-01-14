@@ -22,7 +22,7 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            font-family: sans-serif;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
         }
 
@@ -73,22 +73,51 @@
             width: 300px;
             box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
             z-index: 1;
-            background: whitesmoke;
+            background: #ddd;
             resize: horizontal;
             overflow: hidden;
             max-width: 40%;
+
+            max-width: 40%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #selectedNodes{
+            flex: 1;
+            overflow-y: auto;
+            color: #aaa;
+            font-size: 1em;
         }
 
         article {
             display: flex;
-            flex: 100%;
+            flex: 1;
             align-items: stretch;
             flex-direction: column;
+            overflow-y: auto;
         }
 
         article svg {
             display: flex;
 
+        }
+
+        label {
+            text-decoration: underline;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        button {
+            background-color: steelblue;
+            border: none;
+            font-weight: 900;
+            /* box-shadow: 1px 1px 1px rgba(0,0,0,0.6); */
+            height: 30px;
+            color: white;
+            border-radius: 6px;
         }
 
     </style>
@@ -127,19 +156,20 @@
 <div class="content">
     <aside>
 
-        <label for="reload">Load Data:</label>
-        <button id="reload" onclick="reload()">GO!</button>
+
+        <button id="reload" onclick="reload()">Load Data</button>
 
         <br>
-        <label for="tags">Search by:</label>
-        <input id="tags" placeholder="search by tags" onchange="tags()" />
+        <label for="tags">Search:</label>
+        <input id="tags" placeholder="search by tags" onchange="tags()" disabled />
 
         <br>
-        <label for="weight">Limit: at least <span id="weightValue">10</span>&nbsp;#Visits </label>
+        <label for="weight">Limit: <small>at least <span id="weightValue">10</span>&nbsp;#Visits </small></label>
         <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
 
 
         <hr>
+        <label for="selectedNodes">Selected pages:</label>
         <ol id="selectedNodes">
             <comment>no selection</comment>
         </ol>
@@ -174,8 +204,6 @@
 
     function tags(){
         tags = TagsInput.value.split(',').map( function( t){ return t.trim(); });
-
-
     }
 
     function changeSelection(states) {
@@ -184,7 +212,6 @@
                 }).map(function (d) {
                     return '<li>' + d.name + '</li>'
                 }).join('') || 'None';
-
 
         d3.select('svg').selectAll('.node').each(function (d) {
 
