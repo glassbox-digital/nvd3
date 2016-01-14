@@ -69,14 +69,14 @@ nv.models.sankey = function () {
                 linkWrap = g.selectAll('g.linkWrap');
 
                 var link = linkWrap.selectAll(".link")
-                    .data(data.links);
+                    .data(data.links, function(d){ return d.source + "::" + d.target; });
 
                 var linkEnter = link.enter().append("path")
                     .attr("class", "link");
 
                 linkEnter.append("title")
                     .text(function (d) {
-                        return "from " + d.source.name + " to " + d.target.name + ": " + format(d.value);
+                        return "from " + d.sourceNode.name + " to " + d.targetNode.name + ": " + format(d.value);
                     });
 
                 link
@@ -97,8 +97,10 @@ nv.models.sankey = function () {
 
                 nodeWrap = g.selectAll('g.nodeWrap');
 
+                var dataNodes = data.nodes.filter( function(n){ return n.value > 0; });
+
                 var node = nodeWrap.selectAll(".node")
-                    .data(data.nodes);
+                    .data(dataNodes, function(d){ return d.name; });
 
                 var nodeEnter = node
                     .enter().append("g")
@@ -147,9 +149,6 @@ nv.models.sankey = function () {
 
                 nodeEnter.append("rect")
                     .attr("width", sankey.nodeWidth())
-                    .style("fill", function (d) {
-                        return d.color = color(d.ratio); /*color(d.name.replace(/ .*!/, ""));*/
-                    })
 /*
                     .style("stroke", function (d) {
                         return d3.rgb(d.color).darker(2);
@@ -158,6 +157,18 @@ nv.models.sankey = function () {
                     .append("title")
                     .text(function (d) {
                         return d.name + "\n" + format(d.value) + ", " + format(d.ratio) + "%";
+                    });
+
+                nodeEnter.append('line')
+                    .attr('class', 'meter')
+                    .attr('x1', sankey.nodeWidth())
+                    .attr('x2', sankey.nodeWidth())
+                    .attr('y1', 0)
+                    .attr('y2', 0)
+                    .append("title")
+
+                    .text(function (d) {
+                        return format(d.ratio) + "%";
                     });
 
                 if (labels) {
@@ -181,27 +192,47 @@ nv.models.sankey = function () {
 
 
                 node
-/*
-                    .attr("transform", function (d) {
-                        return "translate(" + d.x + ",0)";
-                    })
-*/
                     .transition().duration(duration)
                     .attr("transform", function (d) {
                         return "translate(" + d.x + "," + d.y + ")";
                     })
-                    .attr("height", function (d) {
+                    .each('end', function () {
+
+                        d3.select(this)
+                            .select('line')
+                            .style("stroke", function( d){ return color(0); } )
+                            .style("stroke-opacity", .6 )
+                            .style("stroke-width", 5 )
+                            .attr("y1", function( d){ return d.dy; } )
+                            .attr("y2", function( d){ return d.dy; } )
+                            .transition()
+                            .attr("y2", function( d){ return d.ratio * d.dy / 100; } );
+
+
+                    })
+                    .selectAll('rect')
+                    .attr('height', function (d) {
                         return d.dy;
                     })
-                    .selectAll('rect').attr('height', function (d) {
-                        return d.dy;
-                    }).each('end', function () {
-                        link.transition().duration(duration)
-                            .style('opacity', 1)
-                            .style("stroke-width", function (d) {
-                                return Math.max(1, d.dy);
-                            });
+/*                    .style("fill", function (d) {
+                        return d.color = color(d.ratio); /!*color(d.name.replace(/ .*!/, ""));*!/
+                    })*/;
 
+/*
+                node
+                    .selectAll('line')
+                    .attr("stroke", function( d){ return color(d.ratio); } )
+                    .attr("stroke-width", 2 )
+                    .attr("x1", function( d){ return d.dx - 2; } )
+                    .attr("x2", function( d){ return d.dx - 2; } )
+                    .attr("y2", function( d){ return Math.round(d.ratio * d.dy / 100); } )
+                    .attr("y1", function( d){ return d.dy; } );
+*/
+
+                link.transition().duration(duration).delay(duration)
+                    .style('opacity', 1)
+                    .style("stroke-width", function (d) {
+                        return Math.max(1, d.dy);
                     });
 
                 node.each(function(d){

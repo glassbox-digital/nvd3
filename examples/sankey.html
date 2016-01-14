@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
     <link href="../bower_components/d3-more-plugins/build/d3-plugins.min.css" rel="stylesheet" type="text/css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
+    <script src="../bower_components/d3/d3.min.js" charset="utf-8"></script>
     <script src="../bower_components/d3-cloud/build/d3.layout.cloud.js" charset="utf-8"></script>
     <script src="../bower_components/d3-more-plugins/build/d3-plugins.js" charset="utf-8"></script>
     <script src="../build/nv.d3.js"></script>
@@ -127,7 +127,7 @@
 <div class="content">
     <aside>
 
-       <label for="reload">Load Data:</label>
+        <label for="reload">Load Data:</label>
         <button id="reload" onclick="reload()">GO!</button>
 
         <br>
@@ -157,6 +157,8 @@
     var colorA = d3.scale.ordinal().range(
             ["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);
 
+    var colorC = d3.scale.linear().range(['steelblue', '#a096c8', '#8c2878', '#900040', '#be0000']).domain([100, 65, 50, 30, 0]);
+
     var colorB = d3.scale.linear().range(['darkseagreen', 'darkseagreen', 'lightsalmon', 'salmon', 'brown']).domain([100, 0, -1, -30, -100]);
     /*["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);*/
 
@@ -164,38 +166,38 @@
     var lowerLimit = document.getElementById('weightValue');
     var selectedNodes = document.getElementById('selectedNodes');
 
+    function changeSelection(states) {
+        selectedNodes.innerHTML = states.sort(function (d) {
+                    return +d.x;
+                }).map(function (d) {
+                    return '<li>' + d.name + '</li>'
+                }).join('') || 'None';
+
+
+        d3.select('svg').selectAll('.node').each(function (d) {
+
+            d.selected = states.indexOf(d) !== -1;
+
+            d3.select(this).classed('selected', d.selected);
+        })
+
+        d3.select('svg').selectAll('.link').each(function (d) {
+
+            d.selected = d.sourceNode.selected && d.targetNode.selected;
+
+            d3.select(this).classed('selected', d.selected);
+        })
+    }
+
 
     nv.addGraph(function () {
         chart = nv.models.sankeyChart()
                 .duration(500)
-                .labels(true);
-
-        chart
-                .color(colorB/*d3.scale.category20b()*/)
+                .labels(true)
+                .color(colorC/*d3.scale.category20b()*/)
                 .font('cursive');
 
-        chart.dispatch.on('changeState', function (states) {
-            selectedNodes.innerHTML = states.map(function (d) {
-                return '<li>' + d.name + '</li>'
-            }).join('') || 'None';
-
-
-
-            d3.select('svg').selectAll('.node').each(function(d){
-
-                d.selected = states.indexOf(d) !== -1;
-
-                d3.select(this).classed('selected', d.selected);
-            })
-
-            d3.select('svg').selectAll('.link').each(function(d){
-
-                d.selected = d.source.selected && d.target.selected;
-
-                d3.select(this).classed('selected', d.selected);
-            })
-
-        });
+        chart.dispatch.on('changeState', changeSelection);
 
         d3.select("svg")
                 .datum(data)

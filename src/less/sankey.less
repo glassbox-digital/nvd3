@@ -18,15 +18,26 @@
         pointer-events: none;
         //text-shadow: 0 1px 0 #fff;
       }
+
+      line.meter {
+        stroke-opacity: .6;
+        /*
+        stroke: white;
+        stroke-width: 2px;
+        */
+        &:hover{
+          stroke-opacity: .9;
+        }
+      }
     }
 
     .link {
       fill: none;
       stroke: #aaa;
-      stroke-opacity: .25;
+      stroke-opacity: .45;
 
       &.selected{
-        stroke-opacity: .9;
+        stroke-opacity: .95;
       }
 
       &:hover {
