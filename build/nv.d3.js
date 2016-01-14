@@ -11357,7 +11357,7 @@ nv.models.sankey = function () {
                 sankey
                     .size([availableWidth, availableHeight])
                     .nodes(data.nodes)
-                    .links(data.links)
+                    .links(data.links.filter(function(l){ return l.disabled !== true;}))
                     .layout(32);
 
                 var linkWrap = g.selectAll('g.linkWrap')
@@ -11369,7 +11369,7 @@ nv.models.sankey = function () {
                 linkWrap = g.selectAll('g.linkWrap');
 
                 var link = linkWrap.selectAll(".link")
-                    .data(data.links, function(d){ return d.source + "::" + d.target; });
+                    .data(data.links.filter(function(l){ return l.disabled !== true;}), function(d){ return d.source + "::" + d.target; });
 
                 var linkEnter = link.enter().append("path")
                     .attr("class", "link");
@@ -11385,9 +11385,6 @@ nv.models.sankey = function () {
                     .sort(function (a, b) {
                         return b.dy - a.dy; // so that the lighter link will be hover-able
                     });
-
-                link.exit().remove();
-
 
                 var nodeWrap = g.selectAll('g.nodeWrap')
                     .data([data.nodes])
@@ -11539,9 +11536,12 @@ nv.models.sankey = function () {
                     d3.select(this).classed('selected', d.selected);
                 });
 
+                link.each(function(d){
+                    d3.select(this).classed('selected', d.selected);
+                });
+
                 node.exit().remove();
-
-
+                link.exit().remove();
             }
 
             function dragmove(d) {
