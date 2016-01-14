@@ -120,6 +120,10 @@
             border-radius: 6px;
         }
 
+        button#clearSelectedNodes[disabled] {
+            opacity: 0.5;
+        }
+
     </style>
     <style>
         /*
@@ -169,10 +173,13 @@
 
 
         <hr>
-        <label for="selectedNodes">Selected pages:</label>
+        <label for="selectedNodes">Selected pages:<button id="clearSelectedNodes" onclick="clearSelected()">clear</button></label>
+
         <ol id="selectedNodes">
             <comment>no selection</comment>
         </ol>
+        <button id="continue">Funnel View..</button>
+
 
 
     </aside>
@@ -201,6 +208,12 @@
     var TagsInput = document.getElementById('tags');
     var lowerLimit = document.getElementById('weightValue');
     var NodesList = document.getElementById('selectedNodes');
+    var clearSelectedNodes = document.getElementById('clearSelectedNodes');
+
+    function clearSelected(){
+        changeSelection([]);
+        chart.update();
+    }
 
     function tags(){
         tags = TagsInput.value.split(',').map( function( t){ return t.trim(); });
@@ -211,7 +224,9 @@
                     return +d.x;
                 }).map(function (d) {
                     return '<li>' + d.name + '</li>'
-                }).join('') || 'None';
+                }).join('') || 'No selection';
+
+        clearSelectedNodes.disabled = states.length === 0;
 
         d3.select('svg').selectAll('.node').each(function (d) {
 

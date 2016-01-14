@@ -11859,6 +11859,10 @@ nv.models.sankeyChart = function () {
                 container.selectAll('.nv-noData').remove();
             }
 
+            selectedNodes = data.nodes.filter(function (n) {
+                return n.selected === true;
+            });
+
             // Setup containers and skeleton of chart
             var gChart = container.selectAll('g.nv-wrap.nv-sankeyChart').data([data]);
             var gChartEnter = gChart.enter().append('g').attr('class', 'nvd3 nv-wrap nv-sankeyChart');
@@ -11890,7 +11894,7 @@ nv.models.sankeyChart = function () {
             key: evt.data.name,
             value: d3.format(",.0f")(evt.data.value || 0),
             color: evt.data.color
-        },{
+        }, {
             key: 'Ratio',
             value: d3.format(",.0f")(evt.data.ratio || 0),
             color: color(evt.data.ratio)
