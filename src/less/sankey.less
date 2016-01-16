@@ -6,6 +6,7 @@
         fill-opacity: .6;
         shape-rendering: crispEdges;
         fill: steelblue;
+        cursor: default;
       }
 
       &.selected rect{
@@ -14,7 +15,6 @@
       }
 
       text {
-
         pointer-events: none;
         //text-shadow: 0 1px 0 #fff;
       }
@@ -33,15 +33,20 @@
 
     .link {
       fill: none;
-      stroke: #aaa;
-      stroke-opacity: .45;
+      stroke: #888;
+      stroke-opacity: .4;
+      cursor: default;
+      stroke-dasharray: 2px;
 
       &.selected{
-        stroke-opacity: .95;
+        stroke-opacity: .9;
+        stroke-dasharray: none;
+        stroke: lightsteelblue;
       }
 
       &:hover {
         stroke-opacity: .7;
+        stroke-dasharray: none;
       }
     }
 

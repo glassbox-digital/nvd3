@@ -2,13 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
+    <link href="../build/nv.d3.min.css" rel="stylesheet" type="text/css">
     <link href="../bower_components/d3-more-plugins/build/d3-plugins.min.css" rel="stylesheet" type="text/css">
     <script src="../bower_components/d3/d3.min.js" charset="utf-8"></script>
-    <script src="../bower_components/d3-cloud/build/d3.layout.cloud.js" charset="utf-8"></script>
-    <script src="../bower_components/d3-more-plugins/build/d3-plugins.js" charset="utf-8"></script>
-    <script src="../build/nv.d3.js"></script>
-    <script src="lib/stream_layers.js"></script>
+    <!--<script src="../bower_components/d3-cloud/build/d3.layout.cloud.min.js" charset="utf-8"></script>-->
+    <script src="../bower_components/d3-more-plugins/build/d3-plugins.min.js" charset="utf-8"></script>
+    <script src="../build/nv.d3.min.js"></script>
+    <!--<script src="lib/stream_layers.js"></script>-->
 
     <style>
         html, body, svg {
@@ -18,12 +18,22 @@
             width: 100%;
         }
 
+        svg {
+            min-height: 600px;
+            flex: 1;
+        }
+
         body {
             display: flex;
             flex-direction: column;
+            flex-wrap: wrap;
             align-items: stretch;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
+        }
+
+        footer {
+            height: 30px;
         }
 
         header {
@@ -59,7 +69,7 @@
 
         .content {
             display: flex;
-            flex: 100%;
+            flex: 1;
             align-items: stretch;
             flex-direction: row;
         }
@@ -67,24 +77,50 @@
         article {
             display: flex;
             flex: 100%;
+            transition: all 300ms ease-in-out;
         }
 
         aside {
-            width: 300px;
-            box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
-            z-index: 1;
-            background: #ddd;
+            width: 200px;
+            transition: all 10ms step-end;
+            /*
+                        box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
+                        z-index: 1;
+            */
+            /*
+                        background: #ddd;
+            */
             resize: horizontal;
             overflow: hidden;
-            max-width: 40%;
-
             max-width: 40%;
             display: flex;
             flex-direction: column;
             padding: 20px;
+
         }
 
-        #selectedNodes{
+        #overlay {
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 3;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+
+        #overlay:after {
+            content: "Back";
+            color: #eee;
+            position: absolute;
+            font-size: 1.2em;
+            white-space: nowrap;
+            text-shadow: 2px 1px 2px rgba(0,0,0,0.6);
+            font-style: inherit;
+            padding: 5px;
+            transform: rotate(-90deg);
+            top: 50%;
+        }
+
+        #selectedNodes {
             flex: 1;
             overflow-y: auto;
             color: #aaa;
@@ -95,13 +131,25 @@
             display: flex;
             flex: 1;
             align-items: stretch;
+            align-content: stretch;
+            justify-items: flex-start;
             flex-direction: column;
             overflow-y: auto;
         }
 
         article svg {
             display: flex;
+        }
 
+        article#master {
+            flex: 1;
+            position: relative;
+            z-index: 0;
+        }
+
+        article#details {
+            flex: 0;
+            z-index: 1;
         }
 
         label {
@@ -120,36 +168,26 @@
             border-radius: 6px;
         }
 
-        button#clearSelectedNodes[disabled] {
+        button[disabled] {
             opacity: 0.5;
+            background: grey;
         }
 
-    </style>
-    <style>
-        /*
-                .node rect {
-                    cursor: move;
-                    fill-opacity: .9;
-                    shape-rendering: crispEdges;
-                }
+        .layer-1 {
+            box-shadow: 1px 0px 10px -1px rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
 
-                .node text {
-                    pointer-events: none;
-                    text-shadow: 0 1px 0 #fff;
-                }
-        */
+        .layer-2 {
+            box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
+            z-index: 2;
+            background: #ccc;
+        }
 
-        /*
-                .link {
-                    fill: none;
-                    stroke: #000;
-                    stroke-opacity: .2;
-                }
-
-                .link:hover {
-                    stroke-opacity: .5;
-                }
-        */
+        .nv-x.nv-axis .tick text,
+        .nv-x.nv-axis .nv-axisMaxMin-x text {
+            transform: rotate(90deg);
+        }
 
     </style>
 </head>
@@ -158,38 +196,47 @@
 <header><h4 class="flex">Clarisite - User Journeys Demo</h4>
 </header>
 <div class="content">
-    <aside>
+    <aside id="sideNav" class="layer-2">
 
 
         <button id="reload" onclick="reload()">Load Data</button>
 
         <br>
         <label for="tags">Search:</label>
-        <input id="tags" placeholder="search by tags" onchange="tags()" disabled />
+        <input id="tags" placeholder="search by tags" onchange="tags()" disabled/>
 
         <br>
-        <label for="weight">Limit: <small>at least <span id="weightValue">10</span>&nbsp;#Visits </small></label>
+        <label for="weight">Limit:
+            <small>at least <span id="weightValue">10</span>&nbsp;#Visits</small>
+        </label>
         <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
 
 
         <hr>
-        <label for="selectedNodes">Selected pages:<button id="clearSelectedNodes" onclick="clearSelected()">clear</button></label>
+        <label for="selectedNodes">Selected pages:
+            &nbsp;
+            <button id="clearSelectedNodes" onclick="clearSelected()" disabled>clear</button>
+        </label>
 
         <ol id="selectedNodes">
             <comment>no selection</comment>
+
+
         </ol>
-        <button id="continue">Funnel View..</button>
-
-
+        <button id="continue" onclick="toggleDetailView()" disabled>continue..</button>
 
     </aside>
-    <article>
-        <svg height="800"></svg>
+    <article id="master" class="layer-1">
+        <div id="overlay" onclick="toggleDetailView()"></div>
+        <svg></svg>
+    </article>
+    <article id="details">
+        <svg></svg>
     </article>
 </div>
-<footer>
-
-</footer>
+<!--<footer>
+    Clarisite - the information presented here ...
+</footer>-->
 
 <script>
 
@@ -209,24 +256,51 @@
     var lowerLimit = document.getElementById('weightValue');
     var NodesList = document.getElementById('selectedNodes');
     var clearSelectedNodes = document.getElementById('clearSelectedNodes');
+    var Master = document.getElementById('master');
+    var Detail = document.getElementById('details');
+    var SideNav = document.getElementById('sideNav');
+    var MasterOverlay = document.getElementById('overlay');
+    var Continue = document.getElementById('continue');
 
-    function clearSelected(){
+    SideNav.addEventListener("transitionend", function(){
+        chart.update();
+    }, false);
+
+    function toggleDetailView() {
+        if (+Detail.style.flexGrow === 0) {
+            SideNav.style.display = 'none';
+            MasterOverlay.style.display = '';
+            showDetails()
+            Detail.style.flexGrow = 20;
+        }
+        else {
+            SideNav.style.display = 'flex';
+            MasterOverlay.style.display = 'none';
+            Detail.style.flexGrow = 0;
+        }
+    }
+
+    function clearSelected() {
         changeSelection([]);
         chart.update();
     }
 
-    function tags(){
-        tags = TagsInput.value.split(',').map( function( t){ return t.trim(); });
+    function tags() {
+        tags = TagsInput.value.split(',').map(function (t) {
+            return t.trim();
+        });
     }
 
     function changeSelection(states) {
+        Continue.disabled = states.length < 2;
+        clearSelectedNodes.disabled = states.length === 0;
+
         NodesList.innerHTML = states.sort(function (d) {
                     return +d.x;
                 }).map(function (d) {
                     return '<li>' + d.name + '</li>'
                 }).join('') || 'No selection';
 
-        clearSelectedNodes.disabled = states.length === 0;
 
         d3.select('svg').selectAll('.node').each(function (d) {
 
@@ -244,28 +318,10 @@
     }
 
 
-    nv.addGraph(function () {
-        chart = nv.models.sankeyChart()
-                .duration(500)
-                .labels(true)
-                .color(colorC/*d3.scale.category20b()*/)
-                .font('cursive');
-
-        chart.dispatch.on('changeState', changeSelection);
-
-        d3.select("svg")
-                .datum(data)
-                .call(chart);
-
-        nv.utils.windowResize(chart.update);
-
-        return chart;
-    });
-
     function changeWeight(slider) {
         lowerLimit.innerHTML = slider.value;
 
-        d3.select("svg")
+        d3.select("#master svg")
                 .datum(filterLinks(data, slider.value))
                 .call(chart);
     }
@@ -278,34 +334,104 @@
         return data;
     }
 
+    function produceDetailData(data) {
+        var nodes = data.nodes
+                .filter(function (n) {
+                    return n.selected;
+                })
+                .sort(function (a, b) {
+                    return +a.x - +b.x;
+                });
+
+        var details = {key: 'funnel', metaKey: 'stream', values: []};
+
+        details.values = nodes.map(function (n, i) {
+            return [i, n.value, n];
+        }) || [];
+
+        return [details];
+    }
+
+    function showDetails() {
+        var nodesData = produceDetailData(data);
+
+        nv.addGraph(function () {
+            var chart = nv.models.stackedAreaChart()
+                    .margin({left: 100})
+                    .controlOptions(['Stacked', 'Stream'])
+                    .style('stream')
+                    .x(function (d) {
+                        return d[0]
+                    })   //We can modify the data accessor functions...
+                    .y(function (d) {
+                        return d[1]
+                    })   //...in case your data is formatted differently.
+                    .useInteractiveGuideline(true)    //Tooltips which show all data points. Very nice!
+//                    .rightAlignYAxis(true)      //Let's move the y-axis to the right side.
+                    .duration(500)
+                    .showControls(true)       //Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.
+                    .clipEdge(true);
+
+            //Format x-axis labels with custom function.
+            chart.xAxis
+                    .tickFormat(function (i) {
+                        var d = nodesData[0].values && (i >= 0 && i < nodesData[0].values.length) ? nodesData[0].values[i][2] : {};
+                        return d.name || "?"; //d3.time.format('%x')(new Date(d))
+                    });
+
+            chart.yAxis
+                    .tickFormat(d3.format(',.0f'));
+
+            Detail.addEventListener("transitionend", function () {
+                console.log("transitionend");
+                chart.update();
+                Detail.removeEventListener("transitionend", arguments.callee);
+            }, false);
+
+
+            d3.select("#details svg")
+                    .datum(nodesData)
+                    .call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+
+            return chart;
+        });
+
+    }
+
     function reload() {
 
         d3.json('energy.json', function (_) {
             data = _;
 
-            Slider.max = d3.max(data.links, function (l) {
-                return +l.value;
+            nv.addGraph(function () {
+                chart = nv.models.sankeyChart()
+                        .duration(500)
+                        .labels(true)
+                        .color(colorC/*d3.scale.category20b()*/)
+                        .font('cursive');
+
+                chart.dispatch.on('changeState', changeSelection);
+                chart.dispatch.on('renderEnd', function (msg) {
+                    MasterOverlay.style.display = 'none';
+                });
+
+                Slider.max = d3.max( data.links, function(l){
+                   return l.value;
+                }) || 100;
+
+                d3.select("#master svg")
+                        .datum(data)
+                        .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+
+                return chart;
             });
 
-
-            d3.select("svg")
-                    .datum(filterLinks(data, Slider.value))
-                    .call(chart);
-
-
-            /*
-
-             nv.addGraph(function () {
-             d3.select("svg")
-             .datum(data)
-             .call(chart);
-
-             nv.utils.windowResize(chart.update);
-
-             return chart;
-             });
-
-             */
         });
     }
 
