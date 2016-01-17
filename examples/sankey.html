@@ -60,12 +60,6 @@
             flex: 100%;
         }
 
-        header button {
-
-            margin: 2px;
-            width: 150px;
-            right: 0;
-        }
 
         .content {
             display: flex;
@@ -81,7 +75,7 @@
         }
 
         aside {
-            width: 200px;
+            width: 220px;
             transition: all 10ms step-end;
             /*
                         box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
@@ -95,7 +89,6 @@
             max-width: 40%;
             display: flex;
             flex-direction: column;
-            padding: 20px;
 
         }
 
@@ -105,20 +98,24 @@
             position: absolute;
             height: 100%;
             width: 100%;
+            padding: 10px;
+
         }
 
-        #overlay:after {
-            content: "Back";
-            color: #eee;
-            position: absolute;
-            font-size: 1.2em;
-            white-space: nowrap;
-            text-shadow: 2px 1px 2px rgba(0,0,0,0.6);
-            font-style: inherit;
-            padding: 5px;
-            transform: rotate(-90deg);
-            top: 50%;
-        }
+        /*
+                #overlay:after {
+                    content: "Back";
+                    color: #eee;
+                    position: absolute;
+                    font-size: 1.2em;
+                    white-space: nowrap;
+                    text-shadow: 2px 1px 2px rgba(0,0,0,0.6);
+                    font-style: inherit;
+                    padding: 5px;
+                    transform: rotate(-90deg);
+                    top: 50%;
+                }
+        */
 
         #selectedNodes {
             flex: 1;
@@ -145,6 +142,7 @@
             flex: 1;
             position: relative;
             z-index: 0;
+            overflow: hidden;
         }
 
         article#details {
@@ -161,11 +159,13 @@
         button {
             background-color: steelblue;
             border: none;
-            font-weight: 900;
+            font-weight: bold;
             /* box-shadow: 1px 1px 1px rgba(0,0,0,0.6); */
-            height: 30px;
+            height: 36px;
+            width: 36px;
             color: white;
-            border-radius: 6px;
+            border-radius: 50%;
+            overflow: hidden;
         }
 
         button[disabled] {
@@ -181,7 +181,6 @@
         .layer-2 {
             box-shadow: 2px 0px 10px -2px rgba(0, 0, 0, 0.6);
             z-index: 2;
-            background: #ccc;
         }
 
         .nv-x.nv-axis .tick text,
@@ -189,45 +188,102 @@
             transform: rotate(90deg);
         }
 
+        .red {
+            background: red;
+        }
+
+        .green {
+            background: green;
+        }
+
+        .white {
+            background: white;
+            color: black;
+        }
+
+        comment {
+            font-size: smaller;
+            color: #888;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-content: space-around;
+        }
+
+        .flex {
+            flex: 1
+        }
+
+        button#settings {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
     </style>
 </head>
 <body>
 
-<header><h4 class="flex">Clarisite - User Journeys Demo</h4>
+<header class="row">
+    <h4 class="flex">Clarisite - User Journeys Demo</h4>
 </header>
 <div class="content">
     <aside id="sideNav" class="layer-2">
 
+        <div style="padding: 20px; ">
+            <br>
+            <label for="reload">Data:</label>
 
-        <button id="reload" onclick="reload()">Load Data</button>
-
-        <br>
-        <label for="tags">Search:</label>
-        <input id="tags" placeholder="search by tags" onchange="tags()" disabled/>
-
-        <br>
-        <label for="weight">Limit:
-            <small>at least <span id="weightValue">10</span>&nbsp;#Visits</small>
-        </label>
-        <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
+            <div class="row">
+                <comment id="reloadText">loaded 3 minutes ago</comment>
+                <span class="flex">&nbsp;</span>
+                <button id="reload" onclick="reload()"><i class="material-icons">refresh</i></button>
+            </div>
 
 
-        <hr>
-        <label for="selectedNodes">Selected pages:
-            &nbsp;
-            <button id="clearSelectedNodes" onclick="clearSelected()" disabled>clear</button>
-        </label>
+            <!--
+                    <br>
+                    <label for="tags">Search:</label>
+                    <input id="tags" placeholder="search by tags" onchange="tags()" disabled/>
+            -->
 
-        <ol id="selectedNodes">
-            <comment>no selection</comment>
+            <br>
+            <label for="weight">Flows:</label>
+            <comment>at least <span id="weightValue">10</span>&nbsp;#Visits</comment>
+            <input type="range" id="weight" min="1" value="10" max="2000" step="10" onchange="changeWeight(this)">
 
 
-        </ol>
-        <button id="continue" onclick="toggleDetailView()" disabled>continue..</button>
+            <br>
+            <label for="selectedNodes">Pages:</label>
 
+
+            <div class="row">
+                <comment id="selectedNodesText">no selection</comment>
+                <span class="flex">&nbsp;</span>
+                <button id="continue" class="green" onclick="toggleDetailView()" disabled><i class="material-icons">play_arrow</i>
+                </button>
+                &nbsp;
+                <button id="clearSelectedNodes" onclick="clearSelected()" class="red" disabled><i
+                        class="material-icons">clear</i></button>
+            </div>
+
+            <ol id="selectedNodes">
+            </ol>
+
+        </div>
     </aside>
     <article id="master" class="layer-1">
-        <div id="overlay" onclick="toggleDetailView()"></div>
+        <div id="overlay" onclick="toggleDetailView()">
+            <button class="white">
+                <i class="material-icons">keyboard_backspace</i>
+            </button>
+
+        </div>
+        <button id="settings" onclick="toggleSettings()"><i class="material-icons">settings</i></button>
+
         <svg></svg>
     </article>
     <article id="details">
@@ -246,15 +302,18 @@
     var colorA = d3.scale.ordinal().range(
             ["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);
 
-    var colorC = d3.scale.linear().range(['steelblue', '#a096c8', '#8c2878', '#900040', '#be0000']).domain([100, 65, 50, 30, 0]);
+    var colorC = d3.scale.ordinal().range([/*'white', 'whitesmoke', 'rgb(247,139,110)', 'rgb(241,85,60)', */'rgb(213,57,44)'])/*.domain([100, 65, 50, 30, 0])*/;
 
-    var colorB = d3.scale.linear().range(['darkseagreen', 'darkseagreen', 'lightsalmon', 'salmon', 'brown']).domain([100, 0, -1, -30, -100]);
+    var colorB = d3.scale.linear().range(['white', 'whitesmoke', 'rgb(247,139,110)', 'rgb(241,85,60)', 'rgb(213,57,44)']).domain([100, 0, -1, -30, -100]);
     /*["#20b2aa", "#22aeab", "#25abac", "#27a7ac", "#29a4ad", "#2ca0ae", "#2e9daf", "#3099b0", "#3396b1", "#3592b1", "#378eb2", "#3a8bb3", "#3c87b4", "#3e84b5", "#4080b5", "#437db6", "#4579b7", "#4775b8", "#4a72b9", "#4c6eba", "#4e6bba", "#5167bb", "#5364bc", "#5560bd", "#585dbe", "#5a59bf", "#5c55bf", "#5f52c0", "#614ec1", "#634bc2", "#6647c3", "#6844c3", "#6a40c4", "#6d3dc5", "#6f39c6", "#7135c7", "#7432c8", "#762ec8", "#782bc9", "#7a27ca", "#7d24cb", "#7f20cc", "#811ccc", "#8419cd", "#8615ce", "#8812cf", "#8b0ed0", "#8d0bd1", "#8f07d1", "#9204d2"]);*/
 
     var Slider = document.getElementById('weight');
-    var TagsInput = document.getElementById('tags');
+    //    var TagsInput = document.getElementById('tags');
     var lowerLimit = document.getElementById('weightValue');
     var NodesList = document.getElementById('selectedNodes');
+    var SelectedNodesText = document.getElementById('selectedNodesText');
+    var ReloadText = document.getElementById('reloadText');
+
     var clearSelectedNodes = document.getElementById('clearSelectedNodes');
     var Master = document.getElementById('master');
     var Detail = document.getElementById('details');
@@ -262,9 +321,18 @@
     var MasterOverlay = document.getElementById('overlay');
     var Continue = document.getElementById('continue');
 
-    SideNav.addEventListener("transitionend", function(){
+    SideNav.addEventListener("transitionend", function () {
         chart.update();
     }, false);
+
+    function toggleSettings() {
+        if (SideNav.style.width === '0px') {
+            SideNav.style.width = '250px';
+        }
+        else {
+            SideNav.style.width = '0px';
+        }
+    }
 
     function toggleDetailView() {
         if (+Detail.style.flexGrow === 0) {
@@ -285,22 +353,26 @@
         chart.update();
     }
 
-    function tags() {
-        tags = TagsInput.value.split(',').map(function (t) {
-            return t.trim();
-        });
-    }
+    /*
+     function tags() {
+     tags = TagsInput.value.split(',').map(function (t) {
+     return t.trim();
+     });
+     }
+     */
 
     function changeSelection(states) {
         Continue.disabled = states.length < 2;
         clearSelectedNodes.disabled = states.length === 0;
 
         NodesList.innerHTML = states.sort(function (d) {
-                    return +d.x;
-                }).map(function (d) {
-                    return '<li>' + d.name + '</li>'
-                }).join('') || 'No selection';
+            return +d.x;
+        }).map(function (d) {
+            return '<li>' + d.name + '</li>'
+        }).join('');
 
+        SelectedNodesText.innerHTML = states.length > 0 ?
+        +states.length + " pages selected" : "no selection"
 
         d3.select('svg').selectAll('.node').each(function (d) {
 
@@ -346,8 +418,8 @@
         var details = {key: 'funnel', metaKey: 'stream', values: []};
 
         details.values = nodes.map(function (n, i) {
-            return [i, n.value, n];
-        }) || [];
+                    return [i, n.value, n];
+                }) || [];
 
         return [details];
     }
@@ -407,6 +479,8 @@
         d3.json('energy.json', function (_) {
             data = _;
 
+            ReloadText.innerHTML = (new Date()).toLocaleTimeString();
+
             nv.addGraph(function () {
                 chart = nv.models.sankeyChart()
                         .duration(500)
@@ -419,9 +493,9 @@
                     MasterOverlay.style.display = 'none';
                 });
 
-                Slider.max = d3.max( data.links, function(l){
-                   return l.value;
-                }) || 100;
+                Slider.max = d3.max(data.links, function (l) {
+                            return l.value;
+                        }) || 100;
 
                 d3.select("#master svg")
                         .datum(data)

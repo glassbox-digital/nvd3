@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-16 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-17 */
 (function(){
 
 // set up main nv object
@@ -11513,7 +11513,7 @@ nv.models.sankey = function () {
                     .on('mouseout', function (d, i) {
                         d3.select(this).classed('hover', false).style('opacity', 1);
 
-                        dispatch.elementMousemove({
+                        dispatch.elementMouseout({
                             data: d,
                             i: i
                         });
@@ -11587,7 +11587,7 @@ nv.models.sankey = function () {
                         d3.select(this)
                             .select('line')
                             .style("stroke", function (d) {
-                                return color(0);
+                                return color(d.ratio);
                             })
                             .style("stroke-opacity", .6)
                             .style("stroke-width", 5)

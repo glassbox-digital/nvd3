@@ -213,7 +213,7 @@ nv.models.sankey = function () {
                     .on('mouseout', function (d, i) {
                         d3.select(this).classed('hover', false).style('opacity', 1);
 
-                        dispatch.elementMousemove({
+                        dispatch.elementMouseout({
                             data: d,
                             i: i
                         });
@@ -287,7 +287,7 @@ nv.models.sankey = function () {
                         d3.select(this)
                             .select('line')
                             .style("stroke", function (d) {
-                                return color(0);
+                                return color(d.ratio);
                             })
                             .style("stroke-opacity", .6)
                             .style("stroke-width", 5)
