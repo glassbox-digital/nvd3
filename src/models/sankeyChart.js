@@ -66,10 +66,6 @@ nv.models.sankeyChart = function () {
                 container.selectAll('.nv-noData').remove();
             }
 
-            selectedNodes = data.nodes.filter(function (n) {
-                return n.selected === true;
-            });
-
             // Setup containers and skeleton of chart
             var gChart = container.selectAll('g.nv-wrap.nv-sankeyChart').data([data]);
             var gChartEnter = gChart.enter().append('g').attr('class', 'nvd3 nv-wrap nv-sankeyChart');
@@ -118,82 +114,48 @@ nv.models.sankeyChart = function () {
         tooltip();
     });
 
-    var selectedNodes = [];
-
     sankey.dispatch.on('nodeClick.node', function (evt) {
 
         var d = evt.data;
 
-        var idx = selectedNodes.indexOf(d);
-
-        if (idx === -1) {
-            selectedNodes.push(d);
-            d.selected = true;
+        if (d.selected) {
+            delete d.selected;
         }
         else {
-            delete d.selected;
-            selectedNodes.splice(idx, 1);
+            d.selected = !d.selected;
         }
 
-        dispatch.changeState(selectedNodes);
+        dispatch.changeState(d);
     });
 
     sankey.dispatch.on('linkClick.link', function (evt) {
 
-        var d = evt.data;
+        var link = evt.data;
 
-        if (d.hasOwnProperty('source') && d.hasOwnProperty('target')) {
+        if (link.hasOwnProperty('source') && link.hasOwnProperty('target')) {
 
-            var idxS = selectedNodes.indexOf(d.sourceNode);
-            var idxT = selectedNodes.indexOf(d.targetNode);
+            var idxS = link.sourceNode.selected;
+            var idxT = link.targetNode.selected;
 
-            if (idxS === -1 || idxT === -1) {
-                if (idxS === -1) {
-                    selectedNodes.push(d.sourceNode);
-                    d.sourceNode.selected = true;
+            if (!idxS || !idxT) {
+                if (!idxS) {
+                    link.sourceNode.selected = true;
                 }
-                if (idxT === -1) {
-                    selectedNodes.push(d.targetNode);
-                    d.targetNode.selected = true;
+                if (!idxT) {
+                    link.targetNode.selected = true;
                 }
 
-                d.selected = true;
+                link.selected = true;
             }
             else {
-                delete d.selected;
-                selectedNodes.splice(Math.max(idxS, idxT), 1);
-                selectedNodes.splice(Math.min(idxS, idxT), 1);
+                delete link.selected;
+                delete link.sourceNode.selected;
+                delete link.targetNode.selected;
             }
         }
 
-        dispatch.changeState(selectedNodes);
+        dispatch.changeState([link.sourceNode, link.targetNode]);
     });
-
-    /*
-     sankey.dispatch.on('nodeDblClick.node', function (evt) {
-
-     var d = evt.data;
-
-     var idx = selectedNodes.indexOf(d);
-
-     if (idx === -1) {
-     selectedNodes = [d];
-     d.selected = true;
-     }
-     else {
-     if (selectedNodes.length === 1) {
-     delete d.selected;
-     selectedNodes = [];
-     }
-     else {
-     delete d.selected;
-     selectedNodes.splice(idx, 1);
-     }
-     }
-
-     dispatch.changeState(selectedNodes);
-     });
-     */
 
     //============================================================
     // Expose Public Variables

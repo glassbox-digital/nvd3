@@ -350,7 +350,10 @@
     }
 
     function clearSelected() {
-        changeSelection([]);
+        data.nodes.forEach(function(d){ delete d.selected;});
+        data.links.forEach(function(d){ delete d.selected;});
+
+        changeSelection();
         chart.update();
     }
 
@@ -362,7 +365,10 @@
      }
      */
 
-    function changeSelection(states) {
+    function changeSelection() {
+
+        var states = data.nodes.filter(function(d){ return d.selected; });
+
         Continue.disabled = states.length < 2;
         clearSelectedNodes.disabled = states.length === 0;
 
