@@ -5,16 +5,16 @@
       rect {
         fill-opacity: .6;
         shape-rendering: crispEdges;
-        fill: steelblue;
+        fill: rgb(129,177,188);
+        cursor: default;
       }
 
       &.selected rect{
         fill-opacity: 1;
-        fill: #276fab);
+        fill: rgb(67,116,126);
       }
 
       text {
-
         pointer-events: none;
         //text-shadow: 0 1px 0 #fff;
       }
@@ -33,15 +33,20 @@
 
     .link {
       fill: none;
-      stroke: #aaa;
-      stroke-opacity: .45;
+      stroke: rgb(129,177,188);
+      stroke-opacity: .4;
+      cursor: default;
+      stroke-dasharray: 2px;
 
       &.selected{
-        stroke-opacity: .95;
+        stroke-opacity: .9;
+        stroke-dasharray: none;
+        stroke: rgb(99,160,173);
       }
 
       &:hover {
         stroke-opacity: .7;
+        stroke-dasharray: none;
       }
     }
 

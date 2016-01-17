@@ -13,7 +13,7 @@ coverage
 test-results.xml
 *.orig
 *.iml
-**/*.map
-src/css/*.css
+src/css/
+build/*.map
 
 
