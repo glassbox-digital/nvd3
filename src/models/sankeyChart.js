@@ -108,6 +108,7 @@ nv.models.sankeyChart = function () {
         },
         ];
         tooltip.data(evt).hidden(false);
+
     });
 
     sankey.dispatch.on('elementMouseout.tooltip', function (evt) {
