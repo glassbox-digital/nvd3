@@ -400,15 +400,9 @@ svg.nvd3-svg {
   stroke: #decba0;
   stroke-opacity: .45;
   cursor: default;
-  /*
-      stroke-dasharray: 1px;
-      */
 }
 .nvd3 .nv-sankey .link.selected {
   stroke-opacity: .9;
-  /*
-        stroke-dasharray: none;
-        */
   stroke: #c7b084;
 }
 .nvd3 .nv-sankey .link:hover {
