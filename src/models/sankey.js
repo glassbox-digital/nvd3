@@ -25,7 +25,7 @@ nv.models.sankey = function () {
         ;
 
     var sankey = d3.sankey()
-        .nodeWidth(25)
+        .nodeWidth(65)
         .nodePadding(10);
 
 
@@ -191,12 +191,12 @@ nv.models.sankey = function () {
                     .attr("class", "node")
                     /*
                      .call(d3.behavior.drag()
-                     .origin(function (d) {
-                     return d;
-                     })
-                     .on("dragstart", function () {
-                     this.parentNode.appendChild(this);
-                     })
+                        .origin(function (d) {
+                            return d;
+                        })
+                        .on("dragstart", function () {
+                            this.parentNode.appendChild(this);
+                        })
                      .on("drag", dragmove))
                      */
                     .on('mouseover', function (d, i) {

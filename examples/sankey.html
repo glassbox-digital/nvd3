@@ -365,7 +365,61 @@
      }
      */
 
-    function changeSelection() {
+    function markRelatedPaths(node, direction) {
+
+        if (node) {
+            node.selected = true;
+
+            direction = (direction !== 'source')? 'target' : 'source';
+
+            if ( direction ==='target') {
+
+                if (node.sourceLinks && node.sourceLinks.length > 0) {
+                    node.sourceLinks.forEach(function (link) {
+                        if ( !link.selected ) {
+                            link.selected = true;
+                            !link.targetNode.selected && markRelatedPaths(link.targetNode, direction);
+                        }
+                    });
+                }
+            }
+            else {
+                if (node.targetLinks && node.targetLinks.length > 0) {
+                    node.targetLinks.forEach(function (link) {
+                        if ( !link.selected ) {
+                            link.selected = true;
+                            !link.sourceNode.selected && markRelatedPaths(link.sourceNode, direction);
+                        }
+                    });
+                }
+            }
+
+/*
+            if (node.targetLinks && node.targetLinks.length > 0) {
+                node.targetLinks.forEach(function (link) {
+                    link.selected = true;
+                    !link.sourceNode.selected && markRelatedPaths(link.sourceNode);
+                });
+            }
+*/
+        }
+    }
+
+    function changeSelection(evtData) {
+
+        var link = (!!evtData && !!evtData.source && !!evtData.target) ? evtData : null;
+
+        if ( link ){
+            // mark all the paths, from sources till sink
+        }
+        else {
+            var node = evtData;
+            //
+            if ( node && node.selected ) {
+                markRelatedPaths(node, 'target');
+                markRelatedPaths(node, 'source');
+            }
+        }
 
         var states = data.nodes.filter(function(d){ return d.selected; });
 

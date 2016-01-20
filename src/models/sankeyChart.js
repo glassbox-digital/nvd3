@@ -155,7 +155,7 @@ nv.models.sankeyChart = function () {
             }
         }
 
-        dispatch.changeState([link.sourceNode, link.targetNode]);
+        dispatch.changeState(link);
     });
 
     //============================================================
