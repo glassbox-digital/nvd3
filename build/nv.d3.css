@@ -373,14 +373,14 @@ svg.nvd3-svg {
 }
 
 .nvd3 .nv-sankey .node rect {
-  fill-opacity: .6;
+  /*        fill-opacity: .6;*/
   shape-rendering: crispEdges;
-  fill: #97c3ce;
+  fill: #cee0bd;
   cursor: default;
 }
 .nvd3 .nv-sankey .node.selected rect {
   fill-opacity: 1;
-  fill: #73a5ae;
+  fill: #75b435;
 }
 .nvd3 .nv-sankey .node text {
   pointer-events: none;
@@ -397,16 +397,16 @@ svg.nvd3-svg {
 }
 .nvd3 .nv-sankey .link {
   fill: none;
-  stroke: #decba0;
+  stroke: #668082;
   stroke-opacity: .45;
   cursor: default;
 }
 .nvd3 .nv-sankey .link.selected {
   stroke-opacity: .9;
-  stroke: #c7b084;
+  stroke: #668082;
 }
 .nvd3 .nv-sankey .link:hover {
-  stroke-opacity: .7;
+  stroke-opacity: .9;
   stroke-dasharray: none;
 }
 .nvd3 .nv-sankey .pane {

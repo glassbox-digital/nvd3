@@ -259,7 +259,7 @@ nv.models.sankey = function () {
 
                 if (labels) {
                     nodeEnter.append("text")
-                        .attr("x", -6)
+                        .attr("x", -6 + sankey.nodeWidth())
                         .attr("y", function (d) {
                             return d.dy / 2;
                         })
@@ -272,7 +272,7 @@ nv.models.sankey = function () {
                         .filter(function (d) {
                             return d.x < width / 2;
                         })
-                        .attr("x", 6 + sankey.nodeWidth())
+                        .attr("x", 6 )
                         .attr("text-anchor", "start");
                 }
 
@@ -285,7 +285,7 @@ nv.models.sankey = function () {
                     .each('end', function () {
 
                         d3.select(this)
-                            .select('line')
+                            .select('line.meter')
                             .style("stroke", function (d) {
                                 return color(d.ratio);
                             })
