@@ -124,10 +124,46 @@ nv.models.sankeyChart = function () {
         }
         else {
             d.selected = !d.selected;
+
+            if (!!evt.action){
+                selectDownstream( d, evt.action === 'up' ? 'up' : 'down');
+            }
         }
 
         dispatch.changeState(d, evt.action);
     });
+
+    function selectDownstream(node, direction) {
+
+        if (node) {
+            node.selected = true;
+
+            direction = (direction !== 'down')? 'up' : 'down';
+
+            if ( direction ==='up') {
+
+                if (node.sourceLinks && node.sourceLinks.length > 0) {
+                    node.sourceLinks.forEach(function (link) {
+                        if ( !link.selected ) {
+                            link.selected = true;
+                            !link.targetNode.selected && markRelatedPaths(link.targetNode, direction);
+                        }
+                    });
+                }
+            }
+            else {
+                if (node.targetLinks && node.targetLinks.length > 0) {
+                    node.targetLinks.forEach(function (link) {
+                        if ( !link.selected ) {
+                            link.selected = true;
+                            !link.sourceNode.selected && markRelatedPaths(link.sourceNode, direction);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
 
     sankey.dispatch.on('linkClick.link', function (evt) {
 
