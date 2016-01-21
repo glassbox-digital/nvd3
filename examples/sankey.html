@@ -407,6 +407,7 @@
 
     function changeSelection(evtData, action) {
 
+/*
         var link = (!!evtData && !!evtData.source && !!evtData.target) ? evtData : null;
 
         if ( link ){
@@ -421,6 +422,7 @@
             }
         }
 
+*/
         var states = data.nodes && data.nodes.filter(function(d){ return d.selected; });
 
         Continue.disabled = states.length < 2;
