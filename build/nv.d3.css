@@ -396,6 +396,19 @@ svg.nvd3-svg {
 .nvd3 .nv-sankey .node line.meter:hover {
   stroke-opacity: .9;
 }
+.nvd3 .nv-sankey .node.selected .flow-up,
+.nvd3 .nv-sankey .node.selected .flow-down {
+  fill: #cee0bd;
+}
+.nvd3 .nv-sankey .node .flow-up,
+.nvd3 .nv-sankey .node .flow-down {
+  fill: #75b435;
+  pointer-events: all;
+}
+.nvd3 .nv-sankey .node .flow-up:hover,
+.nvd3 .nv-sankey .node .flow-down:hover {
+  fill: #668082;
+}
 .nvd3 .nv-sankey .link {
   fill: none;
   stroke: #668082;

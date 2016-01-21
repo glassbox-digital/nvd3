@@ -11528,6 +11528,10 @@ nv.models.sankey = function () {
                      });
                      })
                      */
+                    ;
+
+                nodeEnter.append("rect")
+                    .attr("width", sankey.nodeWidth())
                     .on('click', function (d, i) {
                         //d3.select(this).classed('hover', false).style('opacity', 1);
                         dispatch.nodeClick({
@@ -11535,15 +11539,6 @@ nv.models.sankey = function () {
                             i: i
                         });
                     });
-
-                nodeEnter.append("rect")
-                    .attr("width", sankey.nodeWidth())
-                    /*
-                     .style("stroke", function (d) {
-                     return d3.rgb(d.color).darker(2);
-                     })
-                     */
-                    /*.append("title")*/;
 
                 nodeEnter.append('line')
                     .attr('class', 'meter')
@@ -11554,6 +11549,40 @@ nv.models.sankey = function () {
                     .append("title")
                     .text(function (d) {
                         return "leak ratio " + format(d.ratio) + "%";
+                    });
+
+                nodeEnter.append('path')
+                    .attr('class', 'flow-down')
+                    .attr('d', d3.svg.symbol().type('triangle-down'))
+                    .attr('transform', function(d){ return "translate(" + (sankey.nodeWidth()/2) + "," + (d.dy/2 + 8) + ")" })
+                    .on('click', function (d, i) {
+                        //d3.select(this).classed('hover', false).style('opacity', 1);
+                        dispatch.nodeClick({
+                            data: d,
+                            i: i,
+                            action: 'down'
+                        });
+                    })
+                    .append("title")
+                    .text(function (d) {
+                        return "mark downstream flows";
+                    });
+
+                nodeEnter.append('path')
+                    .attr('class', 'flow-up')
+                    .attr('d', d3.svg.symbol().type('triangle-up'))
+                    .attr('transform', function(d){ return "translate(" + (sankey.nodeWidth()/2) + "," + (d.dy /2 - 8) + ")" })
+                    .on('click', function (d, i) {
+                        //d3.select(this).classed('hover', false).style('opacity', 1);
+                        dispatch.nodeClick({
+                            data: d,
+                            i: i,
+                            action: 'up'
+                        });
+                    })
+                    .append("title")
+                    .text(function (d) {
+                        return "mark upstream flows";
                     });
 
                 if (labels) {
@@ -11918,7 +11947,7 @@ nv.models.sankeyChart = function () {
             d.selected = !d.selected;
         }
 
-        dispatch.changeState(d);
+        dispatch.changeState(d, evt.action);
     });
 
     sankey.dispatch.on('linkClick.link', function (evt) {

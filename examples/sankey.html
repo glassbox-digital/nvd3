@@ -370,9 +370,9 @@
         if (node) {
             node.selected = true;
 
-            direction = (direction !== 'source')? 'target' : 'source';
+            direction = (direction !== 'down')? 'up' : 'down';
 
-            if ( direction ==='target') {
+            if ( direction ==='up') {
 
                 if (node.sourceLinks && node.sourceLinks.length > 0) {
                     node.sourceLinks.forEach(function (link) {
@@ -405,7 +405,7 @@
         }
     }
 
-    function changeSelection(evtData) {
+    function changeSelection(evtData, action) {
 
         var link = (!!evtData && !!evtData.source && !!evtData.target) ? evtData : null;
 
@@ -415,9 +415,9 @@
         else {
             var node = evtData;
             //
-            if ( node && node.selected ) {
-                markRelatedPaths(node, 'target');
-                markRelatedPaths(node, 'source');
+            if ( node && node.selected && !!action) {
+                markRelatedPaths(node, action);
+//                markRelatedPaths(node, 'source');
             }
         }
 

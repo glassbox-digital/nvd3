@@ -126,7 +126,7 @@ nv.models.sankeyChart = function () {
             d.selected = !d.selected;
         }
 
-        dispatch.changeState(d);
+        dispatch.changeState(d, evt.action);
     });
 
     sankey.dispatch.on('linkClick.link', function (evt) {

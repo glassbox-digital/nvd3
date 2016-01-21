@@ -30,6 +30,23 @@
           stroke-opacity: .9;
         }
       }
+
+      &.selected {
+        .flow-up, .flow-down {
+
+          fill: #cee0bd;
+        }
+      }
+
+      .flow-up, .flow-down{
+        fill: #75b435;
+        pointer-events: all;
+
+        &:hover{
+          fill: #668082;
+        }
+
+      }
     }
 
     .link {
