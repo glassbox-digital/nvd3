@@ -146,7 +146,7 @@ nv.models.sankeyChart = function () {
                     node.sourceLinks.forEach(function (link) {
                         if ( !link.selected ) {
                             link.selected = true;
-                            !link.targetNode.selected && markRelatedPaths(link.targetNode, direction);
+                            !link.targetNode.selected && selectDownstream(link.targetNode, direction);
                         }
                     });
                 }
@@ -156,7 +156,7 @@ nv.models.sankeyChart = function () {
                     node.targetLinks.forEach(function (link) {
                         if ( !link.selected ) {
                             link.selected = true;
-                            !link.sourceNode.selected && markRelatedPaths(link.sourceNode, direction);
+                            !link.sourceNode.selected && selectDownstream(link.sourceNode, direction);
                         }
                     });
                 }
