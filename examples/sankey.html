@@ -350,8 +350,8 @@
     }
 
     function clearSelected() {
-        data.nodes.forEach(function(d){ delete d.selected;});
-        data.links.forEach(function(d){ delete d.selected;});
+        data.nodes && data.nodes.forEach(function(d){ delete d.selected;});
+        data.links && data.links.forEach(function(d){ delete d.selected;});
 
         changeSelection();
         chart.update();
@@ -421,7 +421,7 @@
             }
         }
 
-        var states = data.nodes.filter(function(d){ return d.selected; });
+        var states = data.nodes && data.nodes.filter(function(d){ return d.selected; });
 
         Continue.disabled = states.length < 2;
         clearSelectedNodes.disabled = states.length === 0;
@@ -468,7 +468,7 @@
     }
 
     function produceDetailData(data) {
-        var nodes = data.nodes
+        var nodes = data.nodes && data.nodes
                 .filter(function (n) {
                     return n.selected;
                 })
@@ -537,7 +537,7 @@
 
     function reload() {
 
-        d3.json('energy.json', function (_) {
+        d3.json('sankey-data.json', function (_) {
             data = _;
 
             ReloadText.innerHTML = (new Date()).toLocaleTimeString();

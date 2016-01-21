@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-20 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-21 */
 (function(){
 
 // set up main nv object
@@ -11547,15 +11547,14 @@ nv.models.sankey = function () {
 
                 nodeEnter.append('line')
                     .attr('class', 'meter')
-                    .attr('x1', sankey.nodeWidth())
-                    .attr('x2', sankey.nodeWidth())
+                    .attr('x1', sankey.nodeWidth() - 10)
+                    .attr('x2', sankey.nodeWidth() - 10)
                     .attr('y1', 0)
                     .attr('y2', 0)
-/*                    .append("title")
-
+                    .append("title")
                     .text(function (d) {
-                        return format(d.ratio) + "%";
-                    })*/;
+                        return "leak ratio " + format(d.ratio) + "%";
+                    });
 
                 if (labels) {
                     nodeEnter.append("text")
@@ -11590,7 +11589,7 @@ nv.models.sankey = function () {
                                 return color(d.ratio);
                             })
                             .style("stroke-opacity", .6)
-                            .style("stroke-width", 5)
+                            .style("stroke-width", 20)
                             .attr("y1", function (d) {
                                 return d.dy;
                             })
