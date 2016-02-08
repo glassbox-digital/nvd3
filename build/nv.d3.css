@@ -348,19 +348,16 @@ svg.nvd3-svg {
 .nvd3.nv-pie .nv-pieInfo {
   fill: #666;
 }
-.nvd3.nv-pie .nv-pieInfo .key {
-  transform: translateY(-10px);
-}
 .nvd3.nv-pie .nv-pieInfo .key > text {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: bold;
   text-anchor: middle;
 }
 .nvd3.nv-pie .nv-pieInfo .value {
-  transform: translateY(10px);
+  transform: translateY(18px);
 }
 .nvd3.nv-pie .nv-pieInfo .value > text {
-  font-size: 14px;
+  font-size: 12px;
   text-anchor: middle;
 }
 .nvd3.nv-pie .nv-pie-title {
