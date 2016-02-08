@@ -389,6 +389,13 @@ svg.nvd3-svg {
   fill-opacity: 0;
   stroke-opacity: 0;
 }
+.nvd3.nv-pie .nv-slice {
+  transform: scale(1);
+  transition: 0.3s ease-out;
+}
+.nvd3.nv-pie .nv-slice.selected {
+  transform: scale(1.1);
+}
 
 .nvd3 .nv-sankey .node rect {
   /*        fill-opacity: .6;*/

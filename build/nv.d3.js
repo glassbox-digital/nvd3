@@ -10825,6 +10825,7 @@ nv.models.parallelCoordinatesChart = function () {
                         .duration(50)
                         .attr("d", arcs[i]);
                 }
+
                 pieInfo.selectAll('text').text('');
 
                 dispatch.elementMouseout({data: d.data, index: i});

@@ -71,6 +71,27 @@
                 .width(width)
                 .height(height);
 
+        chart.pie.dispatch.on('elementClick.selection', function (evt) {
+            evt.data.selected = !evt.data.selected;
+            d3.select(evt.element).classed('selected', evt.data.selected);
+        });
+
+        chart.pie.dispatch.on('elementMouseout.selection', function (evt) {
+            var pieInfo = d3.select(chart.container).select('.nv-pieInfo'),
+                    selected = testdata2.filter(function (d) {
+                        return d.selected;
+                    });
+
+            if (selected.length > 0) {
+
+                pieInfo.select('.key text').text(selected.length > 1 ? (selected.length + " selected") : selected[0].key);
+                pieInfo.select('.value text').text(d3.sum(selected, function (d) {
+                    return d.y;
+                }));
+
+            }
+        });
+
         d3.select("#test1")
                 .datum(testdata2)
                 .transition().duration(1200)
