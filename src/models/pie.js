@@ -166,7 +166,7 @@ nv.models.pie = function() {
                 }
 
                 if ( donut ){
-                    pieInfo.select('.key text').text(d.data.key);
+                    pieInfo.select('.key text').text(getX(d.data));
                     pieInfo.select('.value text').text( valueFormat(d.value) );
                 }
 
