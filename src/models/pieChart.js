@@ -13,6 +13,7 @@ nv.models.pieChart = function() {
         , width = null
         , height = null
         , showLegend = true
+        , showTooltips = false
         , legendPosition = "top"
         , color = nv.utils.defaultColor()
         , state = nv.utils.state()
@@ -177,6 +178,8 @@ nv.models.pieChart = function() {
     //------------------------------------------------------------
 
     pie.dispatch.on('elementMouseover.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         evt['series'] = {
             key: chart.x()(evt.data),
             value: chart.y()(evt.data),
@@ -186,10 +189,14 @@ nv.models.pieChart = function() {
     });
 
     pie.dispatch.on('elementMouseout.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         tooltip.hidden(true);
     });
 
     pie.dispatch.on('elementMousemove.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         tooltip();
     });
 
@@ -222,6 +229,7 @@ nv.models.pieChart = function() {
             duration = _;
             renderWatch.reset(duration);
         }},
+        showTooltips:  {get: function(){return showTooltips;},     set: function(_){showTooltips=_;}},
         margin: {get: function(){return margin;}, set: function(_){
             margin.top    = _.top    !== undefined ? _.top    : margin.top;
             margin.right  = _.right  !== undefined ? _.right  : margin.right;

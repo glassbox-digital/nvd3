@@ -74,9 +74,14 @@ nv.models.pie = function() {
             var g_pie = gEnter.append('g').attr('class', 'nv-pie');
             gEnter.append('g').attr('class', 'nv-pieLabels');
 
+            var gInfoEnter = gEnter.append('g').attr('class', 'nv-pieInfo');
+            gInfoEnter.append('g').classed('key', true).append('text');
+            gInfoEnter.append('g').classed('value', true).append('text');
+
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             g.select('.nv-pie').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-pieLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
+            g.select('.nv-pieInfo').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
 
             //
             container.on('click', function(d,i) {
@@ -145,6 +150,7 @@ nv.models.pie = function() {
 
             var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pie);
             var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pie);
+            var pieInfo = wrap.select('.nv-pieInfo').datum([pie]);
 
             slices.exit().remove();
             pieLabels.exit().remove();
@@ -158,6 +164,12 @@ nv.models.pie = function() {
                         .duration(70)
                         .attr("d", arcsOver[i]);
                 }
+
+                if ( donut ){
+                    pieInfo.select('.key text').text(d.data.key);
+                    pieInfo.select('.value text').text( valueFormat(d.value) );
+                }
+
                 dispatch.elementMouseover({
                     data: d.data,
                     index: i,
@@ -171,6 +183,8 @@ nv.models.pie = function() {
                         .duration(50)
                         .attr("d", arcs[i]);
                 }
+                pieInfo.selectAll('text').text('');
+
                 dispatch.elementMouseout({data: d.data, index: i});
             });
             ae.on('mousemove', function(d, i) {

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-01-21 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-08 */
 (function(){
 
 // set up main nv object
@@ -10716,9 +10716,14 @@ nv.models.parallelCoordinatesChart = function () {
             var g_pie = gEnter.append('g').attr('class', 'nv-pie');
             gEnter.append('g').attr('class', 'nv-pieLabels');
 
+            var gInfoEnter = gEnter.append('g').attr('class', 'nv-pieInfo');
+            gInfoEnter.append('g').classed('key', true).append('text');
+            gInfoEnter.append('g').classed('value', true).append('text');
+
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             g.select('.nv-pie').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-pieLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
+            g.select('.nv-pieInfo').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
 
             //
             container.on('click', function(d,i) {
@@ -10787,6 +10792,7 @@ nv.models.parallelCoordinatesChart = function () {
 
             var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pie);
             var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pie);
+            var pieInfo = wrap.select('.nv-pieInfo').datum([pie]);
 
             slices.exit().remove();
             pieLabels.exit().remove();
@@ -10800,6 +10806,12 @@ nv.models.parallelCoordinatesChart = function () {
                         .duration(70)
                         .attr("d", arcsOver[i]);
                 }
+
+                if ( donut ){
+                    pieInfo.select('.key text').text(d.data.key);
+                    pieInfo.select('.value text').text( valueFormat(d.value) );
+                }
+
                 dispatch.elementMouseover({
                     data: d.data,
                     index: i,
@@ -10813,6 +10825,8 @@ nv.models.parallelCoordinatesChart = function () {
                         .duration(50)
                         .attr("d", arcs[i]);
                 }
+                pieInfo.selectAll('text').text('');
+
                 dispatch.elementMouseout({data: d.data, index: i});
             });
             ae.on('mousemove', function(d, i) {
@@ -11078,6 +11092,7 @@ nv.models.pieChart = function() {
         , width = null
         , height = null
         , showLegend = true
+        , showTooltips = false
         , legendPosition = "top"
         , color = nv.utils.defaultColor()
         , state = nv.utils.state()
@@ -11242,6 +11257,8 @@ nv.models.pieChart = function() {
     //------------------------------------------------------------
 
     pie.dispatch.on('elementMouseover.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         evt['series'] = {
             key: chart.x()(evt.data),
             value: chart.y()(evt.data),
@@ -11251,10 +11268,14 @@ nv.models.pieChart = function() {
     });
 
     pie.dispatch.on('elementMouseout.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         tooltip.hidden(true);
     });
 
     pie.dispatch.on('elementMousemove.tooltip', function(evt) {
+        if (!showTooltips)
+            return;
         tooltip();
     });
 
@@ -11287,6 +11308,7 @@ nv.models.pieChart = function() {
             duration = _;
             renderWatch.reset(duration);
         }},
+        showTooltips:  {get: function(){return showTooltips;},     set: function(_){showTooltips=_;}},
         margin: {get: function(){return margin;}, set: function(_){
             margin.top    = _.top    !== undefined ? _.top    : margin.top;
             margin.right  = _.right  !== undefined ? _.right  : margin.right;
