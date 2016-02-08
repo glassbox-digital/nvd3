@@ -10815,7 +10815,8 @@ nv.models.parallelCoordinatesChart = function () {
                 dispatch.elementMouseover({
                     data: d.data,
                     index: i,
-                    color: d3.select(this).style("fill")
+                    color: d3.select(this).style("fill"),
+                    element: this
                 });
             });
             ae.on('mouseout', function(d, i) {
@@ -10828,10 +10829,10 @@ nv.models.parallelCoordinatesChart = function () {
 
                 pieInfo.selectAll('text').text('');
 
-                dispatch.elementMouseout({data: d.data, index: i});
+                dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
             ae.on('mousemove', function(d, i) {
-                dispatch.elementMousemove({data: d.data, index: i});
+                dispatch.elementMousemove({data: d.data, index: i, element: this});
             });
             ae.on('click', function(d, i) {
                 var element = this;
