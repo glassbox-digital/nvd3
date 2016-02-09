@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-08 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-09 */
 (function(){
 
 // set up main nv object
@@ -8376,7 +8376,7 @@ nv.models.multiBarHorizontal = function() {
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
         , stacked = false
         , showValues = false
-        , showBarLabels = false
+        , showBarLabels = true
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
@@ -8729,11 +8729,11 @@ nv.models.multiBarHorizontalChart = function() {
         , width = null
         , height = null
         , color = nv.utils.defaultColor()
-        , showControls = true
+        , showControls = false
         , controlLabels = {}
         , showLegend = true
-        , showXAxis = true
-        , showYAxis = true
+        , showXAxis = false
+        , showYAxis = false
         , stacked = false
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()

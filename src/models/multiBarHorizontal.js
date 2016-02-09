@@ -22,7 +22,7 @@ nv.models.multiBarHorizontal = function() {
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
         , stacked = false
         , showValues = false
-        , showBarLabels = false
+        , showBarLabels = true
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')

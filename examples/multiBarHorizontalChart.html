@@ -6,6 +6,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
     <script src="../build/nv.d3.js"></script>
     <script src="lib/stream_layers.js"></script>
+    <script src="../src/models/multiBarHorizontal.js"></script>
+    <script src="../src/models/multiBarHorizontalChart.js"></script>
 
     <style>
         text {
@@ -166,7 +168,7 @@
             .barColor(d3.scale.category20().range())
             .duration(250)
             .margin({left: 100})
-            .stacked(true);
+            .stacked(false);
 
         chart.yAxis.tickFormat(d3.format(',.2f'));
 

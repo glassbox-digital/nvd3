@@ -18,11 +18,11 @@ nv.models.multiBarHorizontalChart = function() {
         , width = null
         , height = null
         , color = nv.utils.defaultColor()
-        , showControls = true
+        , showControls = false
         , controlLabels = {}
         , showLegend = true
-        , showXAxis = true
-        , showYAxis = true
+        , showXAxis = false
+        , showYAxis = false
         , stacked = false
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
