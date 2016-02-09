@@ -18,6 +18,7 @@ nv.models.multiBarHorizontal = function() {
         , getYerr = function(d) { return d.yErr }
         , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
         , color = nv.utils.defaultColor()
+        , barWidth = null
         , barColor = null // adding the ability to set the color for each rather than the whole group
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
         , stacked = false
@@ -145,7 +146,7 @@ nv.models.multiBarHorizontal = function() {
 
             barsEnter.append('rect')
                 .attr('width', 0)
-                .attr('height', x.rangeBand() / (stacked ? 1 : data.length) )
+                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
 
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
@@ -214,13 +215,15 @@ nv.models.multiBarHorizontal = function() {
                     });
             }
 
-            barsEnter.append('text');
 
-            if (showValues && !stacked) {
-                bars.select('text')
+
+            if (showValues /*&& !stacked*/) {
+                barsEnter.append('text').classed('nv-bar-value', true);
+                bars.select('text.nv-bar-value')
                     .attr('text-anchor', function(d,i) { return getY(d,i) < 0 ? 'end' : 'start' })
-                    .attr('y', x.rangeBand() / (data.length * 2))
+                    .attr('y', barWidth && barWidth/2 || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
+                    .style('fill', 'white')
                     .text(function(d,i) {
                         var t = valueFormat(getY(d,i))
                             , yerr = getYerr(d,i);
@@ -232,24 +235,43 @@ nv.models.multiBarHorizontal = function() {
                     });
                 bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
                     .select('text')
-                    .attr('x', function(d,i) { return getY(d,i) < 0 ? -4 : y(getY(d,i)) - y(0) + 4 })
+                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) -y(getY(d,i)) - 4 : + 4 })
             } else {
-                bars.selectAll('text').text('');
+                bars.selectAll('text.nv-bar-value').remove();
             }
 
-            if (showBarLabels && !stacked) {
-                barsEnter.append('text').classed('nv-bar-label',true);
+            if (showBarLabels /*&& !stacked*/) {
+
+                barsEnter.append('text').classed('nv-bar-label', true);
+
                 bars.select('text.nv-bar-label')
-                    .attr('text-anchor', function(d,i) { return getY(d,i) < 0 ? 'start' : 'end' })
-                    .attr('y', x.rangeBand() / (data.length * 2))
+                    .attr('text-anchor', function(d,i) { return (getY(d,i) < 0) ? 'start' : 'end' })
+                    .attr('y', barWidth && (stacked? 1.5 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
                     .text(function(d,i) { return getX(d,i) });
-                bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
-                    .select('text.nv-bar-label')
-                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) - y(getY(d,i)) + 4 : -4 });
+
+                {
+                    bars
+                        .watchTransition(renderWatch, 'multibarhorizontal: bars')
+                        .select('text.nv-bar-label')
+                        .attr('x', function (d, i) {
+                            if ( stacked ) {
+                                return Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0;
+                            }
+
+                            return getY(d, i) < 0 ? y(0) - y(getY(d, i)) + 4 : -4;
+                        });
+                }
+
+
+                if ( stacked ) {
+                    bars.filter(function (d) {
+                        return d.series > 0;
+                    }).select('text.nv-bar-label').remove();
+                }
             }
             else {
-                bars.selectAll('text.nv-bar-label').text('');
+                bars.selectAll('text.nv-bar-label').remove();
             }
 
             bars
@@ -271,7 +293,7 @@ nv.models.multiBarHorizontal = function() {
                     .attr('width', function(d,i) {
                         return Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0
                     })
-                    .attr('height', x.rangeBand() );
+                    .attr('height', barWidth || x.rangeBand() );
             else
                 bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
                     .attr('transform', function(d,i) {
@@ -285,7 +307,7 @@ nv.models.multiBarHorizontal = function() {
                             + ')'
                     })
                     .select('rect')
-                    .attr('height', x.rangeBand() / data.length )
+                    .attr('height', barWidth || x.rangeBand() / data.length )
                     .attr('width', function(d,i) {
                         return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0
                     });
@@ -325,7 +347,7 @@ nv.models.multiBarHorizontal = function() {
         stacked: {get: function(){return stacked;}, set: function(_){stacked=_;}},
         showValues: {get: function(){return showValues;}, set: function(_){showValues=_;}},
         // this shows the group name, seems pointless?
-        //showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
+        showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
@@ -348,7 +370,8 @@ nv.models.multiBarHorizontal = function() {
         }},
         barColor:  {get: function(){return barColor;}, set: function(_){
             barColor = _ ? nv.utils.getColor(_) : null;
-        }}
+        }},
+        barWidth: {get: function(){return barWidth;}, set: function(_){ barWidth = _; }}
     });
 
     nv.utils.initOptions(chart);
