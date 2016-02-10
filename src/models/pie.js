@@ -123,13 +123,13 @@ nv.models.pie = function() {
             }
 
             // Setup the Pie chart and choose the data element
-            var pie = d3.layout.pie()
+            var pieData = d3.layout.pie()
                 .sort(null)
                 .value(function(d) { return d.disabled ? 0 : getY(d) });
 
             // padAngle added in d3 3.5
-            if (pie.padAngle && padAngle) {
-                pie.padAngle(padAngle);
+            if (pieData.padAngle && padAngle) {
+                pieData.padAngle(padAngle);
             }
 
             // if title is specified and donut, put it in the middle
@@ -148,9 +148,9 @@ nv.models.pie = function() {
                     });
             }
 
-            var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pie);
-            var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pie);
-            var pieInfo = wrap.select('.nv-pieInfo').datum([pie]);
+            var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pieData);
+            var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pieData);
+            var pieInfo = wrap.select('.nv-pieInfo').datum(pieData);
 
             slices.exit().remove();
             pieLabels.exit().remove();
@@ -185,7 +185,7 @@ nv.models.pie = function() {
                         .attr("d", arcs[i]);
                 }
 
-                pieInfo.selectAll('text').text('');
+                donutInfo();
 
                 dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
@@ -194,6 +194,12 @@ nv.models.pie = function() {
             });
             ae.on('click', function(d, i) {
                 var element = this;
+
+                d.data.selected = !d.data.selected;
+                d3.select(this).classed('selected', d.data.selected);
+
+                donutInfo();
+
                 dispatch.elementClick({
                     data: d.data,
                     index: i,
@@ -201,6 +207,8 @@ nv.models.pie = function() {
                     event: d3.event,
                     element: element
                 });
+
+
             });
             ae.on('dblclick', function(d, i) {
                 dispatch.elementDblClick({
@@ -216,6 +224,23 @@ nv.models.pie = function() {
             var paths = ae.append('path').each(function(d) {
                 this._current = d;
             });
+
+            slices.classed('selected', function(d){ return d.selected; })
+
+            donutInfo();
+
+            function donutInfo(){
+                if ( donut) {
+                    var selected = pieInfo.datum().filter(function(d){ return d.data.selected;}),
+                        num = selected.length,
+                        sum = d3.sum( selected, function(d){ return d.value;});
+
+                    pieInfo.select('.key text').text( num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : 'click to select..' );
+                    pieInfo.select('.value text').text( num > 0 ? valueFormat(sum) : '' );
+                }
+            }
+
+
 
             slices.select('path')
                 .transition()
