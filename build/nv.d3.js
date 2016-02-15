@@ -6530,7 +6530,9 @@ nv.models.lineChart = function() {
                         allData.push({
                             key: series.key,
                             value: pointYValue,
-                            color: color(series,series.seriesIndex),
+                            color: (function(d,i) {
+                                return d.color || color(d, i);
+                            })(series,series.seriesIndex),
                             data: point
                         });
                     });
