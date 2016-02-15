@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-15 */
 (function(){
 
 // set up main nv object
@@ -659,8 +659,8 @@ nv.models.tooltip = function() {
     var calcGravityOffset = function(pos) {
         var height = tooltip.node().offsetHeight,
             width = tooltip.node().offsetWidth,
-            clientWidth = document.documentElement.clientWidth, // Don't want scrollbars.
-            clientHeight = document.documentElement.clientHeight, // Don't want scrollbars.
+            clientWidth = tooltip.node().parentNode.clientWidth, // Don't want scrollbars.
+            clientHeight = tooltip.node().parentNode.clientHeight, // Don't want scrollbars.
             left, top, tmp;
 
         // calculate position based on gravity
@@ -763,7 +763,7 @@ nv.models.tooltip = function() {
                 .attr("id", id);
             tooltip.style("top", 0).style("left", 0);
             tooltip.style('opacity', 0);
-            tooltip.style('position', 'fixed');
+            tooltip.style('position', 'absolute');
             tooltip.selectAll("div, table, td, tr").classed(nvPointerEventsClass, true);
             tooltip.classed(nvPointerEventsClass, true);
         }
