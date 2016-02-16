@@ -151,11 +151,6 @@ nv.models.multiBarHorizontal = function() {
             barsEnter.append('path')
                 .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
 
-
-            bars.classed('selected', function (d, i) {
-                return d.selected;
-            });
-
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
                     d3.select(this).classed('hover', true);
@@ -285,7 +280,9 @@ nv.models.multiBarHorizontal = function() {
             }
 
             bars
-                .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
+                .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'});
+
+            bars.classed('selected', function(d,i){ return d.selected; });
 
             if (barColor) {
                 if (!disabled) disabled = data.map(function() { return true });

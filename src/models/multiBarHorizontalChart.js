@@ -294,6 +294,7 @@ nv.models.multiBarHorizontalChart = function() {
     // Event Handling/Dispatching (out of chart's scope)
     //------------------------------------------------------------
 
+/*
     multibar.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt.value = chart.x()(evt.data);
         evt['series'] = {
@@ -307,6 +308,7 @@ nv.models.multiBarHorizontalChart = function() {
     multibar.dispatch.on('elementMouseout.tooltip', function(evt) {
         tooltip.hidden(true);
     });
+*/
 
     multibar.dispatch.on('elementClick.select', function(evt) {
         dispatch.selectChange(evt);
