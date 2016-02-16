@@ -45,3 +45,16 @@
   fill: rgba(0,0,0,1);
   stroke: rgba(0,0,0,0);
 }
+
+.nvd3 .nv-multibarHorizontal .nv-bar {
+  path {
+    opacity: 0;
+    fill: white;
+  }
+
+  &.selected {
+    path {
+      opacity: 1;
+    }
+  }
+}

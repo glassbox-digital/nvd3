@@ -148,6 +148,14 @@ nv.models.multiBarHorizontal = function() {
                 .attr('width', 0)
                 .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
 
+            barsEnter.append('path')
+                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+
+
+            bars.classed('selected', function (d, i) {
+                return d.selected;
+            });
+
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
                     d3.select(this).classed('hover', true);
@@ -180,6 +188,8 @@ nv.models.multiBarHorizontal = function() {
                     });
                 })
                 .on('click', function(d,i) {
+                    d.selected = !d.selected;
+                    d3.select(this).classed('selected', d.selected);
                     dispatch.elementClick({
                         data: d,
                         index: i,
@@ -284,33 +294,53 @@ nv.models.multiBarHorizontal = function() {
                     .style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); });
             }
 
-            if (stacked)
-                bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
-                    .attr('transform', function(d,i) {
-                        return 'translate(' + y(d.y1) + ',' + x(getX(d,i)) + ')'
+            if (stacked) {
+                var watch = bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
+                    .attr('transform', function (d, i) {
+                        return 'translate(' + y(d.y1) + ',' + x(getX(d, i)) + ')'
+                    });
+
+                watch.select('rect')
+                    .attr('width', function (d, i) {
+                        return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
                     })
-                    .select('rect')
-                    .attr('width', function(d,i) {
-                        return Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0
-                    })
-                    .attr('height', barWidth || x.rangeBand() );
-            else
-                bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
-                    .attr('transform', function(d,i) {
+                    .attr('height', barWidth || x.rangeBand());
+
+                watch.select('path')
+                    .attr('transform', function (d, i) {
+                        var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
+                            height = barWidth || x.rangeBand();
+                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
+                    });
+            }
+            else {
+                var watch = bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
+                    .attr('transform', function (d, i) {
                         //TODO: stacked must be all positive or all negative, not both?
                         return 'translate(' +
-                            (getY(d,i) < 0 ? y(getY(d,i)) : y(0))
+                            (getY(d, i) < 0 ? y(getY(d, i)) : y(0))
                             + ',' +
                             (d.series * x.rangeBand() / data.length
-                                +
-                                x(getX(d,i)) )
+                            +
+                            x(getX(d, i)) )
                             + ')'
-                    })
-                    .select('rect')
-                    .attr('height', barWidth || x.rangeBand() / data.length )
-                    .attr('width', function(d,i) {
-                        return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0
                     });
+
+                watch
+                    .select('rect')
+                    .attr('height', barWidth || x.rangeBand() / data.length)
+                    .attr('width', function (d, i) {
+                        return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
+                    });
+
+                watch.select('path')
+                    .attr('transform', function (d, i) {
+                        var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
+                            height = barWidth || x.rangeBand() / data.length;
+                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
+                    });
+
+            }
 
             //store old scales for use in transitions on update
             x0 = x.copy();

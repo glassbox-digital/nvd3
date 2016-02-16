@@ -29,7 +29,7 @@ nv.models.multiBarHorizontalChart = function() {
         , state = nv.utils.state()
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
         , controlWidth = function() { return showControls ? 180 : 0 }
         , duration = 250
         ;
@@ -308,8 +308,8 @@ nv.models.multiBarHorizontalChart = function() {
         tooltip.hidden(true);
     });
 
-    multibar.dispatch.on('elementMousemove.tooltip', function(evt) {
-        tooltip();
+    multibar.dispatch.on('elementClick.select', function(evt) {
+        dispatch.selectChange(evt);
     });
 
     //============================================================
