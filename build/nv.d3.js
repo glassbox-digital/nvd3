@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-15 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-16 */
 (function(){
 
 // set up main nv object
@@ -10892,7 +10892,7 @@ nv.models.parallelCoordinatesChart = function () {
                 this._current = d;
             });
 
-            slices.classed('selected', function(d){ return d.selected; })
+            slices.classed('selected', function(d){ return d.data.selected; })
 
             donutInfo();
 
@@ -11151,7 +11151,7 @@ nv.models.pieChart = function() {
         , defaultState = null
         , noData = null
         , duration = 250
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
         ;
 
     tooltip
@@ -11329,6 +11329,10 @@ nv.models.pieChart = function() {
         if (!showTooltips)
             return;
         tooltip();
+    });
+
+    pie.dispatch.on('elementClick.select', function(evt){
+        dispatch.selectChange(evt);
     });
 
     //============================================================

@@ -20,7 +20,7 @@ nv.models.pieChart = function() {
         , defaultState = null
         , noData = null
         , duration = 250
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
         ;
 
     tooltip
@@ -198,6 +198,10 @@ nv.models.pieChart = function() {
         if (!showTooltips)
             return;
         tooltip();
+    });
+
+    pie.dispatch.on('elementClick.select', function(evt){
+        dispatch.selectChange(evt);
     });
 
     //============================================================

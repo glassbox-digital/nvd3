@@ -225,7 +225,7 @@ nv.models.pie = function() {
                 this._current = d;
             });
 
-            slices.classed('selected', function(d){ return d.selected; })
+            slices.classed('selected', function(d){ return d.data.selected; })
 
             donutInfo();
 
