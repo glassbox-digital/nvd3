@@ -59,11 +59,22 @@
     }
 
     .nv-slice{
-        transform: scale(1);
-        transition: .3s ease-out;
+        .nv-check{
+            opacity: 0;
+            fill: white;
+            stroke: white;
+            stroke-width: 1px;
+            stroke-opacity: 0.2;
+        }
     }
 
     .nv-slice.selected{
+        path {
+            fill-opacity: 1;
+        }
+        .nv-check {
+            opacity: 1;
+        }
         transform: scale(1.1);
     }
 }

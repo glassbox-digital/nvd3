@@ -40,10 +40,25 @@
 }
 
 .nvd3 .nv-discretebar .nv-groups text,
-.nvd3 .nv-multibarHorizontal .nv-groups text {
-  font-weight: bold;
-  fill: rgba(0,0,0,1);
-  stroke: rgba(0,0,0,0);
+
+.nvd3 .nv-multibarHorizontal .nv-groups {
+  .nv-bar-label {
+    font-weight: bold;
+    fill: rgba(0, 0, 0, 1);
+    stroke: rgba(0, 0, 0, 0);
+  }
+
+  .nv-bar-value {
+    fill: #444;
+    stroke: #444;
+    stroke-opacity: .3;
+    font-weight: normal !important;
+    font-size: 12px;
+  }
+
+  .nv-group:not(.nv-series-0){
+    pointer-events: none;
+  }
 }
 
 .nvd3 .nv-multibarHorizontal .nv-bar {
@@ -53,8 +68,9 @@
   }
 
   &.selected {
-    path {
+    path, rect {
       opacity: 1;
+      fill-opacity: 1;
     }
   }
 }

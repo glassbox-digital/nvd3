@@ -228,7 +228,6 @@ nv.models.multiBarHorizontal = function() {
                     .attr('text-anchor', function(d,i) { return getY(d,i) < 0 ? 'end' : 'start' })
                     .attr('y', barWidth && barWidth/2 || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
-                    .style('fill', 'white')
                     .text(function(d,i) {
                         var t = valueFormat(getY(d,i))
                             , yerr = getYerr(d,i);
@@ -250,8 +249,8 @@ nv.models.multiBarHorizontal = function() {
                 barsEnter.append('text').classed('nv-bar-label', true);
 
                 bars.select('text.nv-bar-label')
-                    .attr('text-anchor', function(d,i) { return (getY(d,i) < 0) ? 'start' : 'end' })
-                    .attr('y', barWidth && (stacked? 1.5 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
+                    .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
+                    .attr('y', barWidth && (stacked? 1.33 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
                     .text(function(d,i) { return getX(d,i) });
 
@@ -261,7 +260,7 @@ nv.models.multiBarHorizontal = function() {
                         .select('text.nv-bar-label')
                         .attr('x', function (d, i) {
                             if ( stacked ) {
-                                return Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0;
+                                return getY(d, i) < 0 ? Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0 : 0;
                             }
 
                             return getY(d, i) < 0 ? y(0) - y(getY(d, i)) + 4 : -4;
@@ -307,7 +306,7 @@ nv.models.multiBarHorizontal = function() {
                     .attr('transform', function (d, i) {
                         var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
                             height = barWidth || x.rangeBand();
-                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
+                        return 'translate(' + (width - 27) + ',' + (height - 24)/2 + ' )';
                     });
             }
             else {

@@ -177,6 +177,7 @@ nv.models.pie = function() {
                     element: this
                 });
             });
+
             ae.on('mouseout', function(d, i) {
                 d3.select(this).classed('hover', false);
                 if (growOnHover) {
@@ -221,9 +222,12 @@ nv.models.pie = function() {
             slices.attr('fill', function(d,i) { return color(d.data, i); });
             slices.attr('stroke', function(d,i) { return color(d.data, i); });
 
-            var paths = ae.append('path').each(function(d) {
+            var paths = ae.append('path').attr('class', 'nv-slice-path').each(function(d) {
                 this._current = d;
             });
+
+            ae.append('path').attr('class', 'nv-check')
+                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
 
             slices.classed('selected', function(d){ return d.data.selected; })
 
@@ -242,10 +246,17 @@ nv.models.pie = function() {
 
 
 
-            slices.select('path')
+            slices.select('path.nv-slice-path')
                 .transition()
                 .attr('d', function (d, i) { return arcs[i](d); })
                 .attrTween('d', arcTween);
+
+            slices.select('path.nv-check')
+                .attr('transform', function (d, i) {
+                    var center = arcs[i].centroid(d).map(function(v){ return v - 10;});
+                    return 'translate(' + center + ')';
+                });
+
 
             if (showLabels) {
                 // This does the normal label

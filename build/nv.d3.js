@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-16 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-17 */
 (function(){
 
 // set up main nv object
@@ -8584,7 +8584,6 @@ nv.models.multiBarHorizontal = function() {
                     .attr('text-anchor', function(d,i) { return getY(d,i) < 0 ? 'end' : 'start' })
                     .attr('y', barWidth && barWidth/2 || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
-                    .style('fill', 'white')
                     .text(function(d,i) {
                         var t = valueFormat(getY(d,i))
                             , yerr = getYerr(d,i);
@@ -8606,8 +8605,8 @@ nv.models.multiBarHorizontal = function() {
                 barsEnter.append('text').classed('nv-bar-label', true);
 
                 bars.select('text.nv-bar-label')
-                    .attr('text-anchor', function(d,i) { return (getY(d,i) < 0) ? 'start' : 'end' })
-                    .attr('y', barWidth && (stacked? 1.5 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
+                    .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
+                    .attr('y', barWidth && (stacked? 1.33 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
                     .text(function(d,i) { return getX(d,i) });
 
@@ -8617,7 +8616,7 @@ nv.models.multiBarHorizontal = function() {
                         .select('text.nv-bar-label')
                         .attr('x', function (d, i) {
                             if ( stacked ) {
-                                return Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0;
+                                return getY(d, i) < 0 ? Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0 : 0;
                             }
 
                             return getY(d, i) < 0 ? y(0) - y(getY(d, i)) + 4 : -4;
@@ -8663,7 +8662,7 @@ nv.models.multiBarHorizontal = function() {
                     .attr('transform', function (d, i) {
                         var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
                             height = barWidth || x.rangeBand();
-                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
+                        return 'translate(' + (width - 27) + ',' + (height - 24)/2 + ' )';
                     });
             }
             else {
@@ -10873,6 +10872,7 @@ nv.models.parallelCoordinatesChart = function () {
                     element: this
                 });
             });
+
             ae.on('mouseout', function(d, i) {
                 d3.select(this).classed('hover', false);
                 if (growOnHover) {
@@ -10917,9 +10917,12 @@ nv.models.parallelCoordinatesChart = function () {
             slices.attr('fill', function(d,i) { return color(d.data, i); });
             slices.attr('stroke', function(d,i) { return color(d.data, i); });
 
-            var paths = ae.append('path').each(function(d) {
+            var paths = ae.append('path').attr('class', 'nv-slice-path').each(function(d) {
                 this._current = d;
             });
+
+            ae.append('path').attr('class', 'nv-check')
+                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
 
             slices.classed('selected', function(d){ return d.data.selected; })
 
@@ -10938,10 +10941,17 @@ nv.models.parallelCoordinatesChart = function () {
 
 
 
-            slices.select('path')
+            slices.select('path.nv-slice-path')
                 .transition()
                 .attr('d', function (d, i) { return arcs[i](d); })
                 .attrTween('d', arcTween);
+
+            slices.select('path.nv-check')
+                .attr('transform', function (d, i) {
+                    var center = arcs[i].centroid(d).map(function(v){ return v - 10;});
+                    return 'translate(' + center + ')';
+                });
+
 
             if (showLabels) {
                 // This does the normal label
