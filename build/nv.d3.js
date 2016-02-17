@@ -558,8 +558,8 @@ nv.models.tooltip = function() {
      */
     var position = function() {
         return {
-            left: d3.event !== null ? d3.event.clientX : 0,
-            top: d3.event !== null ? d3.event.clientY : 0
+            left: d3.event !== null ? d3.event.offsetX : 0,
+            top: d3.event !== null ? d3.event.offsetY : 0
         };
     };
 
