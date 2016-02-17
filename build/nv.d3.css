@@ -414,9 +414,6 @@ svg.nvd3-svg {
   stroke-width: 1px;
   stroke-opacity: 0.2;
 }
-.nvd3.nv-pie .nv-slice.selected {
-  transform: scale(1.1);
-}
 .nvd3.nv-pie .nv-slice.selected path {
   fill-opacity: 1;
 }
