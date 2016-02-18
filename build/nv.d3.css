@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-17 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-18 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -368,6 +368,7 @@ svg.nvd3-svg {
 }
 .nvd3.nv-pie .nv-pieInfo {
   fill: #666;
+  pointer-events: none;
 }
 .nvd3.nv-pie .nv-pieInfo .key > text {
   font-size: 14px;
