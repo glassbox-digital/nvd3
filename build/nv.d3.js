@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-18 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-20 */
 (function(){
 
 // set up main nv object
@@ -14186,7 +14186,9 @@ nv.models.stackedAreaChart = function() {
                         allData.push({
                             key: series.key,
                             value: tooltipValue,
-                            color: color(series,series.seriesIndex),
+                            color: (function(d,i) {
+                                return d.color || color(d, i);
+                            })(series,series.seriesIndex),
                             stackedValue: point.display
                         });
 

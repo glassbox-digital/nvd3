@@ -366,7 +366,9 @@ nv.models.stackedAreaChart = function() {
                         allData.push({
                             key: series.key,
                             value: tooltipValue,
-                            color: color(series,series.seriesIndex),
+                            color: (function(d,i) {
+                                return d.color || color(d, i);
+                            })(series,series.seriesIndex),
                             stackedValue: point.display
                         });
 
