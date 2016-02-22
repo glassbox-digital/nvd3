@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-20 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-22 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -428,10 +428,6 @@ svg.nvd3-svg {
   fill: #cee0bd;
   cursor: default;
 }
-.nvd3 .nv-sankey .node.selected rect {
-  fill-opacity: 1;
-  fill: #75b435;
-}
 .nvd3 .nv-sankey .node text {
   pointer-events: none;
 }
@@ -446,18 +442,21 @@ svg.nvd3-svg {
 .nvd3 .nv-sankey .node line.meter:hover {
   stroke-opacity: .9;
 }
-.nvd3 .nv-sankey .node.selected .flow-up,
-.nvd3 .nv-sankey .node.selected .flow-down {
-  fill: #cee0bd;
-}
 .nvd3 .nv-sankey .node .flow-up,
-.nvd3 .nv-sankey .node .flow-down {
-  fill: #75b435;
-  pointer-events: all;
+.nvd3 .nv-sankey .node .flow-down,
+.nvd3 .nv-sankey .node .check {
+  fill-opacity: 0;
+  pointer-events: none;
+  fill: white;
 }
-.nvd3 .nv-sankey .node .flow-up:hover,
-.nvd3 .nv-sankey .node .flow-down:hover {
-  fill: #668082;
+.nvd3 .nv-sankey .node.selected rect {
+  fill-opacity: 1;
+  fill: #75b435;
+}
+.nvd3 .nv-sankey .node.selected .flow-up,
+.nvd3 .nv-sankey .node.selected .flow-down,
+.nvd3 .nv-sankey .node.selected .check {
+  fill-opacity: 1;
 }
 .nvd3 .nv-sankey .link {
   fill: none;

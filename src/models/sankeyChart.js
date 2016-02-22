@@ -119,20 +119,22 @@ nv.models.sankeyChart = function () {
 
         var d = evt.data;
 
-        if (d.selected) {
-            delete d.selected;
-        }
-        else {
-            d.selected = !d.selected;
+        d.selected = !d.selected;
 
+        d3.select(sankey.container).selectAll('.node').each(function(d,i){
+            d3.select(this).classed('selected', d.selected );
+        });
+
+/*
             if (!!evt.action){
                 selectDownstream( d, evt.action === 'up' ? 'up' : 'down');
             }
-        }
+*/
 
-        dispatch.changeState(d, evt.action);
+        dispatch.changeState(d/*, evt.action*/);
     });
 
+/*
     function selectDownstream(node, direction) {
 
         if (node) {
@@ -163,6 +165,7 @@ nv.models.sankeyChart = function () {
             }
         }
     }
+*/
 
 
     sankey.dispatch.on('linkClick.link', function (evt) {

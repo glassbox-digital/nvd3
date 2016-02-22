@@ -9,6 +9,8 @@
     <!--<script src="../bower_components/d3-cloud/build/d3.layout.cloud.min.js" charset="utf-8"></script>-->
     <script src="../bower_components/d3-more-plugins/build/d3-plugins.min.js" charset="utf-8"></script>
     <script src="../build/nv.d3.js"></script>
+    <script src="../src/models/sankey.js"></script>
+    <script src="../src/models/sankeyChart.js"></script>
     <!--<script src="lib/stream_layers.js"></script>-->
 
     <style>
@@ -409,6 +411,16 @@
 */
     function changeSelection(evtData, action) {
 
+
+        if ( evtData ) {
+            if (!!evtData.sourceNode || !!evtData.targetNode) {
+                console.log('link clicked');
+            }
+            else {
+                console.log('node clicked');
+            }
+        }
+
 /*
         var link = (!!evtData && !!evtData.source && !!evtData.target) ? evtData : null;
 
@@ -425,7 +437,9 @@
         }
 
 */
-        var states = data.nodes && data.nodes.filter(function(d){ return d.selected; });
+        var states = data.nodes && data.nodes.filter(function (d) {
+                    return d.selected;
+                });
 
         Continue.disabled = states.length < 2;
         clearSelectedNodes.disabled = states.length === 0;
@@ -440,9 +454,11 @@
         +states.length + " pages selected" : "no selection"
 
         d3.select('svg').selectAll('.node').each(function (d) {
+/*
 
             d.selected = states.indexOf(d) !== -1;
 
+*/
             d3.select(this).classed('selected', d.selected);
         })
 
@@ -494,7 +510,7 @@
 
         nv.addGraph(function () {
             var chart = nv.models.stackedAreaChart()
-                    .margin({left: 100})
+                    .margin({left: 10, right:10, top: 0, bottom:0})
                     .controlOptions(['Stacked', 'Stream'])
                     .style('stream')
                     .color(d3.scale.ordinal().range(['rgb(99,160,173)']))
@@ -548,7 +564,8 @@
 
             nv.addGraph(function () {
                 chart = nv.models.sankeyChart()
-                        .duration(500)
+                        .margin({left: 10, right:0, top: 0, bottom:0})
+                        .duration(200)
                         .labels(true)
                         .color(colorC/*d3.scale.category20b()*/)
                         .font('cursive');

@@ -9,11 +9,6 @@
         cursor: default;
       }
 
-      &.selected rect{
-        fill-opacity: 1;
-        fill: #75b435;
-      }
-
       text {
         pointer-events: none;
         //text-shadow: 0 1px 0 #fff;
@@ -31,22 +26,24 @@
         }
       }
 
+      .flow-up, .flow-down, .check{
+        fill-opacity: 0;
+        pointer-events: none;
+        fill: white;
+
+      }
+
       &.selected {
-        .flow-up, .flow-down {
+        rect {
+          fill-opacity: 1;
+          fill: #75b435;
+        }
 
-          fill: #cee0bd;
+        .flow-up, .flow-down, .check {
+          fill-opacity: 1;
         }
       }
 
-      .flow-up, .flow-down{
-        fill: #75b435;
-        pointer-events: all;
-
-        &:hover{
-          fill: #668082;
-        }
-
-      }
     }
 
     .link {
