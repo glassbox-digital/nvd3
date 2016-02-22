@@ -17,7 +17,7 @@ nv.models.sankeyChart = function () {
         , defaultState = null
         , noData = null
         , duration = 250
-        , dispatch = d3.dispatch('stateChange', 'changeState', 'renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState', 'renderEnd', 'selectChange')
         ;
 
     tooltip.duration(0);
@@ -131,7 +131,7 @@ nv.models.sankeyChart = function () {
             }
 */
 
-        dispatch.changeState(d/*, evt.action*/);
+        dispatch.selectChange(d/*, evt.action*/);
     });
 
 /*
@@ -194,7 +194,7 @@ nv.models.sankeyChart = function () {
             }
         }
 
-        dispatch.changeState(link);
+        dispatch.selectChange(link);
     });
 
     //============================================================
