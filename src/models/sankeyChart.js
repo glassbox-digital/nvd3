@@ -125,47 +125,17 @@ nv.models.sankeyChart = function () {
             d3.select(this).classed('selected', d.selected );
         });
 
-/*
-            if (!!evt.action){
-                selectDownstream( d, evt.action === 'up' ? 'up' : 'down');
-            }
-*/
+        d3.select(sankey.container).selectAll('.link').each(function(l){
+            l.selected = l.sourceNode.selected && l.targetNode.selected;
+            d3.select(this).classed('selected', l.selected );
+        });
 
-        dispatch.selectChange(d/*, evt.action*/);
+        dispatch.selectChange([d]);
     });
 
-/*
-    function selectDownstream(node, direction) {
-
-        if (node) {
-            node.selected = true;
-
-            direction = (direction !== 'down')? 'up' : 'down';
-
-            if ( direction ==='up') {
-
-                if (node.sourceLinks && node.sourceLinks.length > 0) {
-                    node.sourceLinks.forEach(function (link) {
-                        if ( !link.selected ) {
-                            link.selected = true;
-                            !link.targetNode.selected && selectDownstream(link.targetNode, direction);
-                        }
-                    });
-                }
-            }
-            else {
-                if (node.targetLinks && node.targetLinks.length > 0) {
-                    node.targetLinks.forEach(function (link) {
-                        if ( !link.selected ) {
-                            link.selected = true;
-                            !link.sourceNode.selected && selectDownstream(link.sourceNode, direction);
-                        }
-                    });
-                }
-            }
-        }
+    function hasSelected( links ){
+        return links && links.filter( function(l){ return l.selected; }).length > 0;
     }
-*/
 
 
     sankey.dispatch.on('linkClick.link', function (evt) {
@@ -174,27 +144,39 @@ nv.models.sankeyChart = function () {
 
         if (link.hasOwnProperty('source') && link.hasOwnProperty('target')) {
 
-            var idxS = link.sourceNode.selected;
-            var idxT = link.targetNode.selected;
+            link.selected = !link.selected;
 
-            if (!idxS || !idxT) {
-                if (!idxS) {
-                    link.sourceNode.selected = true;
-                }
-                if (!idxT) {
-                    link.targetNode.selected = true;
-                }
+            if ( link.selected ) {
 
-                link.selected = true;
+                var idxS = link.sourceNode.selected;
+                var idxT = link.targetNode.selected;
+
+                if (!idxS || !idxT) {
+                    if (!idxS) {
+                        link.sourceNode.selected = true;
+                    }
+                    if (!idxT) {
+                        link.targetNode.selected = true;
+                    }
+                }
             }
             else {
                 delete link.selected;
-                delete link.sourceNode.selected;
-                delete link.targetNode.selected;
+                link.sourceNode.selected = hasSelected(link.sourceNode.targetLinks) || hasSelected(link.sourceNode.sourceLinks);
+                link.targetNode.selected = hasSelected(link.targetNode.targetLinks) || hasSelected(link.targetNode.sourceLinks);
             }
+
+            d3.select(sankey.container).selectAll('.link').each(function(d,i){
+                d3.select(this).classed('selected', d.selected );
+            });
+
+            d3.select(sankey.container).selectAll('.node').each(function(d,i){
+                d3.select(this).classed('selected', d.selected );
+            });
+
         }
 
-        dispatch.selectChange(link);
+        dispatch.selectChange([link.sourceNode, link.targetNode]);
     });
 
     //============================================================
