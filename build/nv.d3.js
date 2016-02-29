@@ -12012,7 +12012,7 @@ nv.models.sankeyChart = function () {
     tooltip
         .headerEnabled(true)
         .headerFormatter(function(d){
-            return d.name || '';
+            return d.name;
         })
         .valueFormatter(function (d, i) {
             return d;
