@@ -29,7 +29,10 @@ nv.models.sankeyChart = function () {
 
     var renderWatch = nv.utils.renderWatch(dispatch);
     tooltip
-        .headerEnabled(false)
+        .headerEnabled(true)
+        .headerFormatter(function(d){
+            return d.name || '';
+        })
         .valueFormatter(function (d, i) {
             return d;
         });
@@ -58,6 +61,9 @@ nv.models.sankeyChart = function () {
                 }
             };
             chart.container = this;
+
+            tooltip
+                .chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
             if (!data || !data.nodes || !data.nodes.length) {
@@ -95,11 +101,14 @@ nv.models.sankeyChart = function () {
     sankey.dispatch.on('elementMouseover.tooltip', function (evt) {
         //console.log(evt);
 
-        evt['series'] = [{
-            key: evt.data.name,
-            value: d3.format(",.0f")(evt.data.value || 0),
-            color: evt.data.color
-        }].concat( tipContent(evt.data) || [] );
+        evt['series'] = [
+        /*    {
+                key: evt.data.name,
+                value: d3.format(",.0f")(evt.data.value || 0),
+                color: evt.data.color
+            }
+        */
+        ].concat( tipContent(evt.data) || [] );
 
         tooltip.data(evt).hidden(false);
     });
