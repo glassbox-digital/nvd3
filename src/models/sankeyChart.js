@@ -18,6 +18,7 @@ nv.models.sankeyChart = function () {
         , noData = null
         , duration = 250
         , dispatch = d3.dispatch('stateChange', 'changeState', 'renderEnd', 'selectChange')
+        , tipContent = function(){}
         ;
 
     tooltip.duration(0);
@@ -93,18 +94,14 @@ nv.models.sankeyChart = function () {
 
     sankey.dispatch.on('elementMouseover.tooltip', function (evt) {
         //console.log(evt);
+
         evt['series'] = [{
             key: evt.data.name,
             value: d3.format(",.0f")(evt.data.value || 0),
             color: evt.data.color
-        }, {
-            key: 'Ratio',
-            value: d3.format(",.0f")(evt.data.ratio || 0),
-            color: color(evt.data.ratio)
-        },
-        ];
-        tooltip.data(evt).hidden(false);
+        }].concat( tipContent(evt.data) || [] );
 
+        tooltip.data(evt).hidden(false);
     });
 
     sankey.dispatch.on('elementMouseout.tooltip', function (evt) {
@@ -222,6 +219,13 @@ nv.models.sankeyChart = function () {
             }, set: function (_) {
                 font = _;
                 sankey.font(font);
+            }
+        },
+        tipContent: {
+            get: function () {
+                return tipContent;
+            }, set: function (_) {
+                tipContent = d3.functor(_);
             }
         },
         duration: {
