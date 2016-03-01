@@ -18,6 +18,9 @@ nv.models.sankey = function () {
         , x = d3.scale.linear()
         , y = d3.scale.linear()
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'nodeClick', 'linkClick', 'nodeDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
+        , formatName = function (d) {
+            return d.name;
+        }
         , format = function (d) {
             return d3.format(",.0f")(d);
         }
@@ -165,7 +168,7 @@ nv.models.sankey = function () {
 
                 linkEnter.append("title")
                     .text(function (d) {
-                        return d.sourceNode.name + "=" + d.targetNode.name + ":" + format(d.value);
+                        return formatName(d.sourceNode) + "=" + formatName(d.targetNode) + ":" + format(d.value);
                     });
 
                 link
@@ -332,7 +335,7 @@ nv.models.sankey = function () {
                         .attr("text-anchor", "end")
                         .attr("transform", null)
                         .text(function (d) {
-                            return d.name;
+                            return formatName(d);
                         })
                         .filter(function (d) {
                             return d.x < width / 2;
@@ -540,6 +543,13 @@ nv.models.sankey = function () {
                 return format;
             }, set: function (_) {
                 format = d3.functor(_);
+            }
+        },
+        formatName: {
+            get: function () {
+                return formatName;
+            }, set: function (_) {
+                formatName = d3.functor(_);
             }
         },
         labels: {

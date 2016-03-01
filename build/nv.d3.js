@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-02-29 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-01 */
 (function(){
 
 // set up main nv object
@@ -11435,6 +11435,9 @@ nv.models.sankey = function () {
         , x = d3.scale.linear()
         , y = d3.scale.linear()
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'nodeClick', 'linkClick', 'nodeDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
+        , formatName = function (d) {
+            return d.name;
+        }
         , format = function (d) {
             return d3.format(",.0f")(d);
         }
@@ -11582,7 +11585,7 @@ nv.models.sankey = function () {
 
                 linkEnter.append("title")
                     .text(function (d) {
-                        return d.sourceNode.name + "=" + d.targetNode.name + ":" + format(d.value);
+                        return formatName(d.sourceNode) + "=" + formatName(d.targetNode) + ":" + format(d.value);
                     });
 
                 link
@@ -11749,7 +11752,7 @@ nv.models.sankey = function () {
                         .attr("text-anchor", "end")
                         .attr("transform", null)
                         .text(function (d) {
-                            return d.name;
+                            return formatName(d);
                         })
                         .filter(function (d) {
                             return d.x < width / 2;
@@ -11957,6 +11960,13 @@ nv.models.sankey = function () {
                 return format;
             }, set: function (_) {
                 format = d3.functor(_);
+            }
+        },
+        formatName: {
+            get: function () {
+                return formatName;
+            }, set: function (_) {
+                formatName = d3.functor(_);
             }
         },
         labels: {
@@ -14780,406 +14790,6 @@ nv.models.sunburstChart = function() {
         }}
     });
     nv.utils.inheritOptions(chart, sunburst);
-    nv.utils.initOptions(chart);
-    return chart;
-};
-// based on http://bl.ocks.org/kerryrodden/477c1bfb081b783f80ad
-nv.models.treemap = function() {
-    "use strict";
-
-    //============================================================
-    // Public Variables with Default Settings
-    //------------------------------------------------------------
-
-    var margin = {top: 0, right: 0, bottom: 0, left: 0}
-        , width = null
-        , height = null
-        , mode = "count"
-        , modes = {count: function(d) { return 1; }, size: function(d) { return d.size }}
-        , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
-        , container = null
-        , color = nv.utils.defaultColor()
-        , groupColorByParent = true
-        , duration = 500
-        , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
-        , value = function(d) { return 1; }
-        , sticky = true
-        ;
-
-    var x = d3.scale.linear().range([0, 2 * Math.PI]);
-    var y = d3.scale.sqrt();
-
-    var partition = d3.layout.treemap();
-
-/*
-    // Keep track of the current and previous node being displayed as the root.
-    var node, prevNode;
-    // Keep track of the root node
-*/
-
-    //============================================================
-    // chart function
-    //------------------------------------------------------------
-
-    var renderWatch = nv.utils.renderWatch(dispatch);
-
-    function position() {
-        this.attr("x", function(d) { return d.x; })
-            .attr("y", function(d) { return d.y; })
-            .attr("width", function(d) { return Math.max(0, d.dx - 1); })
-            .attr("height", function(d) { return Math.max(0, d.dy - 1); });
-    }
-
-    function chart(selection) {
-        renderWatch.reset();
-        selection.each(function(data) {
-            container = d3.select(this);
-            var availableWidth = nv.utils.availableWidth(width, container, margin);
-            var availableHeight = nv.utils.availableHeight(height, container, margin);
-
-            nv.utils.initSVG(container);
-
-            // Setup containers and skeleton of chart
-            var wrap = container.selectAll('.nv-wrap.nv-treemap').data(data);
-            var wrapEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-treemap nv-chart-' + id);
-
-            var g = wrapEnter.selectAll('nv-treemap');
-
-            chart.update = function() { 
-                if ( duration === 0 ) {
-                    container.call(chart);
-                } else {
-                    container.transition().duration(duration).call(chart);
-                }
-            };
-            chart.container = this;
-
-
-            wrap.attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
-
-            container.on('click', function (d, i) {
-                dispatch.chartClick({
-                    data: d,
-                    index: i,
-                    pos: d3.event,
-                    id: id
-                });
-            });
-
-
-
-/*
-            y.range([0, radius]);
-*/
-
-            partition
-                .size([availableWidth, availableHeight])
-                .sticky(sticky)
-                .value(value);
-
-            var node = g.datum(data).selectAll(".node")
-                .data(partition.nodes);
-
-            node.enter().append("rect")
-                .attr("class", "node")
-                .call(position)
-                .attr("fill", function(d) { return d.children ? color(d.name) : null; })
-                .text(function(d) { return d.children ? null : x(d.name); });
-
-            node.exit()
-                .remove();
-
-
-/*
-            rootNode = data[0];
-            partition.value(modes[mode] || modes["count"]);
-            path = g.data(partition.nodes).enter()
-                .append("path")
-                .attr("d", arc)
-                .style("fill", function (d) {
-                    if (d.color) {
-                        return d.color;
-                    }
-                    else if (groupColorByParent) {
-                        return color((d.children ? d : d.parent).name);
-                    }
-                    else {
-                        return color(d.name);
-                    }
-                })
-                .style("stroke", "#FFF")
-                .on("click", function(d) {
-                    if (prevNode !== node && node !== d) prevNode = node;
-                    node = d;
-                    path.transition()
-                        .duration(duration)
-                        .attrTween("d", arcTweenZoom(d));
-                })
-                .each(stash)
-                .on("dblclick", function(d) {
-                    if (prevNode.parent == d) {
-                        path.transition()
-                            .duration(duration)
-                            .attrTween("d", arcTweenZoom(rootNode));
-                    }
-                })
-                .each(stash)
-                .on('mouseover', function(d,i){
-                    d3.select(this).classed('hover', true).style('opacity', 0.8);
-                    dispatch.elementMouseover({
-                        data: d,
-                        color: d3.select(this).style("fill")
-                    });
-                })
-                .on('mouseout', function(d,i){
-                    d3.select(this).classed('hover', false).style('opacity', 1);
-                    dispatch.elementMouseout({
-                        data: d
-                    });
-                })
-                .on('mousemove', function(d,i){
-                    dispatch.elementMousemove({
-                        data: d
-                    });
-                });
-
-
-
-*/
-/*
-            // Setup for switching data: stash the old values for transition.
-            function stash(d) {
-                d.x0 = d.x;
-                d.dx0 = d.dx;
-            }
-*/
-
-/*
-            // When switching data: interpolate the arcs in data space.
-            function arcTweenData(a, i) {
-                var oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
-
-                function tween(t) {
-                    var b = oi(t);
-                    a.x0 = b.x;
-                    a.dx0 = b.dx;
-                    return arc(b);
-                }
-
-                if (i == 0) {
-                    // If we are on the first arc, adjust the x domain to match the root node
-                    // at the current zoom level. (We only need to do this once.)
-                    var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
-                    return function (t) {
-                        x.domain(xd(t));
-                        return tween(t);
-                    };
-                } else {
-                    return tween;
-                }
-            }
-
-            // When zooming: interpolate the scales.
-            function arcTweenZoom(d) {
-                var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-                    yd = d3.interpolate(y.domain(), [d.y, 1]),
-                    yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-                return function (d, i) {
-                    return i
-                        ? function (t) {
-                        return arc(d);
-                    }
-                        : function (t) {
-                        x.domain(xd(t));
-                        y.domain(yd(t)).range(yr(t));
-                        return arc(d);
-                    };
-                };
-            }
-*/
-
-        });
-
-        renderWatch.renderEnd('treemap immediate');
-        return chart;
-    }
-
-    //============================================================
-    // Expose Public Variables
-    //------------------------------------------------------------
-
-    chart.dispatch = dispatch;
-    chart.options = nv.utils.optionsFunc.bind(chart);
-
-    chart._options = Object.create({}, {
-        // simple options, just get/set the necessary values
-        width:      {get: function(){return width;}, set: function(_){width=_;}},
-        height:     {get: function(){return height;}, set: function(_){height=_;}},
-        mode:       {get: function(){return mode;}, set: function(_){mode=_;}},
-        id:         {get: function(){return id;}, set: function(_){id=_;}},
-        duration:   {get: function(){return duration;}, set: function(_){duration=_;}},
-        groupColorByParent: {get: function(){return groupColorByParent;}, set: function(_){groupColorByParent=!!_;}},
-
-        // options that require extra logic in the setter
-        margin: {get: function(){return margin;}, set: function(_){
-            margin.top    = _.top    != undefined ? _.top    : margin.top;
-            margin.right  = _.right  != undefined ? _.right  : margin.right;
-            margin.bottom = _.bottom != undefined ? _.bottom : margin.bottom;
-            margin.left   = _.left   != undefined ? _.left   : margin.left;
-        }},
-        color: {get: function(){return color;}, set: function(_){
-            color=nv.utils.getColor(_);
-        }},
-        value: {get: function(){return value;}, set: function(_){ value = d3.functor(_);} },
-        sticky: {get: function(){return sticky;}, set: function(_){ sticky = !!(_);} },
-        x: {get: function(){ return x;}, set: function(_){ x = d3.functor(_);}}
-    });
-
-    nv.utils.initOptions(chart);
-    return chart;
-};
-nv.models.treemapChart = function() {
-    "use strict";
-
-    //============================================================
-    // Public Variables with Default Settings
-    //------------------------------------------------------------
-
-    var treemap = nv.models.treemap();
-    var tooltip = nv.models.tooltip();
-
-    var margin = {top: 30, right: 20, bottom: 20, left: 20}
-        , width = null
-        , height = null
-        , color = nv.utils.defaultColor()
-        , id = Math.round(Math.random() * 100000)
-        , defaultState = null
-        , noData = null
-        , duration = 250
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
-        ;
-
-    tooltip.duration(0);
-
-    //============================================================
-    // Private Variables
-    //------------------------------------------------------------
-
-    var renderWatch = nv.utils.renderWatch(dispatch);
-    tooltip
-        .headerEnabled(false)
-        .valueFormatter(function(d, i) {
-            return d;
-        });
-
-    //============================================================
-    // Chart function
-    //------------------------------------------------------------
-
-    function chart(selection) {
-        renderWatch.reset();
-        renderWatch.models(treemap);
-
-        selection.each(function(data) {
-            var container = d3.select(this);
-            nv.utils.initSVG(container);
-
-            var that = this;
-            var availableWidth = nv.utils.availableWidth(width, container, margin),
-                availableHeight = nv.utils.availableHeight(height, container, margin);
-
-            chart.update = function() {
-                if (duration === 0) {
-                    container.call(chart);
-                } else {
-                    container.transition().duration(duration).call(chart);
-                }
-            };
-            chart.container = this;
-
-            // Display No Data message if there's nothing to show.
-            if (!data /*|| !data.length*/) {
-                nv.utils.noData(chart, container);
-                return chart;
-            } else {
-                container.selectAll('.nv-noData').remove();
-            }
-
-            // Setup containers and skeleton of chart
-            var wrap = container.selectAll('g.nv-wrap.nv-treemapChart').data(data);
-            var gEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-treemapChart').append('g');
-            var g = wrap.select('g');
-
-            gEnter.append('g').attr('class', 'nv-treemapWrap');
-
-            wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-            // Main Chart Component(s)
-            treemap.width(availableWidth).height(availableHeight);
-            var sunWrap = g.select('.nv-treemapWrap').datum(data);
-            d3.transition(sunWrap).call(treemap);
-
-        });
-
-        renderWatch.renderEnd('treemapChart immediate');
-        return chart;
-    }
-
-    //============================================================
-    // Event Handling/Dispatching (out of chart's scope)
-    //------------------------------------------------------------
-
-    treemap.dispatch.on('elementMouseover.tooltip', function(evt) {
-        evt['series'] = {
-            key: evt.data.name,
-            value: evt.data.size,
-            color: evt.color
-        };
-        tooltip.data(evt).hidden(false);
-    });
-
-    treemap.dispatch.on('elementMouseout.tooltip', function(evt) {
-        tooltip.hidden(true);
-    });
-
-    treemap.dispatch.on('elementMousemove.tooltip', function(evt) {
-        tooltip();
-    });
-
-    //============================================================
-    // Expose Public Variables
-    //------------------------------------------------------------
-
-    // expose chart's sub-components
-    chart.dispatch = dispatch;
-    chart.treemap = treemap;
-    chart.tooltip = tooltip;
-    chart.options = nv.utils.optionsFunc.bind(chart);
-
-    // use Object get/set functionality to map between vars and chart functions
-    chart._options = Object.create({}, {
-        // simple options, just get/set the necessary values
-        noData:         {get: function(){return noData;},         set: function(_){noData=_;}},
-        defaultState:   {get: function(){return defaultState;},   set: function(_){defaultState=_;}},
-
-        // options that require extra logic in the setter
-        color: {get: function(){return color;}, set: function(_){
-            color = _;
-            treemap.color(color);
-        }},
-        duration: {get: function(){return duration;}, set: function(_){
-            duration = _;
-            renderWatch.reset(duration);
-            treemap.duration(duration);
-        }},
-        margin: {get: function(){return margin;}, set: function(_){
-            margin.top    = _.top    !== undefined ? _.top    : margin.top;
-            margin.right  = _.right  !== undefined ? _.right  : margin.right;
-            margin.bottom = _.bottom !== undefined ? _.bottom : margin.bottom;
-            margin.left   = _.left   !== undefined ? _.left   : margin.left;
-        }}
-    });
-    nv.utils.inheritOptions(chart, treemap);
     nv.utils.initOptions(chart);
     return chart;
 };
