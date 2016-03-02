@@ -15,6 +15,7 @@ nv.models.sankey = function () {
         , font = 'serif'
     //, groupColorByParent = true
         , duration = 500
+        , meterWidth = 7
         , x = d3.scale.linear()
         , y = d3.scale.linear()
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'nodeClick', 'linkClick', 'nodeDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
@@ -22,7 +23,7 @@ nv.models.sankey = function () {
             return d.name;
         }
         , format = function (d) {
-            return d3.format(",.0f")(d);
+            return d3.format(",.1f")(d);
         }
         , labels = false
         , meters = false
@@ -260,13 +261,13 @@ nv.models.sankey = function () {
                 if ( meters ) {
                     nodeEnter.append('line')
                         .attr('class', 'meter')
-                        .attr('x1', sankey.nodeWidth() - 10)
-                        .attr('x2', sankey.nodeWidth() - 10)
+                        .attr('x1', sankey.nodeWidth() - meterWidth/2)
+                        .attr('x2', sankey.nodeWidth() - meterWidth/2)
                         .attr('y1', 0)
                         .attr('y2', 0)
                         .append("title")
                         .text(function (d) {
-                            return "leak ratio " + format(d.ratio) + "%";
+                            return "leak ratio " + format(100 - d.ratio) + "%";
                         });
                 }
 
@@ -357,7 +358,7 @@ nv.models.sankey = function () {
                                 return color(d.ratio);
                             })
                             .style("stroke-opacity", .6)
-                            .style("stroke-width", 20)
+                            .style("stroke-width", meterWidth)
                             .attr("y1", function (d) {
                                 return d.dy;
                             })
@@ -366,7 +367,7 @@ nv.models.sankey = function () {
                             })
                             .transition()
                             .attr("y2", function (d) {
-                                return d.ratio * d.dy / 100;
+                                return Math.round(d.ratio * d.dy / 100);
                             });
 
 /*
