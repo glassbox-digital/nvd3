@@ -11682,10 +11682,10 @@ nv.models.sankey = function () {
                         .attr('x2', sankey.nodeWidth() - meterWidth/2)
                         .attr('y1', 0)
                         .attr('y2', 0)
-                        .append("title")
+/*                        .append("title")
                         .text(function (d) {
                             return "leak ratio " + format(100 - d.ratio) + "%";
-                        });
+                        })*/;
                 }
 
                 nodeEnter.append('path')
@@ -11774,7 +11774,6 @@ nv.models.sankey = function () {
                             .style("stroke", function (d) {
                                 return color(d.ratio);
                             })
-                            .style("stroke-opacity", .6)
                             .style("stroke-width", meterWidth)
                             .attr("y1", function (d) {
                                 return d.dy;
