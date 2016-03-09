@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-02 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-09 */
 (function(){
 
 // set up main nv object
@@ -10924,7 +10924,7 @@ nv.models.parallelCoordinatesChart = function () {
             ae.append('path').attr('class', 'nv-check')
                 .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
 
-            slices.classed('selected', function(d){ return d.data.selected; })
+            slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
 
             donutInfo();
 
