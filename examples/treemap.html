@@ -32,9 +32,7 @@
     nv.addGraph(function () {
 
 
-        chart = nv.models.treemapChart()
-                .getY(function(d){ return d.size; })
-                .getX(function(d){ return d.name; });
+        chart = nv.models.treemapChart();
 
 //        chart.color(d3.scale.category20c());
 
@@ -54,7 +52,7 @@
             ["3", "Leumi Ad", 3360, 11.11],
             ["4", "Leumi Mobile", 1124, 70.23]
         ].map(function(d){
-            return { id: d[0], name: d[1], size: d[2], color: heat(d)}
+            return { id: d[0], name: d[1], value: d[2], color: heat(d)}
         });
     }
 

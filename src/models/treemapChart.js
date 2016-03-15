@@ -92,7 +92,7 @@ nv.models.treemapChart = function() {
     treemap.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
             key: evt.data.name,
-            value: evt.data.size,
+            value: evt.data.value,
             color: evt.color
         };
         tooltip.data(evt).hidden(false);

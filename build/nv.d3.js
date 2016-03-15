@@ -14809,8 +14809,6 @@ nv.models.treemap = function() {
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
         , container = null
         , color = nv.utils.defaultColor()
-        , getX = function(d){ return d.name; }
-        , getY = function(d){ return d.value; }
         , groupColorByParent = false
         , duration = 500
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
@@ -14861,7 +14859,7 @@ nv.models.treemap = function() {
 
 
 
-            partition.value(getY)
+            partition.value(function(d){ return d.value; })
                 .size([availableWidth, availableHeight])
                 .nodes({children: data});
 
@@ -14894,7 +14892,7 @@ nv.models.treemap = function() {
                 });
 
             nodesEnter
-                .append("text").text(function(d){ return getX(d);})
+                .append("text").text(function(d){ return d.name;})
                 .attr("dy", "1em");
 
             nodes
@@ -14950,12 +14948,6 @@ nv.models.treemap = function() {
             margin.right  = _.right  != undefined ? _.right  : margin.right;
             margin.bottom = _.bottom != undefined ? _.bottom : margin.bottom;
             margin.left   = _.left   != undefined ? _.left   : margin.left;
-        }},
-        getX: {get: function(){return getX;}, set: function(_){
-            getX=d3.functor(_);
-        }},
-        getY: {get: function(){return getY;}, set: function(_){
-            getY=d3.functor(_);
         }},
         color: {get: function(){return color;}, set: function(_){
             color=nv.utils.getColor(_);
@@ -15059,7 +15051,7 @@ nv.models.treemapChart = function() {
     treemap.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
             key: evt.data.name,
-            value: evt.data.size,
+            value: evt.data.value,
             color: evt.color
         };
         tooltip.data(evt).hidden(false);
