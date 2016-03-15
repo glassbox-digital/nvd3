@@ -209,7 +209,6 @@ nv.models.pie = function() {
                     element: element
                 });
 
-
             });
             ae.on('dblclick', function(d, i) {
                 dispatch.elementDblClick({

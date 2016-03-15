@@ -73,15 +73,12 @@ nv.models.treemap = function() {
 
             var nodesEnter = nodes.enter()
                 .append("g")
-                .attr("class", "node");
-
-            nodesEnter
-                .append("rect")
+                .attr("class", "node")
                 .on('mouseover', function(d,i){
                     d3.select(this).classed('hover', true).style('opacity', 0.8);
                     dispatch.elementMouseover({
                         data: d,
-                        color: d3.select(this).style("fill")
+                        color: d3.select(this).select('rect').style("fill")
                     });
                 })
                 .on('mouseout', function(d,i){
@@ -94,16 +91,35 @@ nv.models.treemap = function() {
                     dispatch.elementMousemove({
                         data: d
                     });
+                })
+                .on('click', function(d, i) {
+                    var element = this;
+
+                    d.selected = !d.selected;
+                    d3.select(this).classed('selected', d.selected);
+
+                    dispatch.elementClick({
+                        data: d,
+                        index: i,
+                        color: d3.select(this).select('rect').style("fill"),
+                        event: d3.event,
+                        element: element
+                    });
                 });
+
+            nodesEnter
+                .append("rect");
 
             nodesEnter
                 .append("text").text(function(d){ return d.name;})
                 .attr("dy", "1em");
 
-            nodes
-                .transition()
-                .duration(duration)
-                .attr("transform", function(d){ return "translate(" + d.x + ", " + d.y  + ")"; });
+            nodesEnter.append('path').attr('class', 'nv-check')
+                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+
+
+
+            nodes.attr("transform", function(d){ return "translate(" + d.x + ", " + d.y  + ")"; });
 
             nodes.selectAll('rect')
                 .transition()
@@ -123,6 +139,13 @@ nv.models.treemap = function() {
                 })
                 .style("stroke", "#FFF");
 
+            nodes.select('path.nv-check')
+                .attr('transform', function (d, i) {
+                    var center = [d.dx /2 - 10, d.dy /2 -10];
+                    return 'translate(' + center[0] + ', ' + center[1] + ')';
+                });
+
+            nodes.classed('selected', function(d){ return d.value > 0 && d.selected; });
 
             nodes.exit().remove();
         });

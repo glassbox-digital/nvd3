@@ -16,7 +16,7 @@ nv.models.treemapChart = function() {
         , defaultState = null
         , noData = null
         , duration = 250
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
         ;
 
     tooltip.duration(0);
@@ -56,6 +56,9 @@ nv.models.treemapChart = function() {
                 }
             };
             chart.container = this;
+            tooltip
+                .chartContainer(chart.container.parentNode);
+
 
             // Display No Data message if there's nothing to show.
             if (!data || !data.length) {
@@ -105,6 +108,12 @@ nv.models.treemapChart = function() {
     treemap.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
     });
+
+    treemap.dispatch.on('elementClick.select', function(evt){
+        dispatch.selectChange(evt);
+    });
+
+
 
     //============================================================
     // Expose Public Variables
