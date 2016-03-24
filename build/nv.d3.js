@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-15 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-24 */
 (function(){
 
 // set up main nv object
@@ -10947,7 +10947,7 @@ nv.models.parallelCoordinatesChart = function () {
 
             slices.select('path.nv-check')
                 .attr('transform', function (d, i) {
-                    var center = arcs[i].centroid(d).map(function(v){ return v - 10;});
+                    var center = arcs[i].centroid(d).map(function(v){ return isNaN(v)? 0 : v - 10;});
                     return 'translate(' + center + ')';
                 });
 

@@ -252,7 +252,7 @@ nv.models.pie = function() {
 
             slices.select('path.nv-check')
                 .attr('transform', function (d, i) {
-                    var center = arcs[i].centroid(d).map(function(v){ return v - 10;});
+                    var center = arcs[i].centroid(d).map(function(v){ return isNaN(v)? 0 : v - 10;});
                     return 'translate(' + center + ')';
                 });
 
