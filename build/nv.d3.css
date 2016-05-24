@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-03-29 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-05-24 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -74,6 +74,11 @@
   font-weight: bold;
   fill: #000000;
   stroke: rgba(0, 0, 0, 0);
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-href:hover text,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-href:hover text {
+  fill: rgba(0, 0, 0, 0.8);
+  text-decoration: underline;
 }
 .nvd3 .nv-discretebar .nv-groups text .nv-bar-value,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-value {
@@ -670,6 +675,10 @@ Interactive Layer
 
 .nvd3.nv-treemap .node rect {
   opacity: .8;
+}
+.nvd3.nv-treemap .node .nv-href:hover text {
+  fill: #888;
+  text-decoration: underline;
 }
 .nvd3.nv-treemap .node text {
   font-weight: bold;

@@ -18,6 +18,7 @@ nv.models.multiBarHorizontal = function() {
         , getYerr = function(d) { return d.yErr }
         , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
         , color = nv.utils.defaultColor()
+        , href = null
         , barWidth = null
         , barColor = null // adding the ability to set the color for each rather than the whole group
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
@@ -246,7 +247,30 @@ nv.models.multiBarHorizontal = function() {
 
             if (showBarLabels /*&& !stacked*/) {
 
-                barsEnter.append('text').classed('nv-bar-label', true);
+                if (href && typeof href === 'function') {
+                    var a = barsEnter
+                        .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                            return href(d);
+                        });
+
+                    a.append('text').classed('nv-bar-label', true);
+
+                    a.on('mouseover', function (d, i) {
+                        d3.event.stopPropagation();
+                        d3.event.preventDefault();
+
+                        //d3.select(this).classed('hover', true).style('opacity', 0.8);
+                        dispatch.elementMouseout({
+                            data: d
+                        });
+
+                    });
+
+                    /*a.append('path').attr('d', 'M 10 6 L 8.59 7.41 L 13.17 12 l -4.58 4.59 L 10 18 l 6 -6 Z');*/
+                }
+                else {
+                    barsEnter.append('text').classed('nv-bar-label', true);
+                }
 
                 bars.select('text.nv-bar-label')
                     .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
@@ -393,6 +417,9 @@ nv.models.multiBarHorizontal = function() {
         }},
         color:  {get: function(){return color;}, set: function(_){
             color = nv.utils.getColor(_);
+        }},
+        href:  {get: function(){return href;}, set: function(_){
+            href = d3.functor(_);
         }},
         barColor:  {get: function(){return barColor;}, set: function(_){
             barColor = _ ? nv.utils.getColor(_) : null;
