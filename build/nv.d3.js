@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-05-24 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-05-25 */
 (function(){
 
 // set up main nv object
@@ -8381,6 +8381,7 @@ nv.models.multiBarHorizontal = function() {
         , stacked = false
         , showValues = false
         , showBarLabels = true
+        , showChecks = false
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
@@ -8505,8 +8506,11 @@ nv.models.multiBarHorizontal = function() {
                 .attr('width', 0)
                 .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
 
-            barsEnter.append('path')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            if ( showChecks ) {
+                barsEnter.append('path')
+                    .attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
@@ -8682,12 +8686,14 @@ nv.models.multiBarHorizontal = function() {
                     })
                     .attr('height', barWidth || x.rangeBand());
 
-                watch.select('path')
-                    .attr('transform', function (d, i) {
-                        var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
-                            height = barWidth || x.rangeBand();
-                        return 'translate(' + (width - 27) + ',' + (height - 24)/2 + ' )';
-                    });
+                if ( showChecks ) {
+                    watch.select('path.nv-check')
+                        .attr('transform', function (d, i) {
+                            var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
+                                height = barWidth || x.rangeBand();
+                            return 'translate(' + (width - 27) + ',' + (height - 24) / 2 + ' )';
+                        });
+                }
             }
             else {
                 var watch = bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
@@ -8709,12 +8715,14 @@ nv.models.multiBarHorizontal = function() {
                         return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
                     });
 
-                watch.select('path')
-                    .attr('transform', function (d, i) {
-                        var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
-                            height = barWidth || x.rangeBand() / data.length;
-                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
-                    });
+                if ( showChecks ) {
+                    watch.select('path.nv-check')
+                        .attr('transform', function (d, i) {
+                            var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
+                                height = barWidth || x.rangeBand() / data.length;
+                            return 'translate(' + (width - 20) + ',' + (height - 20) / 2 + ' )';
+                        });
+                }
 
             }
 
@@ -8754,6 +8762,7 @@ nv.models.multiBarHorizontal = function() {
         showValues: {get: function(){return showValues;}, set: function(_){showValues=_;}},
         // this shows the group name, seems pointless?
         showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
+        showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
@@ -10737,6 +10746,7 @@ nv.models.parallelCoordinatesChart = function () {
         , color = nv.utils.defaultColor()
         , valueFormat = d3.format(',.2f')
         , showLabels = true
+        , showChecks = false
         , labelsOutside = false
         , labelType = "key"
         , labelThreshold = .02 //if slice percentage is under this, don't show label
@@ -10947,8 +10957,10 @@ nv.models.parallelCoordinatesChart = function () {
                 this._current = d;
             });
 
-            ae.append('path').attr('class', 'nv-check')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            if ( showChecks ) {
+                ae.append('path').attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
 
@@ -10972,12 +10984,15 @@ nv.models.parallelCoordinatesChart = function () {
                 .attr('d', function (d, i) { return arcs[i](d); })
                 .attrTween('d', arcTween);
 
-            slices.select('path.nv-check')
-                .attr('transform', function (d, i) {
-                    var center = arcs[i].centroid(d).map(function(v){ return isNaN(v)? 0 : v - 10;});
-                    return 'translate(' + center + ')';
-                });
-
+            if ( showChecks ) {
+                slices.select('path.nv-check')
+                    .attr('transform', function (d, i) {
+                        var center = arcs[i].centroid(d).map(function (v) {
+                            return isNaN(v) ? 0 : v - 10;
+                        });
+                        return 'translate(' + center + ')';
+                    });
+            }
 
             if (showLabels) {
                 // This does the normal label
@@ -11140,6 +11155,7 @@ nv.models.parallelCoordinatesChart = function () {
         arcsRadius: { get: function () { return arcsRadius; }, set: function (_) { arcsRadius = _; } },
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
+        showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         showLabels: {get: function(){return showLabels;}, set: function(_){showLabels=_;}},
         title:      {get: function(){return title;}, set: function(_){title=_;}},
         titleOffset:    {get: function(){return titleOffset;}, set: function(_){titleOffset=_;}},
@@ -14843,6 +14859,7 @@ nv.models.treemap = function () {
         , color = nv.utils.defaultColor()
         , href = null
         , groupColorByParent = false
+        , showChecks = false
         , duration = 500
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
         ;
@@ -14973,9 +14990,10 @@ nv.models.treemap = function () {
                     .attr("dy", "1em");
             }
 
-            nodesEnter.append('path').attr('class', 'nv-check')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
-
+            if ( showChecks ) {
+                nodesEnter.append('path').attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             nodes.attr("transform", function (d) {
                 return "translate(" + d.x + ", " + d.y + ")";
@@ -15003,11 +15021,13 @@ nv.models.treemap = function () {
                 })
                 .style("stroke", "#FFF");
 
-            nodes.select('path.nv-check')
-                .attr('transform', function (d, i) {
-                    var center = [d.dx / 2 - 10, d.dy / 2 - 10];
-                    return 'translate(' + center[0] + ', ' + center[1] + ')';
-                });
+            if ( showChecks ) {
+                nodes.select('path.nv-check')
+                    .attr('transform', function (d, i) {
+                        var center = [d.dx / 2 - 10, d.dy / 2 - 10];
+                        return 'translate(' + center[0] + ', ' + center[1] + ')';
+                    });
+            }
 
             nodes.classed('selected', function (d) {
                 return d.value > 0 && d.selected;
@@ -15062,6 +15082,13 @@ nv.models.treemap = function () {
                 return duration;
             }, set: function (_) {
                 duration = _;
+            }
+        },
+        showChecks: {
+            get: function () {
+                return showChecks;
+            }, set: function (_) {
+                showChecks = _;
             }
         },
         groupColorByParent: {

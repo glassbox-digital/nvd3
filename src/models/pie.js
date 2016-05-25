@@ -15,6 +15,7 @@ nv.models.pie = function() {
         , color = nv.utils.defaultColor()
         , valueFormat = d3.format(',.2f')
         , showLabels = true
+        , showChecks = false
         , labelsOutside = false
         , labelType = "key"
         , labelThreshold = .02 //if slice percentage is under this, don't show label
@@ -225,8 +226,10 @@ nv.models.pie = function() {
                 this._current = d;
             });
 
-            ae.append('path').attr('class', 'nv-check')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            if ( showChecks ) {
+                ae.append('path').attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
 
@@ -250,12 +253,15 @@ nv.models.pie = function() {
                 .attr('d', function (d, i) { return arcs[i](d); })
                 .attrTween('d', arcTween);
 
-            slices.select('path.nv-check')
-                .attr('transform', function (d, i) {
-                    var center = arcs[i].centroid(d).map(function(v){ return isNaN(v)? 0 : v - 10;});
-                    return 'translate(' + center + ')';
-                });
-
+            if ( showChecks ) {
+                slices.select('path.nv-check')
+                    .attr('transform', function (d, i) {
+                        var center = arcs[i].centroid(d).map(function (v) {
+                            return isNaN(v) ? 0 : v - 10;
+                        });
+                        return 'translate(' + center + ')';
+                    });
+            }
 
             if (showLabels) {
                 // This does the normal label
@@ -418,6 +424,7 @@ nv.models.pie = function() {
         arcsRadius: { get: function () { return arcsRadius; }, set: function (_) { arcsRadius = _; } },
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
+        showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         showLabels: {get: function(){return showLabels;}, set: function(_){showLabels=_;}},
         title:      {get: function(){return title;}, set: function(_){title=_;}},
         titleOffset:    {get: function(){return titleOffset;}, set: function(_){titleOffset=_;}},

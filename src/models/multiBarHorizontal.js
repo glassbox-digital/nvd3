@@ -25,6 +25,7 @@ nv.models.multiBarHorizontal = function() {
         , stacked = false
         , showValues = false
         , showBarLabels = true
+        , showChecks = false
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
@@ -149,8 +150,11 @@ nv.models.multiBarHorizontal = function() {
                 .attr('width', 0)
                 .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
 
-            barsEnter.append('path')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            if ( showChecks ) {
+                barsEnter.append('path')
+                    .attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
@@ -326,12 +330,14 @@ nv.models.multiBarHorizontal = function() {
                     })
                     .attr('height', barWidth || x.rangeBand());
 
-                watch.select('path')
-                    .attr('transform', function (d, i) {
-                        var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
-                            height = barWidth || x.rangeBand();
-                        return 'translate(' + (width - 27) + ',' + (height - 24)/2 + ' )';
-                    });
+                if ( showChecks ) {
+                    watch.select('path.nv-check')
+                        .attr('transform', function (d, i) {
+                            var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
+                                height = barWidth || x.rangeBand();
+                            return 'translate(' + (width - 27) + ',' + (height - 24) / 2 + ' )';
+                        });
+                }
             }
             else {
                 var watch = bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
@@ -353,12 +359,14 @@ nv.models.multiBarHorizontal = function() {
                         return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
                     });
 
-                watch.select('path')
-                    .attr('transform', function (d, i) {
-                        var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
-                            height = barWidth || x.rangeBand() / data.length;
-                        return 'translate(' + (width - 20) + ',' + (height - 20)/2 + ' )';
-                    });
+                if ( showChecks ) {
+                    watch.select('path.nv-check')
+                        .attr('transform', function (d, i) {
+                            var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
+                                height = barWidth || x.rangeBand() / data.length;
+                            return 'translate(' + (width - 20) + ',' + (height - 20) / 2 + ' )';
+                        });
+                }
 
             }
 
@@ -398,6 +406,7 @@ nv.models.multiBarHorizontal = function() {
         showValues: {get: function(){return showValues;}, set: function(_){showValues=_;}},
         // this shows the group name, seems pointless?
         showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
+        showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},

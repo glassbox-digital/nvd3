@@ -22,6 +22,7 @@ nv.models.treemap = function () {
         , color = nv.utils.defaultColor()
         , href = null
         , groupColorByParent = false
+        , showChecks = false
         , duration = 500
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
         ;
@@ -152,9 +153,10 @@ nv.models.treemap = function () {
                     .attr("dy", "1em");
             }
 
-            nodesEnter.append('path').attr('class', 'nv-check')
-                .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
-
+            if ( showChecks ) {
+                nodesEnter.append('path').attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
 
             nodes.attr("transform", function (d) {
                 return "translate(" + d.x + ", " + d.y + ")";
@@ -182,11 +184,13 @@ nv.models.treemap = function () {
                 })
                 .style("stroke", "#FFF");
 
-            nodes.select('path.nv-check')
-                .attr('transform', function (d, i) {
-                    var center = [d.dx / 2 - 10, d.dy / 2 - 10];
-                    return 'translate(' + center[0] + ', ' + center[1] + ')';
-                });
+            if ( showChecks ) {
+                nodes.select('path.nv-check')
+                    .attr('transform', function (d, i) {
+                        var center = [d.dx / 2 - 10, d.dy / 2 - 10];
+                        return 'translate(' + center[0] + ', ' + center[1] + ')';
+                    });
+            }
 
             nodes.classed('selected', function (d) {
                 return d.value > 0 && d.selected;
@@ -241,6 +245,13 @@ nv.models.treemap = function () {
                 return duration;
             }, set: function (_) {
                 duration = _;
+            }
+        },
+        showChecks: {
+            get: function () {
+                return showChecks;
+            }, set: function (_) {
+                showChecks = _;
             }
         },
         groupColorByParent: {
