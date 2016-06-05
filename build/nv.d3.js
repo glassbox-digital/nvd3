@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-05-25 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-05 */
 (function(){
 
 // set up main nv object
@@ -5538,6 +5538,7 @@ nv.models.legend = function() {
         , color = nv.utils.getColor()
         , maxKeyLength = 20 //default value for key lengths
         , align = true
+        , href = null
         , padding = 32 //define how much space between legend items. - recommend 32 for furious version
         , rightAlign = true
         , updateState = true   //If true, legend will update data.disabled and trigger a 'stateChange' dispatch.
@@ -5609,13 +5610,38 @@ nv.models.legend = function() {
                 });
             }
 
-            seriesEnter.append('text')
-                .attr('text-anchor', 'start')
-                .attr('class','nv-legend-text')
-                .attr('dy', '.32em')
-                .attr('dx', '8');
+            if (href && typeof href === 'function') {
+                var a = seriesEnter
+                    .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                        return href(d);
+                    });
+
+                a.append('text')
+                    .attr('class','nv-legend-text');
+
+/*
+                a.on('mouseover', function (d, i) {
+                    d3.event.stopPropagation();
+                    d3.event.preventDefault();
+
+                    //d3.select(this).classed('hover', true).style('opacity', 0.8);
+                    dispatch.elementMouseout({
+                        data: d
+                    });
+                });
+*/
+            }
+            else {
+                seriesEnter.append('text')
+                    .attr('class','nv-legend-text');
+            }
 
             var seriesText = series.select('text.nv-legend-text');
+
+            seriesText
+                .attr('text-anchor', 'start')
+                .attr('dy', '.32em')
+                .attr('dx', '8');
 
             series
                 .on('mouseover', function(d,i) {
@@ -5878,6 +5904,7 @@ nv.models.legend = function() {
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
         key:        {get: function(){return getKey;}, set: function(_){getKey=_;}},
+        href:      {get: function(){return href;}, set: function(_){href=d3.functor(_);}},
         align:      {get: function(){return align;}, set: function(_){align=_;}},
         maxKeyLength:   {get: function(){return maxKeyLength;}, set: function(_){maxKeyLength=_;}},
         rightAlign:    {get: function(){return rightAlign;}, set: function(_){rightAlign=_;}},
