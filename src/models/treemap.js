@@ -122,7 +122,7 @@ nv.models.treemap = function () {
 
             if (href && typeof href === 'function') {
                 var a = nodesEnter
-                    .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                    .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
                     });
 

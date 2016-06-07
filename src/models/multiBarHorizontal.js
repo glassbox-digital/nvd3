@@ -253,7 +253,7 @@ nv.models.multiBarHorizontal = function() {
 
                 if (href && typeof href === 'function') {
                     var a = barsEnter
-                        .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                        .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                             return href(d);
                         });
 

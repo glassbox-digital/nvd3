@@ -86,7 +86,7 @@ nv.models.legend = function() {
 
             if (href && typeof href === 'function') {
                 var a = seriesEnter
-                    .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                    .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
                     });
 

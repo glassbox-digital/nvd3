@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-05 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-07 */
 (function(){
 
 // set up main nv object
@@ -1472,6 +1472,9 @@ nv.models.tooltip = function() {
      */
     nv.utils.initSVG = function (svg) {
         svg.classed({'nvd3-svg': true});
+        svg.attr("xmlns", "http://www.w3.org/2000/svg")
+            .attr("xmlns:xlink","http://www.w3.org/1999/xlink")
+            .attr("version","1.1");
     };
 
 
@@ -5612,7 +5615,7 @@ nv.models.legend = function() {
 
             if (href && typeof href === 'function') {
                 var a = seriesEnter
-                    .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                    .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
                     });
 
@@ -8636,7 +8639,7 @@ nv.models.multiBarHorizontal = function() {
 
                 if (href && typeof href === 'function') {
                     var a = barsEnter
-                        .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                        .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                             return href(d);
                         });
 
@@ -14986,7 +14989,7 @@ nv.models.treemap = function () {
 
             if (href && typeof href === 'function') {
                 var a = nodesEnter
-                    .append('a').attr('class', 'nv-href').attr('href', function (d) {
+                    .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
                     });
 
