@@ -237,7 +237,8 @@ nv.models.pie = function() {
 
             function donutInfo(){
                 if ( donut) {
-                    var selected = pieInfo.datum().filter(function(d){ return d.data.selected;}),
+                    var pieData = pieInfo.datum(),
+                        selected = pieData.length > 1 ? pieData.filter(function(d){ return d.data.selected;}) : pieData,
                         num = selected.length,
                         sum = d3.sum( selected, function(d){ return d.value;});
 

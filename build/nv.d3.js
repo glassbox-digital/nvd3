@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-07 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-22 */
 (function(){
 
 // set up main nv object
@@ -10998,7 +10998,8 @@ nv.models.parallelCoordinatesChart = function () {
 
             function donutInfo(){
                 if ( donut) {
-                    var selected = pieInfo.datum().filter(function(d){ return d.data.selected;}),
+                    var pieData = pieInfo.datum(),
+                        selected = pieData.length > 1 ? pieData.filter(function(d){ return d.data.selected;}) : pieData,
                         num = selected.length,
                         sum = d3.sum( selected, function(d){ return d.value;});
 
