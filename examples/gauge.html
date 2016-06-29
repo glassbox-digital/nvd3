@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
+    <script src="../bower_components/d3/d3.min.js" charset="utf-8"></script>
+    <script src="../build/nv.d3.js"></script>
+    <script src="../src/models/gauge.js"></script>
+    <script src="../src/models/gaugeChart.js"></script>
+    <script src="lib/stream_layers.js"></script>
+
+    <style>
+        text {
+            font: 12px sans-serif;
+        }
+        .testBlock {
+            display: block;
+            float: left;
+            height: 400px;
+            width: 500px;
+        }
+        html, body {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<!--<div class="testBlock"><svg id="test1"></svg></div>-->
+<div class="testBlock"><svg id="test2" style="background: aliceblue"></svg></div>
+
+<script>
+
+    var testdata = [
+//        {key: "Availability", y: Math.round(Math.random() * 100, 2), color: 'rgb(0, 181, 226)' },
+        {key: "Critical", start: 0, end: 20, color:'darkred' },
+        {key: "Problematic", start: 20, end: 60, color: 'orange'},
+        {key: "Good", start: 80, end: 100, color:'lightgreen' }
+    ];
+
+    var width = 500;
+    var height = 400;
+
+    /*nv.addGraph(function() {
+        var chart = nv.models.gauge()
+                .x(function(d) { return d.key; })
+                .y(function(d) { return d.y; })
+                .width(width)
+                .height(height)
+                .labelType(function(d, i, values) {
+                    return values.key + ':' + values.value;
+                })
+                ;
+
+        d3.select("#test1")
+                .datum([testdata])
+                .transition().duration(1200)
+                .attr('width', width)
+                .attr('height', height)
+                .call(chart);
+
+        // LISTEN TO CLICK EVENTS ON THE gauge CONTAINER
+        // chart.dispatch.on('chartClick', function() {
+        //   code...
+        // });
+
+        // LISTEN TO CLICK EVENTS ON THE SLICES OF THE gauge
+        // chart.dispatch.on('elementClick', function() {
+        //   code...
+        // });
+
+        // OTHER EVENTS DISPATCHED BY THE gauge INCLUDE: elementDblClick, elementMouseover, elementMouseout, elementMousemove, renderEnd
+        // @see nv.models.gauge
+        return chart;
+    });*/
+
+    var angleScale = d3.scale.linear().range([-Math.PI/2, 3/2 * Math.PI]).domain([0,100]);
+
+    nv.addGraph(function() {
+        var chart = nv.models.gauge()
+                .x(function(d) { return d.key; })
+                .y(function(d) { return d.end - d.start; })
+                .startAngle(function(d){
+//                    console.log('startAngle', arguments);
+                    return angleScale(d.data.start || 0);
+                })
+                .endAngle(function(d){
+//                    console.log('endAngle', arguments);
+                    return angleScale(d.data.end);
+                })
+                .width(width)
+                .height(height)
+                .showLabels(false)
+                .labelType('percent')
+                .valueFormat(d3.format('%'))
+                .value({data:{start: 0, end: Math.random()*100, color: 'blue', key: 'Availability'}})
+                .donut(true);
+
+        d3.select("#test2")
+                .datum([testdata])
+                .transition().duration(1200)
+                .attr('width', width)
+                .attr('height', height)
+                .call(chart);
+
+        return chart;
+    });
+
+</script>
+</body>
+</html>
