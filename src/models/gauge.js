@@ -80,7 +80,9 @@ nv.models.gauge = function() {
             //gEnter.append('g').attr('class', 'nv-gaugeLabels');
 
             var gValueEnter = gEnter.append('g').attr('class', 'nv-gaugeValue');
-            gValueEnter.append('path').attr('class', 'nv-gaugeValue-path');
+            gValueEnter.append('path').attr('class', 'nv-gaugeValue-path').each(function(d) {
+                this._current = d;
+            });;
 
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-gaugeInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
@@ -277,6 +279,7 @@ nv.models.gauge = function() {
 
 
             var arcValue = d3.svg.arc()
+                .innerRadius(donutRatio * radius)
                 .outerRadius(radius - 22);
 
             if (startAngle !== false) {
@@ -285,9 +288,11 @@ nv.models.gauge = function() {
             if (endAngle !== false) {
                 arcValue.endAngle(endAngle);
             }
+/*
             if (donut) {
                 arcValue.innerRadius(donutRatio * radius);
             }
+*/
 
 /*
             if (arcValue.cornerRadius && cornerRadius) {
@@ -301,13 +306,16 @@ nv.models.gauge = function() {
 
             gaugeValue.select('path')
                 .transition()
+                .duration(500)
                 .attr('d', function (d, i) { return arcValue(d); })
+                .attrTween('d', arcTween);
 
 
             slices.select('path.nv-slice-path')
                 .transition()
                 .attr('d', function (d, i) { return arcs[i](d); });
 
+/*
             if ( showChecks ) {
                 slices.select('path.nv-check')
                     .attr('transform', function (d, i) {
@@ -317,6 +325,7 @@ nv.models.gauge = function() {
                         return 'translate(' + center + ')';
                     });
             }
+*/
 
             /*if (showLabels) {
                 // This does the normal label
@@ -446,19 +455,19 @@ nv.models.gauge = function() {
 
 
             // Computes the angle of an arc, converting from radians to degrees.
-            function angle(d) {
-                var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
-                return a > 90 ? a - 180 : a;
-            }
+            //function angle(d) {
+            //    var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+            //    return a > 90 ? a - 180 : a;
+            //}
 
             function arcTween(a, idx) {
                 a.endAngle = isNaN(a.endAngle) ? 0 : a.endAngle;
-                a.startAngle = isNaN(a.startAngle) ? 0 : a.startAngle;
-                if (!donut) a.innerRadius = 0;
+                a.startAngle = 0;
+                //if (!donut) a.innerRadius = 0;
                 var i = d3.interpolate(this._current, a);
                 this._current = i(0);
                 return function (t) {
-                    return arcs[idx](i(t));
+                    return arcValue(i(t));
                 };
             }
         });
@@ -495,7 +504,7 @@ nv.models.gauge = function() {
         donutRatio:   {get: function(){return donutRatio;}, set: function(_){donutRatio=_;}},
         labelsOutside: {get: function(){return labelsOutside;}, set: function(_){labelsOutside=_;}},
         labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
-        donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
+        //donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
         growOnHover:        {get: function(){return growOnHover;}, set: function(_){growOnHover=_;}},
 
         // depreciated after 1.7.1
@@ -504,10 +513,10 @@ nv.models.gauge = function() {
             nv.deprecated('gaugeLabelsOutside', 'use labelsOutside instead');
         }},
         // depreciated after 1.7.1
-        donutLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
-            labelsOutside=_;
-            nv.deprecated('donutLabelsOutside', 'use labelsOutside instead');
-        }},
+        //donutLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
+        //    labelsOutside=_;
+        //    nv.deprecated('donutLabelsOutside', 'use labelsOutside instead');
+        //}},
         // deprecated after 1.7.1
         labelFormat: {get: function(){ return valueFormat;}, set: function(_) {
             valueFormat=_;

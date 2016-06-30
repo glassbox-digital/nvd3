@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-22 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-30 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -206,6 +206,75 @@
 }
 .nvd3 .nv-controlsWrap .nv-legend .nv-check-box .nv-check {
   opacity: 0;
+}
+
+.nvd3.nv-gauge path {
+  stroke-opacity: 0;
+  transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+  -moz-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+  -webkit-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+}
+.nvd3.nv-gauge .nv-gaugeInfo {
+  fill: #666;
+  pointer-events: none;
+}
+.nvd3.nv-gauge .nv-gaugeInfo .key {
+  transform: translateY(-20px);
+}
+.nvd3.nv-gauge .nv-gaugeInfo .key > text {
+  font-size: 14px;
+  font-weight: bold;
+  text-anchor: middle;
+}
+.nvd3.nv-gauge .nv-gaugeInfo .value {
+  transform: translateY(18px);
+}
+.nvd3.nv-gauge .nv-gaugeInfo .value > text {
+  font-size: 34px;
+  text-anchor: middle;
+}
+.nvd3.nv-gauge .nv-gaugeInfo .icon {
+  transform: translate(-20px, -80px) scale(2);
+  transform-origin: center center;
+}
+.nvd3.nv-gauge .nv-gauge-title {
+  font-size: 24px;
+  fill: rgba(19, 196, 249, 0.59);
+}
+.nvd3.nv-gauge .nv-slice text {
+  stroke: #000;
+  stroke-width: 0;
+}
+.nvd3.nv-gauge path {
+  stroke: #fff;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+.nvd3.nv-gauge path {
+  fill-opacity: .7;
+}
+.nvd3.nv-gauge .hover path {
+  fill-opacity: 1;
+}
+.nvd3.nv-gauge .nv-label {
+  pointer-events: none;
+}
+.nvd3.nv-gauge .nv-label rect {
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+.nvd3.nv-gauge .nv-slice .nv-check {
+  opacity: 0;
+  fill: white;
+  stroke: white;
+  stroke-width: 1px;
+  stroke-opacity: 0.2;
+}
+.nvd3.nv-gauge .nv-slice.selected path {
+  fill-opacity: 1;
+}
+.nvd3.nv-gauge .nv-slice.selected .nv-check {
+  opacity: 1;
 }
 
 /* line plus bar */
