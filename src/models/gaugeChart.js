@@ -12,7 +12,7 @@ nv.models.gaugeChart = function() {
     var margin = {top: 30, right: 20, bottom: 20, left: 20}
         , width = null
         , height = null
-        , showLegend = true
+        , showLegend = false
         , showTooltips = false
         , legendPosition = "top"
         , color = nv.utils.defaultColor()
@@ -142,7 +142,7 @@ nv.models.gaugeChart = function() {
 
             // Main Chart Component(s)
             gauge.width(availableWidth).height(availableHeight);
-            var gaugeWrap = g.select('.nv-gaugeWrap').datum([data]);
+            var gaugeWrap = g.select('.nv-gaugeWrap').datum(data);
             d3.transition(gaugeWrap).call(gauge);
 
             //============================================================

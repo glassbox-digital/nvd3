@@ -1,0 +1,87 @@
+.nvd3.nv-gauge {
+
+  path {
+    stroke-opacity: 0;
+    transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+    -moz-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+    -webkit-transition: fill-opacity 250ms linear, stroke-width 250ms linear, stroke-opacity 250ms linear;
+
+  }
+
+  .nv-gaugeInfo {
+    fill: #666;
+    pointer-events: none;
+
+    .key {
+      transform: translateY(-20px);
+      > text {
+        font-size: 14px;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+    }
+    .value {
+      transform: translateY(18px);
+      > text {
+        font-size: 34px;
+        text-anchor: middle;
+      }
+    }
+
+    .icon {
+      transform: translate(-20px, -80px) scale(2);
+
+      transform-origin: center center;
+    }
+  }
+
+  .nv-gauge-title {
+    font-size: 24px;
+    fill: rgba(19, 196, 249, 0.59);
+  }
+
+  .nv-slice text {
+    stroke: #000;
+    stroke-width: 0;
+  }
+
+  path {
+    stroke: #fff;
+    stroke-width: 1px;
+    stroke-opacity: 1;
+  }
+
+  path {
+    fill-opacity: .7;
+  }
+  .hover path {
+    fill-opacity: 1;
+  }
+  .nv-label {
+    pointer-events: none;
+  }
+  .nv-label rect {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+  }
+
+  .nv-slice {
+
+    .nv-check {
+      opacity: 0;
+      fill: white;
+      stroke: white;
+      stroke-width: 1px;
+      stroke-opacity: 0.2;
+    }
+  }
+
+  .nv-slice.selected {
+    path {
+      fill-opacity: 1;
+    }
+    .nv-check {
+      opacity: 1;
+    }
+  }
+}

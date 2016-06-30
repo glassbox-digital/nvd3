@@ -58,9 +58,9 @@ nv.models.gauge = function() {
 
             container = d3.select(this)
             if (arcsRadius.length === 0) {
-                var outer = radius - 10; ///* - radius / 5*/;
-                var inner = /*donutRatio * */radius - 20;
-                for (var i = 0; i < data[0].length; i++) {
+                var outer = radius - 10;
+                var inner = outer - 10;
+                for (var i = 0; i < data.length; i++) {
                     arcsRadiusOuter.push(outer);
                     arcsRadiusInner.push(inner);
                 }
@@ -72,12 +72,12 @@ nv.models.gauge = function() {
             nv.utils.initSVG(container);
 
             // Setup containers and skeleton of chart
-            var wrap = container.selectAll('.nv-wrap.nv-gauge').data(data);
+            var wrap = container.selectAll('.nv-wrap.nv-gauge').data([data]);
             var wrapEnter = wrap.enter().append('g').attr('class','nvd3 nv-wrap nv-gauge nv-chart-' + id);
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
             var g_gauge = gEnter.append('g').attr('class', 'nv-gauge');
-            gEnter.append('g').attr('class', 'nv-gaugeLabels');
+            //gEnter.append('g').attr('class', 'nv-gaugeLabels');
 
             var gValueEnter = gEnter.append('g').attr('class', 'nv-gaugeValue');
             gValueEnter.append('path').attr('class', 'nv-gaugeValue-path');
@@ -85,10 +85,11 @@ nv.models.gauge = function() {
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-gaugeInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
             gInfoEnter.append('g').classed('value', true).append('text');
+            gInfoEnter.append('g').classed('icon', true).append('path');
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             g.select('.nv-gauge').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
-            g.select('.nv-gaugeLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
+            //g.select('.nv-gaugeLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-gaugeInfo').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-gaugeValue').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
 
@@ -105,7 +106,16 @@ nv.models.gauge = function() {
             arcs = [];
             arcsOver = [];
 
-            for (var i = 0; i < data[0].length; i++) {
+            console.log(data);
+
+            data.sort(function(a, b){ return d3.ascending(a.value, b.value); });
+            data.forEach(function(d, i){
+                d.prevValue = i > 0? data[i-1].value : 0;
+            });
+
+            console.log(data);
+
+            for (var i = 0; i < data.length; i++) {
 
                 var arc = d3.svg.arc().outerRadius(arcsRadiusOuter[i]);
                 var arcOver = d3.svg.arc().outerRadius(arcsRadiusOuter[i] + 5);
@@ -137,7 +147,7 @@ nv.models.gauge = function() {
                 .sort(null)
                 .value(function(d, i) {
                     //console.log(d, i);
-                    return d.disabled ? 0 : getY(d)
+                    return d.disabled ? 0 : (d.value - d.prevValue);/*getY(d)*/
                 });
 
             // padAngle added in d3 3.5
@@ -163,11 +173,11 @@ nv.models.gauge = function() {
 
             var slices = wrap.select('.nv-gauge').selectAll('.nv-slice').data(gaugeData);
             var gaugeValue = wrap.select('.nv-gaugeValue').datum(val);
-            var gaugeLabels = wrap.select('.nv-gaugeLabels').selectAll('.nv-label').data(gaugeData);
+            //var gaugeLabels = wrap.select('.nv-gaugeLabels').selectAll('.nv-label').data(gaugeData);
             var gaugeInfo = wrap.select('.nv-gaugeInfo').datum(gaugeData);
 
             slices.exit().remove();
-            gaugeLabels.exit().remove();
+            //gaugeLabels.exit().remove();
 
             var ae = slices.enter().append('g');
             ae.attr('class', 'nv-slice');
@@ -181,7 +191,7 @@ nv.models.gauge = function() {
 
                 if ( donut ){
                     gaugeInfo.select('.key text').text(getX(d.data));
-                    gaugeInfo.select('.value text').text( valueFormat(d.value) );
+                    gaugeInfo.select('.value text').text( valueFormat(getY(d.data)) );
                 }
 
                 dispatch.elementMouseover({
@@ -206,7 +216,7 @@ nv.models.gauge = function() {
             ae.on('mousemove', function(d, i) {
                 dispatch.elementMousemove({data: d.data, index: i, element: this});
             });
-            ae.on('click', function(d, i) {
+         /*   ae.on('click', function(d, i) {
                 var element = this;
 
                 d.data.selected = !d.data.selected;
@@ -229,7 +239,7 @@ nv.models.gauge = function() {
                     index: i,
                     color: d3.select(this).style("fill")
                 });
-            });
+            });*/
 
             slices.attr('fill', function(d,i) { return color(d.data, i); });
             slices.attr('stroke', function(d,i) { return color(d.data, i); });
@@ -238,30 +248,36 @@ nv.models.gauge = function() {
                 this._current = d;
             });
 
+/*
             if ( showChecks ) {
                 ae.append('path').attr('class', 'nv-check')
                     .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
             }
 
             slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
+*/
 
             donutInfo();
 
             function donutInfo(){
                 if ( donut) {
+/*
                     var gaugeData = gaugeInfo.datum(),
-                        selected = gaugeData.length > 1 ? gaugeData.filter(function(d){ return d.data.selected;}) : gaugeData,
-                        num = selected.length,
+                        selected = gaugeData.filter(function(d){ return d.data.selected;}),
                         sum = d3.sum( selected, function(d){ return d.value;});
 
-                    gaugeInfo.select('.key text').text( num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : 'click to select..' );
-                    gaugeInfo.select('.value text').text( num > 0 ? valueFormat(sum) : '' );
+*/
+                    var val = gaugeValue.datum();
+
+                    gaugeInfo.select('.key text').text( val.key );
+                    gaugeInfo.select('.value text').text( valueFormat(val.value) );
+                    gaugeInfo.select('.icon path').attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
                 }
             }
 
 
             var arcValue = d3.svg.arc()
-                .outerRadius(radius-22);
+                .outerRadius(radius - 22);
 
             if (startAngle !== false) {
                 arcValue.startAngle(startAngle);
@@ -278,6 +294,10 @@ nv.models.gauge = function() {
                 arcValue.cornerRadius(cornerRadius);
             }
 */
+
+            gaugeValue
+                .attr('fill', function(d,i) { return color(d, i); })
+                .attr('stroke', function(d,i) { return color(d, i); });
 
             gaugeValue.select('path')
                 .transition()
@@ -298,7 +318,7 @@ nv.models.gauge = function() {
                     });
             }
 
-            if (showLabels) {
+            /*if (showLabels) {
                 // This does the normal label
                 var labelsArc = [];
                 for (var i = 0; i < data[0].length; i++) {
@@ -315,37 +335,37 @@ nv.models.gauge = function() {
                     }
                 }
 
-                gaugeLabels.enter().append("g").classed("nv-label",true).each(function(d,i) {
-                    var group = d3.select(this);
-
-                    group.attr('transform', function (d, i) {
-                        if (labelSunbeamLayout) {
-                            d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
-                            d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
-                            var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
-                            if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
-                                rotateAngle -= 90;
-                            } else {
-                                rotateAngle += 90;
-                            }
-                            return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
-                        } else {
-                            d.outerRadius = radius + 10; // Set Outer Coordinate
-                            d.innerRadius = radius + 15; // Set Inner Coordinate
-                            return 'translate(' + labelsArc[i].centroid(d) + ')'
-                        }
-                    });
-
-                    group.append('rect')
-                        .style('stroke', '#fff')
-                        .style('fill', '#fff')
-                        .attr("rx", 3)
-                        .attr("ry", 3);
-
-                    group.append('text')
-                        .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
-                        .style('fill', '#000')
-                });
+                //gaugeLabels.enter().append("g").classed("nv-label",true).each(function(d,i) {
+                //    var group = d3.select(this);
+                //
+                //    group.attr('transform', function (d, i) {
+                //        if (labelSunbeamLayout) {
+                //            d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
+                //            d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
+                //            var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                //            if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
+                //                rotateAngle -= 90;
+                //            } else {
+                //                rotateAngle += 90;
+                //            }
+                //            return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
+                //        } else {
+                //            d.outerRadius = radius + 10; // Set Outer Coordinate
+                //            d.innerRadius = radius + 15; // Set Inner Coordinate
+                //            return 'translate(' + labelsArc[i].centroid(d) + ')'
+                //        }
+                //    });
+                //
+                //    group.append('rect')
+                //        .style('stroke', '#fff')
+                //        .style('fill', '#fff')
+                //        .attr("rx", 3)
+                //        .attr("ry", 3);
+                //
+                //    group.append('text')
+                //        .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
+                //        .style('fill', '#000')
+                //});
 
                 var labelLocationHash = {};
                 var avgHeight = 14;
@@ -357,72 +377,72 @@ nv.models.gauge = function() {
                     return (d.endAngle - d.startAngle) / (2 * Math.PI);
                 };
 
-                gaugeLabels.watchTransition(renderWatch, 'gauge labels').attr('transform', function (d, i) {
-                    if (labelSunbeamLayout) {
-                        d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
-                        d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
-                        var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
-                        if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
-                            rotateAngle -= 90;
-                        } else {
-                            rotateAngle += 90;
-                        }
-                        return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
-                    } else {
-                        d.outerRadius = radius + 10; // Set Outer Coordinate
-                        d.innerRadius = radius + 15; // Set Inner Coordinate
-
-                        /*
-                        Overlapping gauge labels are not good. What this attempts to do is, prevent overlapping.
-                        Each label location is hashed, and if a hash collision occurs, we assume an overlap.
-                        Adjust the label's y-position to remove the overlap.
-                        */
-                        var center = labelsArc[i].centroid(d);
-                        var percent = getSlicePercentage(d);
-                        if (d.value && percent >= labelThreshold) {
-                            var hashKey = createHashKey(center);
-                            if (labelLocationHash[hashKey]) {
-                                center[1] -= avgHeight;
-                            }
-                            labelLocationHash[createHashKey(center)] = true;
-                        }
-                        return 'translate(' + center + ')'
-                    }
-                });
-
-                gaugeLabels.select(".nv-label text")
-                    .style('text-anchor', function(d,i) {
-                        //center the text on it's origin or begin/end if orthogonal aligned
-                        return labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle';
-                    })
-                    .text(function(d, i) {
-                        var percent = getSlicePercentage(d);
-                        var label = '';
-                        if (!d.value || percent < labelThreshold) return '';
-
-                        if(typeof labelType === 'function') {
-                            label = labelType(d, i, {
-                                'key': getX(d.data),
-                                'value': getY(d.data),
-                                'percent': valueFormat(percent)
-                            });
-                        } else {
-                            switch (labelType) {
-                                case 'key':
-                                    label = getX(d.data);
-                                    break;
-                                case 'value':
-                                    label = valueFormat(getY(d.data));
-                                    break;
-                                case 'percent':
-                                    label = d3.format('%')(percent);
-                                    break;
-                            }
-                        }
-                        return label;
-                    })
-                ;
-            }
+                //gaugeLabels.watchTransition(renderWatch, 'gauge labels').attr('transform', function (d, i) {
+                //    if (labelSunbeamLayout) {
+                //        d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
+                //        d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
+                //        var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
+                //        if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
+                //            rotateAngle -= 90;
+                //        } else {
+                //            rotateAngle += 90;
+                //        }
+                //        return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
+                //    } else {
+                //        d.outerRadius = radius + 10; // Set Outer Coordinate
+                //        d.innerRadius = radius + 15; // Set Inner Coordinate
+                //
+                //        /!*
+                //        Overlapping gauge labels are not good. What this attempts to do is, prevent overlapping.
+                //        Each label location is hashed, and if a hash collision occurs, we assume an overlap.
+                //        Adjust the label's y-position to remove the overlap.
+                //        *!/
+                //        var center = labelsArc[i].centroid(d);
+                //        var percent = getSlicePercentage(d);
+                //        if (d.value && percent >= labelThreshold) {
+                //            var hashKey = createHashKey(center);
+                //            if (labelLocationHash[hashKey]) {
+                //                center[1] -= avgHeight;
+                //            }
+                //            labelLocationHash[createHashKey(center)] = true;
+                //        }
+                //        return 'translate(' + center + ')'
+                //    }
+                //});
+                //
+                //gaugeLabels.select(".nv-label text")
+                //    .style('text-anchor', function(d,i) {
+                //        //center the text on it's origin or begin/end if orthogonal aligned
+                //        return labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle';
+                //    })
+                //    .text(function(d, i) {
+                //        var percent = getSlicePercentage(d);
+                //        var label = '';
+                //        if (!d.value || percent < labelThreshold) return '';
+                //
+                //        if(typeof labelType === 'function') {
+                //            label = labelType(d, i, {
+                //                'key': getX(d.data),
+                //                'value': getY(d.data),
+                //                'percent': valueFormat(percent)
+                //            });
+                //        } else {
+                //            switch (labelType) {
+                //                case 'key':
+                //                    label = getX(d.data);
+                //                    break;
+                //                case 'value':
+                //                    label = valueFormat(getY(d.data));
+                //                    break;
+                //                case 'percent':
+                //                    label = d3.format('%')(percent);
+                //                    break;
+                //            }
+                //        }
+                //        return label;
+                //    })
+                //;
+            }*/
 
 
             // Computes the angle of an arc, converting from radians to degrees.
