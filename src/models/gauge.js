@@ -10,6 +10,7 @@ nv.models.gauge = function() {
         , height = 500
         , getX = function(d) { return d.x }
         , getY = function(d) { return d.y }
+        , icon = function(d) { }
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
         , container = null
         , color = nv.utils.defaultColor()
@@ -48,7 +49,7 @@ nv.models.gauge = function() {
         renderWatch.reset();
         selection.each(function(data) {
 
-            console.log( data );
+            //console.log( data );
             var availableWidth = width - margin.left - margin.right
                 , availableHeight = height - margin.top - margin.bottom
                 , radius = Math.min(availableWidth, availableHeight) / 2
@@ -108,14 +109,14 @@ nv.models.gauge = function() {
             arcs = [];
             arcsOver = [];
 
-            console.log(data);
+            //console.log(data);
 
             data.sort(function(a, b){ return d3.ascending(a.value, b.value); });
             data.forEach(function(d, i){
                 d.prevValue = i > 0? data[i-1].value : 0;
             });
 
-            console.log(data);
+            //console.log(data);
 
             for (var i = 0; i < data.length; i++) {
 
@@ -271,9 +272,20 @@ nv.models.gauge = function() {
 */
                     var val = gaugeValue.datum();
 
-                    gaugeInfo.select('.key text').text( val.key );
+                    var thresholds = icon(val.value, data);
+
+                    gaugeInfo.select('.key text').text( thresholds || val.key );
+
                     gaugeInfo.select('.value text').text( valueFormat(val.value) );
-                    gaugeInfo.select('.icon path').attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
+
+                    if ( thresholds ) {
+                        gaugeInfo.select('.icon path')
+                            .attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
+                        //console.log(thresholds)
+                        gaugeInfo.select('.icon')
+                            .attr('class', 'icon ' + thresholds );
+
+                    }
                 }
             }
 
@@ -489,11 +501,11 @@ nv.models.gauge = function() {
         value:      {get: function(){return val;}, set: function(_){val=_;}},
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
-        showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
-        showLabels: {get: function(){return showLabels;}, set: function(_){showLabels=_;}},
+        //showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
+        //showLabels: {get: function(){return showLabels;}, set: function(_){showLabels=_;}},
         title:      {get: function(){return title;}, set: function(_){title=_;}},
         titleOffset:    {get: function(){return titleOffset;}, set: function(_){titleOffset=_;}},
-        labelThreshold: {get: function(){return labelThreshold;}, set: function(_){labelThreshold=_;}},
+        //labelThreshold: {get: function(){return labelThreshold;}, set: function(_){labelThreshold=_;}},
         valueFormat:    {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
         x:          {get: function(){return getX;}, set: function(_){getX=_;}},
         id:         {get: function(){return id;}, set: function(_){id=_;}},
@@ -502,26 +514,26 @@ nv.models.gauge = function() {
         padAngle:   {get: function(){return padAngle;}, set: function(_){padAngle=_;}},
         cornerRadius: {get: function(){return cornerRadius;}, set: function(_){cornerRadius=_;}},
         donutRatio:   {get: function(){return donutRatio;}, set: function(_){donutRatio=_;}},
-        labelsOutside: {get: function(){return labelsOutside;}, set: function(_){labelsOutside=_;}},
-        labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
+        //labelsOutside: {get: function(){return labelsOutside;}, set: function(_){labelsOutside=_;}},
+        //labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
         //donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
         growOnHover:        {get: function(){return growOnHover;}, set: function(_){growOnHover=_;}},
 
         // depreciated after 1.7.1
-        gaugeLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
-            labelsOutside=_;
-            nv.deprecated('gaugeLabelsOutside', 'use labelsOutside instead');
-        }},
-        // depreciated after 1.7.1
+        //gaugeLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
+        //    labelsOutside=_;
+        //    nv.deprecated('gaugeLabelsOutside', 'use labelsOutside instead');
+        //}},
+        //// depreciated after 1.7.1
         //donutLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
         //    labelsOutside=_;
         //    nv.deprecated('donutLabelsOutside', 'use labelsOutside instead');
         //}},
         // deprecated after 1.7.1
-        labelFormat: {get: function(){ return valueFormat;}, set: function(_) {
-            valueFormat=_;
-            nv.deprecated('labelFormat','use valueFormat instead');
-        }},
+        //labelFormat: {get: function(){ return valueFormat;}, set: function(_) {
+        //    valueFormat=_;
+        //    nv.deprecated('labelFormat','use valueFormat instead');
+        //}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
@@ -533,12 +545,15 @@ nv.models.gauge = function() {
         y: {get: function(){return getY;}, set: function(_){
             getY=d3.functor(_);
         }},
+        icon: {get: function(){return icon;}, set: function(_){
+            icon=d3.functor(_);
+        }},
         color: {get: function(){return color;}, set: function(_){
             color=nv.utils.getColor(_);
-        }},
+        }}/*,
         labelType:          {get: function(){return labelType;}, set: function(_){
             labelType= _ || 'key';
-        }}
+        }}*/
     });
 
     nv.utils.initOptions(chart);

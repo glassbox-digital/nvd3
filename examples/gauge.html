@@ -13,73 +13,87 @@
         text {
             font: 12px sans-serif;
         }
+
         .testBlock {
             display: block;
             float: left;
             height: 400px;
             width: 500px;
         }
+
         html, body {
             margin: 0px;
             padding: 0px;
             height: 100%;
             width: 100%;
         }
+
+        .icon.Critical {
+            fill: #BC5050;
+        }
+        .icon.Problematic {
+            fill: #F1BE48;
+        }
+        .icon.Good {
+            display: none;;
+        }
     </style>
 </head>
 <body>
 
 <!--<div class="testBlock"><svg id="test1"></svg></div>-->
-<div class="testBlock"><svg id="test2" style="background: aliceblue"></svg></div>
+<div class="testBlock">
+    <svg id="test2" style="background: aliceblue"></svg>
+</div>
 
 <script>
 
     var testdata = [
 //        {key: "Availability", y: Math.round(Math.random() * 100, 2), color: 'rgb(0, 181, 226)' },
-        {key: "Critical", value: 20, color:'#BC5050' },
+        {key: "Critical", value: 20, color: '#BC5050'},
         {key: "Problematic", value: 60, color: '#F1BE48'},
-        {key: "Good", value: 100, color:'#A4D65E' }
+        {key: "Good", value: 100, color: '#A4D65E'}
     ];
 
     var width = 500;
     var height = 400;
 
     /*nv.addGraph(function() {
-        var chart = nv.models.gauge()
-                .x(function(d) { return d.key; })
-                .y(function(d) { return d.y; })
-                .width(width)
-                .height(height)
-                .labelType(function(d, i, values) {
-                    return values.key + ':' + values.value;
-                })
-                ;
+     var chart = nv.models.gauge()
+     .x(function(d) { return d.key; })
+     .y(function(d) { return d.y; })
+     .width(width)
+     .height(height)
+     .labelType(function(d, i, values) {
+     return values.key + ':' + values.value;
+     })
+     ;
 
-        d3.select("#test1")
-                .datum([testdata])
-                .transition().duration(1200)
-                .attr('width', width)
-                .attr('height', height)
-                .call(chart);
+     d3.select("#test1")
+     .datum([testdata])
+     .transition().duration(1200)
+     .attr('width', width)
+     .attr('height', height)
+     .call(chart);
 
-        // LISTEN TO CLICK EVENTS ON THE gauge CONTAINER
-        // chart.dispatch.on('chartClick', function() {
-        //   code...
-        // });
+     // LISTEN TO CLICK EVENTS ON THE gauge CONTAINER
+     // chart.dispatch.on('chartClick', function() {
+     //   code...
+     // });
 
-        // LISTEN TO CLICK EVENTS ON THE SLICES OF THE gauge
-        // chart.dispatch.on('elementClick', function() {
-        //   code...
-        // });
+     // LISTEN TO CLICK EVENTS ON THE SLICES OF THE gauge
+     // chart.dispatch.on('elementClick', function() {
+     //   code...
+     // });
 
-        // OTHER EVENTS DISPATCHED BY THE gauge INCLUDE: elementDblClick, elementMouseover, elementMouseout, elementMousemove, renderEnd
-        // @see nv.models.gauge
-        return chart;
-    });*/
+     // OTHER EVENTS DISPATCHED BY THE gauge INCLUDE: elementDblClick, elementMouseover, elementMouseout, elementMousemove, renderEnd
+     // @see nv.models.gauge
+     return chart;
+     });*/
 
-    var angleScale = d3.scale.linear().range([-.8 * Math.PI,.8 * Math.PI]).domain([0,100]);
+    var angleScale = d3.scale.linear().range([-.8 * Math.PI, .8 * Math.PI]).domain([0, 100]);
 
-    nv.addGraph(function() {
+    nv.addGraph(function () {
         var chart = nv.models.gaugeChart()
                 .x(function (d) {
                     return d.key;
@@ -97,13 +111,19 @@
                 })
                 .width(width)
                 .height(height)
-                .showLabels(false)
-                .labelType('percent')
                 .valueFormat(function (y) {
-                    return (d3.round(y,2) + '%');
+                    return (d3.round(y, 2) + '%');
                 })
                 .padAngle(.01)
                 .value({value: Math.random() * 100, color: 'rgb(0, 181, 226)', key: 'Availability'})
+                .icon(function (v, data) {
+                    var rc = data.map(function (d) {
+                        return (d.value > v && d.prevValue <= v)? d.key : null;
+                    }).join(' ');
+
+//                    console.log(rc);
+                    return rc;
+                })
                 .donutRatio(.6);
 
         d3.select("#test2")
@@ -113,7 +133,7 @@
                 .attr('height', height)
                 .call(chart);
 
-        setInterval(function(){
+        setInterval(function () {
             chart.value({value: Math.random() * 100, color: 'rgb(0, 181, 226)', key: 'Availability'}).update();
         }, 2000);
 
