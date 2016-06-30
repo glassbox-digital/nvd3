@@ -14,6 +14,9 @@ nv.models.gauge = function () {
         , getY = function (d) {
             return d.y
         }
+        , getThreshold = function (d) {
+            return d.threshold;
+        }
         , icon = function (d) {
         }
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
@@ -101,14 +104,14 @@ nv.models.gauge = function () {
             //console.log(data);
 
             var thresholds = data.filter(function (d) {
-                return d.threshold;
+                return getThreshold(d);
             }).sort(function (a, b) {
-                    return d3.ascending(a.value, b.value);
+                    return d3.ascending(getY(a), getY(b));
                 });
 
             thresholds
                 .forEach(function (d, i) {
-                    d.prevValue = i > 0 ? thresholds[i - 1].value : 0;
+                    d.prevValue = i > 0 ? getY(thresholds[i - 1]) : 0;
                 });
 
             //console.log(data);
@@ -140,7 +143,7 @@ nv.models.gauge = function () {
                 .sort(null)
                 .value(function (d, i) {
                     //console.log(d, i);
-                    return !d.threshold ? 0 : (d.value - d.prevValue);
+                    return getThreshold(d) ? (getY(d) - d.prevValue) : 0;
                     /*getY(d)*/
                 });
 
@@ -177,7 +180,7 @@ nv.models.gauge = function () {
             ae.attr('class', 'nv-slice');
             ae.on('mouseover', function (d, i) {
 
-                if (!d.data.threshold)
+                if (!getThreshold(d.data))
                     return;
 
                 d3.select(this).classed('hover', true);
@@ -200,7 +203,7 @@ nv.models.gauge = function () {
                 });
             });
             ae.on('mouseout', function (d, i) {
-                if (!d.data.threshold)
+                if (!getThreshold(d.data))
                     return;
 
                 d3.select(this).classed('hover', false);
@@ -215,7 +218,7 @@ nv.models.gauge = function () {
                 dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
             ae.on('mousemove', function (d, i) {
-                if (!d.data.threshold)
+                if (!getThreshold(d.data))
                     return;
 
                 dispatch.elementMousemove({data: d.data, index: i, element: this});
@@ -276,19 +279,19 @@ nv.models.gauge = function () {
 
                      */
                     var val = gaugeInfo.datum().filter(function (d) {
-                        return !d.data.threshold;
+                        return !getThreshold(d.data);
                     });
 
                     val = val && val.length > 0 ? val[0].data : null;
 
                     if ( val ) {
 
-                        var thresholds = icon(val.value, data.filter(function (d) {
-                            return d.threshold;
+                        var thresholds = icon(getY(val), data.filter(function (d) {
+                            return getThreshold(d);
                         }));
 
-                        gaugeInfo.select('.key text').text(thresholds || val.key);
-                        gaugeInfo.select('.value text').text(valueFormat(val.value));
+                        gaugeInfo.select('.key text').text(thresholds || getX(val));
+                        gaugeInfo.select('.value text').text(valueFormat(getY(val)));
 
                         if (thresholds) {
                             gaugeInfo.select('.icon path')
@@ -346,7 +349,7 @@ nv.models.gauge = function () {
 
             slices.select('path.nv-slice-path')
                 .filter(function (d) {
-                    return d.data.threshold;
+                    return getThreshold(d.data);
                 })
                 .transition()
                 /*.duration(500)*/
@@ -357,7 +360,7 @@ nv.models.gauge = function () {
 
             slices.select('path.nv-slice-path')
                 .filter(function (d) {
-                    return !d.data.threshold;
+                    return !getThreshold(d.data);
                 })
                 .transition()
                 .duration(500)
@@ -537,6 +540,13 @@ nv.models.gauge = function () {
                 return getY;
             }, set: function (_) {
                 getY = d3.functor(_);
+            }
+        },
+        threshold: {
+            get: function () {
+                return getThreshold;
+            }, set: function (_) {
+                getThreshold = d3.functor(_);
             }
         },
         icon: {
