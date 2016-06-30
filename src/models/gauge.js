@@ -1,4 +1,4 @@
-nv.models.gauge = function() {
+nv.models.gauge = function () {
     "use strict";
 
     //============================================================
@@ -8,9 +8,14 @@ nv.models.gauge = function() {
     var margin = {top: 0, right: 0, bottom: 0, left: 0}
         , width = 500
         , height = 500
-        , getX = function(d) { return d.x }
-        , getY = function(d) { return d.y }
-        , icon = function(d) { }
+        , getX = function (d) {
+            return d.x
+        }
+        , getY = function (d) {
+            return d.y
+        }
+        , icon = function (d) {
+        }
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
         , container = null
         , color = nv.utils.defaultColor()
@@ -31,13 +36,10 @@ nv.models.gauge = function() {
         , endAngle = false
         , cornerRadius = 0
         , donutRatio = 0.5
-        , val = { start: 0, end: 0 }
+        , val = {start: 0, end: 0}
         , arcsRadius = []
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
         ;
-
-    var arcs = [];
-    var arcsOver = [];
 
     //============================================================
     // chart function
@@ -47,43 +49,33 @@ nv.models.gauge = function() {
 
     function chart(selection) {
         renderWatch.reset();
-        selection.each(function(data) {
+        selection.each(function (data) {
 
             //console.log( data );
             var availableWidth = width - margin.left - margin.right
                 , availableHeight = height - margin.top - margin.bottom
                 , radius = Math.min(availableWidth, availableHeight) / 2
-                , arcsRadiusOuter = []
-                , arcsRadiusInner = []
                 ;
 
-            container = d3.select(this)
-            if (arcsRadius.length === 0) {
-                var outer = radius - 10;
-                var inner = outer - 10;
-                for (var i = 0; i < data.length; i++) {
-                    arcsRadiusOuter.push(outer);
-                    arcsRadiusInner.push(inner);
-                }
-            } else {
-                arcsRadiusOuter = arcsRadius.map(function (d) { return (d.outer - d.outer / 5) * radius; });
-                arcsRadiusInner = arcsRadius.map(function (d) { return (d.inner - d.inner / 5) * radius; });
-                donutRatio = d3.min(arcsRadius.map(function (d) { return (d.inner - d.inner / 5); }));
-            }
+            container = d3.select(this);
+
+            var outer = radius - 10;
+            var inner = outer - 10;
+
             nv.utils.initSVG(container);
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('.nv-wrap.nv-gauge').data([data]);
-            var wrapEnter = wrap.enter().append('g').attr('class','nvd3 nv-wrap nv-gauge nv-chart-' + id);
+            var wrapEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-gauge nv-chart-' + id);
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
             var g_gauge = gEnter.append('g').attr('class', 'nv-gauge');
             //gEnter.append('g').attr('class', 'nv-gaugeLabels');
 
-            var gValueEnter = gEnter.append('g').attr('class', 'nv-gaugeValue');
-            gValueEnter.append('path').attr('class', 'nv-gaugeValue-path').each(function(d) {
-                this._current = d;
-            });;
+            //var gValueEnter = gEnter.append('g').attr('class', 'nv-gaugeValue');
+            //gValueEnter.append('path').attr('class', 'nv-gaugeValue-path').each(function(d) {
+            //    this._current = d;
+            //});;
 
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-gaugeInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
@@ -94,10 +86,10 @@ nv.models.gauge = function() {
             g.select('.nv-gauge').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             //g.select('.nv-gaugeLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-gaugeInfo').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
-            g.select('.nv-gaugeValue').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
+            //g.select('.nv-gaugeValue').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
 
             //
-            container.on('click', function(d,i) {
+            container.on('click', function (d, i) {
                 dispatch.chartClick({
                     data: d,
                     index: i,
@@ -106,51 +98,50 @@ nv.models.gauge = function() {
                 });
             });
 
-            arcs = [];
-            arcsOver = [];
+            //console.log(data);
+
+            var thresholds = data.filter(function (d) {
+                return d.threshold;
+            }).sort(function (a, b) {
+                    return d3.ascending(a.value, b.value);
+                });
+
+            thresholds
+                .forEach(function (d, i) {
+                    d.prevValue = i > 0 ? thresholds[i - 1].value : 0;
+                });
 
             //console.log(data);
 
-            data.sort(function(a, b){ return d3.ascending(a.value, b.value); });
-            data.forEach(function(d, i){
-                d.prevValue = i > 0? data[i-1].value : 0;
-            });
+            var arc = d3.svg.arc().outerRadius(outer);
+            var arcOver = d3.svg.arc().outerRadius(outer + 5);
 
-            //console.log(data);
+            if (startAngle !== false) {
+                arc.startAngle(startAngle);
+                arcOver.startAngle(startAngle);
+            }
 
-            for (var i = 0; i < data.length; i++) {
+            if (endAngle !== false) {
+                arc.endAngle(endAngle);
+                arcOver.endAngle(endAngle);
+            }
+            if (donut) {
+                arc.innerRadius(inner);
+                arcOver.innerRadius(inner);
+            }
 
-                var arc = d3.svg.arc().outerRadius(arcsRadiusOuter[i]);
-                var arcOver = d3.svg.arc().outerRadius(arcsRadiusOuter[i] + 5);
-
-                if (startAngle !== false) {
-                    arc.startAngle(startAngle);
-                    arcOver.startAngle(startAngle);
-                }
-                if (endAngle !== false) {
-                    arc.endAngle(endAngle);
-                    arcOver.endAngle(endAngle);
-                }
-                if (donut) {
-                    arc.innerRadius(arcsRadiusInner[i]);
-                    arcOver.innerRadius(arcsRadiusInner[i]);
-                }
-
-                if (arc.cornerRadius && cornerRadius) {
-                    arc.cornerRadius(cornerRadius);
-                    arcOver.cornerRadius(cornerRadius);
-                }
-
-                arcs.push(arc);
-                arcsOver.push(arcOver);
+            if (arc.cornerRadius && cornerRadius) {
+                arc.cornerRadius(cornerRadius);
+                arcOver.cornerRadius(cornerRadius);
             }
 
             // Setup the gauge chart and choose the data element
             var gaugeData = d3.layout.pie()
                 .sort(null)
-                .value(function(d, i) {
+                .value(function (d, i) {
                     //console.log(d, i);
-                    return d.disabled ? 0 : (d.value - d.prevValue);/*getY(d)*/
+                    return !d.threshold ? 0 : (d.value - d.prevValue);
+                    /*getY(d)*/
                 });
 
             // padAngle added in d3 3.5
@@ -169,13 +160,13 @@ nv.models.gauge = function() {
                     })
                     .style("font-size", (Math.min(availableWidth, availableHeight)) * donutRatio * 2 / (title.length + 2) + "px")
                     .attr("dy", "0.35em") // trick to vertically center text
-                    .attr('transform', function(d, i) {
-                        return 'translate(0, '+ titleOffset + ')';
+                    .attr('transform', function (d, i) {
+                        return 'translate(0, ' + titleOffset + ')';
                     });
             }
 
             var slices = wrap.select('.nv-gauge').selectAll('.nv-slice').data(gaugeData);
-            var gaugeValue = wrap.select('.nv-gaugeValue').datum(val);
+            //var gaugeValue = wrap.select('.nv-gaugeValue').datum(val);
             //var gaugeLabels = wrap.select('.nv-gaugeLabels').selectAll('.nv-label').data(gaugeData);
             var gaugeInfo = wrap.select('.nv-gaugeInfo').datum(gaugeData);
 
@@ -184,17 +175,21 @@ nv.models.gauge = function() {
 
             var ae = slices.enter().append('g');
             ae.attr('class', 'nv-slice');
-            ae.on('mouseover', function(d, i) {
+            ae.on('mouseover', function (d, i) {
+
+                if (!d.data.threshold)
+                    return;
+
                 d3.select(this).classed('hover', true);
                 if (growOnHover) {
                     d3.select(this).select("path").transition()
                         .duration(70)
-                        .attr("d", arcsOver[i]);
+                        .attr("d", arcOver);
                 }
 
-                if ( donut ){
+                if (donut) {
                     gaugeInfo.select('.key text').text(getX(d.data));
-                    gaugeInfo.select('.value text').text( valueFormat(getY(d.data)) );
+                    gaugeInfo.select('.value text').text(valueFormat(getY(d.data)));
                 }
 
                 dispatch.elementMouseover({
@@ -204,86 +199,108 @@ nv.models.gauge = function() {
                     element: this
                 });
             });
-            ae.on('mouseout', function(d, i) {
+            ae.on('mouseout', function (d, i) {
+                if (!d.data.threshold)
+                    return;
+
                 d3.select(this).classed('hover', false);
                 if (growOnHover) {
                     d3.select(this).select("path").transition()
                         .duration(50)
-                        .attr("d", arcs[i]);
+                        .attr("d", arc);
                 }
 
                 donutInfo();
 
                 dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
-            ae.on('mousemove', function(d, i) {
+            ae.on('mousemove', function (d, i) {
+                if (!d.data.threshold)
+                    return;
+
                 dispatch.elementMousemove({data: d.data, index: i, element: this});
             });
-         /*   ae.on('click', function(d, i) {
-                var element = this;
+            /*   ae.on('click', function(d, i) {
+             var element = this;
 
-                d.data.selected = !d.data.selected;
-                d3.select(this).classed('selected', d.data.selected);
+             d.data.selected = !d.data.selected;
+             d3.select(this).classed('selected', d.data.selected);
 
-                donutInfo();
+             donutInfo();
 
-                dispatch.elementClick({
-                    data: d.data,
-                    index: i,
-                    color: d3.select(this).style("fill"),
-                    event: d3.event,
-                    element: element
-                });
+             dispatch.elementClick({
+             data: d.data,
+             index: i,
+             color: d3.select(this).style("fill"),
+             event: d3.event,
+             element: element
+             });
 
+             });
+             ae.on('dblclick', function(d, i) {
+             dispatch.elementDblClick({
+             data: d.data,
+             index: i,
+             color: d3.select(this).style("fill")
+             });
+             });*/
+
+            slices.attr('fill', function (d, i) {
+                return color(d.data, i);
             });
-            ae.on('dblclick', function(d, i) {
-                dispatch.elementDblClick({
-                    data: d.data,
-                    index: i,
-                    color: d3.select(this).style("fill")
-                });
-            });*/
+            slices.attr('stroke', function (d, i) {
+                return color(d.data, i);
+            });
 
-            slices.attr('fill', function(d,i) { return color(d.data, i); });
-            slices.attr('stroke', function(d,i) { return color(d.data, i); });
-
-            var paths = ae.append('path').attr('class', 'nv-slice-path').each(function(d) {
+            var paths = ae.append('path').attr('class', 'nv-slice-path').each(function (d) {
                 this._current = d;
             });
 
-/*
-            if ( showChecks ) {
-                ae.append('path').attr('class', 'nv-check')
-                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
-            }
+            /*
+             if ( showChecks ) {
+             ae.append('path').attr('class', 'nv-check')
+             .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+             }
 
-            slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
-*/
+             slices.classed('selected', function(d){ return d.value > 0 && d.data.selected; })
+             */
 
             donutInfo();
 
-            function donutInfo(){
-                if ( donut) {
-/*
-                    var gaugeData = gaugeInfo.datum(),
-                        selected = gaugeData.filter(function(d){ return d.data.selected;}),
-                        sum = d3.sum( selected, function(d){ return d.value;});
+            function donutInfo() {
+                if (donut) {
+                    /*
+                     var gaugeData = gaugeInfo.datum(),
+                     selected = gaugeData.filter(function(d){ return d.data.selected;}),
+                     sum = d3.sum( selected, function(d){ return d.value;});
 
-*/
-                    var val = gaugeValue.datum();
+                     */
+                    var val = gaugeInfo.datum().filter(function (d) {
+                        return !d.data.threshold;
+                    });
 
-                    var thresholds = icon(val.value, data);
+                    val = val && val.length > 0 ? val[0].data : null;
 
-                    gaugeInfo.select('.key text').text( thresholds || val.key );
+                    if ( val ) {
 
-                    gaugeInfo.select('.value text').text( valueFormat(val.value) );
+                        var thresholds = icon(val.value, data.filter(function (d) {
+                            return d.threshold;
+                        }));
 
-                    if ( thresholds ) {
-                        gaugeInfo.select('.icon path')
-                            .attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
-                        //console.log(thresholds)
-                        gaugeInfo.select('.icon')
-                            .attr('class', 'icon ' + thresholds );
+                        gaugeInfo.select('.key text').text(thresholds || val.key);
+                        gaugeInfo.select('.value text').text(valueFormat(val.value));
+
+                        if (thresholds) {
+                            gaugeInfo.select('.icon path')
+                                .attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
+                            //console.log(thresholds)
+                            gaugeInfo.select('.icon')
+                                .attr('class', 'icon ' + thresholds);
+                        }
+                    }
+                    else {
+                        gaugeInfo.select('.key text').text('');
+                        gaugeInfo.select('.value text').text(valueFormat(0));
 
                     }
                 }
@@ -300,178 +317,57 @@ nv.models.gauge = function() {
             if (endAngle !== false) {
                 arcValue.endAngle(endAngle);
             }
-/*
-            if (donut) {
-                arcValue.innerRadius(donutRatio * radius);
-            }
-*/
+            /*
+             if (donut) {
+             arcValue.innerRadius(donutRatio * radius);
+             }
+             */
 
-/*
-            if (arcValue.cornerRadius && cornerRadius) {
-                arcValue.cornerRadius(cornerRadius);
-            }
-*/
+            /*
+             if (arcValue.cornerRadius && cornerRadius) {
+             arcValue.cornerRadius(cornerRadius);
+             }
+             */
 
-            gaugeValue
-                .attr('fill', function(d,i) { return color(d, i); })
-                .attr('stroke', function(d,i) { return color(d, i); });
+            /*
+             gaugeValue
+             .attr('fill', function(d,i) { return color(d, i); })
+             .attr('stroke', function(d,i) { return color(d, i); });
+             */
 
-            gaugeValue.select('path')
-                .transition()
-                .duration(500)
-                .attr('d', function (d, i) { return arcValue(d); })
-                .attrTween('d', arcTween);
+            /*
+             gaugeValue.select('path')
+             .transition()
+             .duration(500)
+             .attr("d", function (d, i) { return arcValue(d); })
+             .attrTween("d", arcTween);
+             */
 
 
             slices.select('path.nv-slice-path')
+                .filter(function (d) {
+                    return d.data.threshold;
+                })
                 .transition()
-                .attr('d', function (d, i) { return arcs[i](d); });
+                /*.duration(500)*/
+                .attr("d", function (d, i) {
+                    return arc(d);
+                })
+                /*.attrTween("d", arcTween)*/;
 
-/*
-            if ( showChecks ) {
-                slices.select('path.nv-check')
-                    .attr('transform', function (d, i) {
-                        var center = arcs[i].centroid(d).map(function (v) {
-                            return isNaN(v) ? 0 : v - 10;
-                        });
-                        return 'translate(' + center + ')';
-                    });
-            }
-*/
-
-            /*if (showLabels) {
-                // This does the normal label
-                var labelsArc = [];
-                for (var i = 0; i < data[0].length; i++) {
-                    labelsArc.push(arcs[i]);
-
-                    if (labelsOutside) {
-                        if (donut) {
-                            labelsArc[i] = d3.svg.arc().outerRadius(arcs[i].outerRadius());
-                            if (startAngle !== false) labelsArc[i].startAngle(startAngle);
-                            if (endAngle !== false) labelsArc[i].endAngle(endAngle);
-                        }
-                    } else if (!donut) {
-                            labelsArc[i].innerRadius(0);
-                    }
-                }
-
-                //gaugeLabels.enter().append("g").classed("nv-label",true).each(function(d,i) {
-                //    var group = d3.select(this);
-                //
-                //    group.attr('transform', function (d, i) {
-                //        if (labelSunbeamLayout) {
-                //            d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
-                //            d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
-                //            var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
-                //            if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
-                //                rotateAngle -= 90;
-                //            } else {
-                //                rotateAngle += 90;
-                //            }
-                //            return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
-                //        } else {
-                //            d.outerRadius = radius + 10; // Set Outer Coordinate
-                //            d.innerRadius = radius + 15; // Set Inner Coordinate
-                //            return 'translate(' + labelsArc[i].centroid(d) + ')'
-                //        }
-                //    });
-                //
-                //    group.append('rect')
-                //        .style('stroke', '#fff')
-                //        .style('fill', '#fff')
-                //        .attr("rx", 3)
-                //        .attr("ry", 3);
-                //
-                //    group.append('text')
-                //        .style('text-anchor', labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle') //center the text on it's origin or begin/end if orthogonal aligned
-                //        .style('fill', '#000')
-                //});
-
-                var labelLocationHash = {};
-                var avgHeight = 14;
-                var avgWidth = 140;
-                var createHashKey = function(coordinates) {
-                    return Math.floor(coordinates[0]/avgWidth) * avgWidth + ',' + Math.floor(coordinates[1]/avgHeight) * avgHeight;
-                };
-                var getSlicePercentage = function(d) {
-                    return (d.endAngle - d.startAngle) / (2 * Math.PI);
-                };
-
-                //gaugeLabels.watchTransition(renderWatch, 'gauge labels').attr('transform', function (d, i) {
-                //    if (labelSunbeamLayout) {
-                //        d.outerRadius = arcsRadiusOuter[i] + 10; // Set Outer Coordinate
-                //        d.innerRadius = arcsRadiusOuter[i] + 15; // Set Inner Coordinate
-                //        var rotateAngle = (d.startAngle + d.endAngle) / 2 * (180 / Math.PI);
-                //        if ((d.startAngle + d.endAngle) / 2 < Math.PI) {
-                //            rotateAngle -= 90;
-                //        } else {
-                //            rotateAngle += 90;
-                //        }
-                //        return 'translate(' + labelsArc[i].centroid(d) + ') rotate(' + rotateAngle + ')';
-                //    } else {
-                //        d.outerRadius = radius + 10; // Set Outer Coordinate
-                //        d.innerRadius = radius + 15; // Set Inner Coordinate
-                //
-                //        /!*
-                //        Overlapping gauge labels are not good. What this attempts to do is, prevent overlapping.
-                //        Each label location is hashed, and if a hash collision occurs, we assume an overlap.
-                //        Adjust the label's y-position to remove the overlap.
-                //        *!/
-                //        var center = labelsArc[i].centroid(d);
-                //        var percent = getSlicePercentage(d);
-                //        if (d.value && percent >= labelThreshold) {
-                //            var hashKey = createHashKey(center);
-                //            if (labelLocationHash[hashKey]) {
-                //                center[1] -= avgHeight;
-                //            }
-                //            labelLocationHash[createHashKey(center)] = true;
-                //        }
-                //        return 'translate(' + center + ')'
-                //    }
-                //});
-                //
-                //gaugeLabels.select(".nv-label text")
-                //    .style('text-anchor', function(d,i) {
-                //        //center the text on it's origin or begin/end if orthogonal aligned
-                //        return labelSunbeamLayout ? ((d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end') : 'middle';
-                //    })
-                //    .text(function(d, i) {
-                //        var percent = getSlicePercentage(d);
-                //        var label = '';
-                //        if (!d.value || percent < labelThreshold) return '';
-                //
-                //        if(typeof labelType === 'function') {
-                //            label = labelType(d, i, {
-                //                'key': getX(d.data),
-                //                'value': getY(d.data),
-                //                'percent': valueFormat(percent)
-                //            });
-                //        } else {
-                //            switch (labelType) {
-                //                case 'key':
-                //                    label = getX(d.data);
-                //                    break;
-                //                case 'value':
-                //                    label = valueFormat(getY(d.data));
-                //                    break;
-                //                case 'percent':
-                //                    label = d3.format('%')(percent);
-                //                    break;
-                //            }
-                //        }
-                //        return label;
-                //    })
-                //;
-            }*/
+            slices.select('path.nv-slice-path')
+                .filter(function (d) {
+                    return !d.data.threshold;
+                })
+                .transition()
+                .duration(500)
+                .attr("d", function (d, i) {
+                    return arcValue(d);
+                })
+                .attrTween("d", arcTween);
 
 
             // Computes the angle of an arc, converting from radians to degrees.
-            //function angle(d) {
-            //    var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
-            //    return a > 90 ? a - 180 : a;
-            //}
-
             function arcTween(a, idx) {
                 a.endAngle = isNaN(a.endAngle) ? 0 : a.endAngle;
                 a.startAngle = 0;
@@ -497,27 +393,117 @@ nv.models.gauge = function() {
 
     chart._options = Object.create({}, {
         // simple options, just get/set the necessary values
-        arcsRadius: { get: function () { return arcsRadius; }, set: function (_) { arcsRadius = _; } },
-        value:      {get: function(){return val;}, set: function(_){val=_;}},
-        width:      {get: function(){return width;}, set: function(_){width=_;}},
-        height:     {get: function(){return height;}, set: function(_){height=_;}},
+        arcsRadius: {
+            get: function () {
+                return arcsRadius;
+            }, set: function (_) {
+                arcsRadius = _;
+            }
+        },
+        value: {
+            get: function () {
+                return val;
+            }, set: function (_) {
+                val = _;
+            }
+        },
+        width: {
+            get: function () {
+                return width;
+            }, set: function (_) {
+                width = _;
+            }
+        },
+        height: {
+            get: function () {
+                return height;
+            }, set: function (_) {
+                height = _;
+            }
+        },
         //showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         //showLabels: {get: function(){return showLabels;}, set: function(_){showLabels=_;}},
-        title:      {get: function(){return title;}, set: function(_){title=_;}},
-        titleOffset:    {get: function(){return titleOffset;}, set: function(_){titleOffset=_;}},
+        title: {
+            get: function () {
+                return title;
+            }, set: function (_) {
+                title = _;
+            }
+        },
+        titleOffset: {
+            get: function () {
+                return titleOffset;
+            }, set: function (_) {
+                titleOffset = _;
+            }
+        },
         //labelThreshold: {get: function(){return labelThreshold;}, set: function(_){labelThreshold=_;}},
-        valueFormat:    {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
-        x:          {get: function(){return getX;}, set: function(_){getX=_;}},
-        id:         {get: function(){return id;}, set: function(_){id=_;}},
-        endAngle:   {get: function(){return endAngle;}, set: function(_){endAngle=_;}},
-        startAngle: {get: function(){return startAngle;}, set: function(_){startAngle=_;}},
-        padAngle:   {get: function(){return padAngle;}, set: function(_){padAngle=_;}},
-        cornerRadius: {get: function(){return cornerRadius;}, set: function(_){cornerRadius=_;}},
-        donutRatio:   {get: function(){return donutRatio;}, set: function(_){donutRatio=_;}},
+        valueFormat: {
+            get: function () {
+                return valueFormat;
+            }, set: function (_) {
+                valueFormat = _;
+            }
+        },
+        x: {
+            get: function () {
+                return getX;
+            }, set: function (_) {
+                getX = _;
+            }
+        },
+        id: {
+            get: function () {
+                return id;
+            }, set: function (_) {
+                id = _;
+            }
+        },
+        endAngle: {
+            get: function () {
+                return endAngle;
+            }, set: function (_) {
+                endAngle = _;
+            }
+        },
+        startAngle: {
+            get: function () {
+                return startAngle;
+            }, set: function (_) {
+                startAngle = _;
+            }
+        },
+        padAngle: {
+            get: function () {
+                return padAngle;
+            }, set: function (_) {
+                padAngle = _;
+            }
+        },
+        cornerRadius: {
+            get: function () {
+                return cornerRadius;
+            }, set: function (_) {
+                cornerRadius = _;
+            }
+        },
+        donutRatio: {
+            get: function () {
+                return donutRatio;
+            }, set: function (_) {
+                donutRatio = _;
+            }
+        },
         //labelsOutside: {get: function(){return labelsOutside;}, set: function(_){labelsOutside=_;}},
         //labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
         //donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
-        growOnHover:        {get: function(){return growOnHover;}, set: function(_){growOnHover=_;}},
+        growOnHover: {
+            get: function () {
+                return growOnHover;
+            }, set: function (_) {
+                growOnHover = _;
+            }
+        },
 
         // depreciated after 1.7.1
         //gaugeLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
@@ -536,24 +522,40 @@ nv.models.gauge = function() {
         //}},
 
         // options that require extra logic in the setter
-        margin: {get: function(){return margin;}, set: function(_){
-            margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
-            margin.right  = typeof _.right  != 'undefined' ? _.right  : margin.right;
-            margin.bottom = typeof _.bottom != 'undefined' ? _.bottom : margin.bottom;
-            margin.left   = typeof _.left   != 'undefined' ? _.left   : margin.left;
-        }},
-        y: {get: function(){return getY;}, set: function(_){
-            getY=d3.functor(_);
-        }},
-        icon: {get: function(){return icon;}, set: function(_){
-            icon=d3.functor(_);
-        }},
-        color: {get: function(){return color;}, set: function(_){
-            color=nv.utils.getColor(_);
-        }}/*,
-        labelType:          {get: function(){return labelType;}, set: function(_){
-            labelType= _ || 'key';
-        }}*/
+        margin: {
+            get: function () {
+                return margin;
+            }, set: function (_) {
+                margin.top = typeof _.top != 'undefined' ? _.top : margin.top;
+                margin.right = typeof _.right != 'undefined' ? _.right : margin.right;
+                margin.bottom = typeof _.bottom != 'undefined' ? _.bottom : margin.bottom;
+                margin.left = typeof _.left != 'undefined' ? _.left : margin.left;
+            }
+        },
+        y: {
+            get: function () {
+                return getY;
+            }, set: function (_) {
+                getY = d3.functor(_);
+            }
+        },
+        icon: {
+            get: function () {
+                return icon;
+            }, set: function (_) {
+                icon = d3.functor(_);
+            }
+        },
+        color: {
+            get: function () {
+                return color;
+            }, set: function (_) {
+                color = nv.utils.getColor(_);
+            }
+        }/*,
+         labelType:          {get: function(){return labelType;}, set: function(_){
+         labelType= _ || 'key';
+         }}*/
     });
 
     nv.utils.initOptions(chart);
