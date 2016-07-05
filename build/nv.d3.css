@@ -219,7 +219,7 @@
   pointer-events: none;
 }
 .nvd3.nv-gauge .nv-gaugeInfo .key {
-  transform: translateY(-20px);
+  transform: translateY(-14px);
 }
 .nvd3.nv-gauge .nv-gaugeInfo .key > text {
   font-size: 14px;
@@ -227,10 +227,10 @@
   text-anchor: middle;
 }
 .nvd3.nv-gauge .nv-gaugeInfo .value {
-  transform: translateY(18px);
+  transform: translateY(16px);
 }
 .nvd3.nv-gauge .nv-gaugeInfo .value > text {
-  font-size: 34px;
+  font-size: 25px;
   text-anchor: middle;
 }
 .nvd3.nv-gauge .nv-gaugeInfo .icon {
