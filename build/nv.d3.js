@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-06-30 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-05 */
 (function(){
 
 // set up main nv object
@@ -4962,7 +4962,7 @@ nv.models.gauge = function () {
             container = d3.select(this);
 
             var outer = radius - 10;
-            var inner = outer - 10;
+            var inner = outer - 5;
 
             nv.utils.initSVG(container);
 
@@ -5194,7 +5194,7 @@ nv.models.gauge = function () {
 
                         if (thresholds) {
                             gaugeInfo.select('.icon path')
-                                .attr("d", "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z");
+                                .attr("d", "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z");
                             //console.log(thresholds)
                             gaugeInfo.select('.icon')
                                 .attr('class', 'icon ' + thresholds);
@@ -5210,8 +5210,8 @@ nv.models.gauge = function () {
 
 
             var arcValue = d3.svg.arc()
-                .innerRadius(donutRatio * radius)
-                .outerRadius(radius - 22);
+                .innerRadius(inner - 2)
+                .outerRadius(inner - 32);
 
             if (startAngle !== false) {
                 arcValue.startAngle(startAngle);
