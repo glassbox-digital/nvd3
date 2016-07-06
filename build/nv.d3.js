@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-05 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-06 */
 (function(){
 
 // set up main nv object
@@ -5211,7 +5211,7 @@ nv.models.gauge = function () {
 
             var arcValue = d3.svg.arc()
                 .innerRadius(inner - 2)
-                .outerRadius(inner - 32);
+                .outerRadius(inner - 28);
 
             if (startAngle !== false) {
                 arcValue.startAngle(startAngle);
