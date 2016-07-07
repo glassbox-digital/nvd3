@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-06 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-07 */
 (function(){
 
 // set up main nv object
@@ -4986,9 +4986,7 @@ nv.models.gauge = function () {
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             g.select('.nv-gauge').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
-            //g.select('.nv-gaugeLabels').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
             g.select('.nv-gaugeInfo').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
-            //g.select('.nv-gaugeValue').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
 
             //
             container.on('click', function (d, i) {
@@ -5041,9 +5039,7 @@ nv.models.gauge = function () {
             var gaugeData = d3.layout.pie()
                 .sort(null)
                 .value(function (d, i) {
-                    //console.log(d, i);
-                    return getThreshold(d) ? (getY(d) - d.prevValue) : 0;
-                    /*getY(d)*/
+                    return getThreshold(d) ? (getY(d) - d.prevValue) : getY(d);
                 });
 
             // padAngle added in d3 3.5
@@ -5068,12 +5064,9 @@ nv.models.gauge = function () {
             }
 
             var slices = wrap.select('.nv-gauge').selectAll('.nv-slice').data(gaugeData);
-            //var gaugeValue = wrap.select('.nv-gaugeValue').datum(val);
-            //var gaugeLabels = wrap.select('.nv-gaugeLabels').selectAll('.nv-label').data(gaugeData);
             var gaugeInfo = wrap.select('.nv-gaugeInfo').datum(gaugeData);
 
             slices.exit().remove();
-            //gaugeLabels.exit().remove();
 
             var ae = slices.enter().append('g');
             ae.attr('class', 'nv-slice');
@@ -5122,30 +5115,6 @@ nv.models.gauge = function () {
 
                 dispatch.elementMousemove({data: d.data, index: i, element: this});
             });
-            /*   ae.on('click', function(d, i) {
-             var element = this;
-
-             d.data.selected = !d.data.selected;
-             d3.select(this).classed('selected', d.data.selected);
-
-             donutInfo();
-
-             dispatch.elementClick({
-             data: d.data,
-             index: i,
-             color: d3.select(this).style("fill"),
-             event: d3.event,
-             element: element
-             });
-
-             });
-             ae.on('dblclick', function(d, i) {
-             dispatch.elementDblClick({
-             data: d.data,
-             index: i,
-             color: d3.select(this).style("fill")
-             });
-             });*/
 
             slices.attr('fill', function (d, i) {
                 return color(d.data, i);
@@ -5251,11 +5220,7 @@ nv.models.gauge = function () {
                     return getThreshold(d.data);
                 })
                 .transition()
-                /*.duration(500)*/
-                .attr("d", function (d, i) {
-                    return arc(d);
-                })
-                /*.attrTween("d", arcTween)*/;
+                .attr("d", arc);
 
             slices.select('path.nv-slice-path')
                 .filter(function (d) {
@@ -5263,16 +5228,14 @@ nv.models.gauge = function () {
                 })
                 .transition()
                 .duration(500)
-                .attr("d", function (d, i) {
-                    return arcValue(d);
-                })
+                .attr("d", arcValue)
                 .attrTween("d", arcTween);
 
-
-            // Computes the angle of an arc, converting from radians to degrees.
             function arcTween(a, idx) {
+                //console.log('arcTween', a );
                 a.endAngle = isNaN(a.endAngle) ? 0 : a.endAngle;
                 a.startAngle = 0;
+
                 //if (!donut) a.innerRadius = 0;
                 var i = d3.interpolate(this._current, a);
                 this._current = i(0);
