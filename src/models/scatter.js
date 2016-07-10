@@ -396,7 +396,8 @@ nv.models.scatter = function() {
                 .style('fill', function (d) { return d.color })
                 .style('stroke', function (d) { return d.color })
                 .attr('transform', function(d) {
-                    return 'translate(' + nv.utils.NaNtoZero(x0(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y0(getY(d[0],d[1]))) + ')'
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x0(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y0(getY(d[0],d[1])) + yOffset) + ')'
                 })
                 .attr('d',
                     nv.utils.symbol()
@@ -407,12 +408,14 @@ nv.models.scatter = function() {
             groups.exit().selectAll('path.nv-point')
                 .watchTransition(renderWatch, 'scatter exit')
                 .attr('transform', function(d) {
+
                     return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + ')'
                 })
                 .remove();
             points.each(function(d) {
                 d3.select(this)
                     .classed('nv-point', true)
+                    .classed('nv-single-point', d[0].singlePoint)
                     .classed('nv-point-' + d[1], true)
                     .classed('nv-noninteractive', !interactive)
                     .classed('hover',false)
@@ -422,7 +425,8 @@ nv.models.scatter = function() {
                 .watchTransition(renderWatch, 'scatter points')
                 .attr('transform', function(d) {
                     //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + ')'
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
                 })
                 .attr('d',
                     nv.utils.symbol()

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-07 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-10 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -558,8 +558,9 @@ svg.nvd3-svg {
   stroke-width: 20px;
   stroke-opacity: .5;
 }
-.nvd3 .nv-scatter .nv-point.hover {
-  fill-opacity: 1;
+.nvd3 .nv-scatter .nv-point.hover,
+.nvd3 .nv-scatter .nv-point.nv-single-point {
+  fill-opacity: 1 !important;
 }
 .nv-noninteractive {
   pointer-events: none;

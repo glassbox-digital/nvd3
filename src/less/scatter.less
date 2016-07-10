@@ -4,9 +4,12 @@
     stroke-opacity: .5;
 }
 
-.nvd3 .nv-scatter .nv-point.hover {
-    fill-opacity: 1;
+.nvd3 .nv-scatter .nv-point{
+    &.hover, &.nv-single-point {
+        fill-opacity: 1 !important;
+    }
 }
+
 .nv-noninteractive {
     pointer-events: none;
 }
