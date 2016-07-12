@@ -511,19 +511,11 @@ nv.models.lineChart = function() {
 
             function onBrushEnd() {
                 if ( brush.empty() ) {
-                    console.log('onBrushEnd empty');
                     dispatch.brush({extent: null, brush: brush});
                 }
-
-                //brushExtent = brush.empty() ? null : brush.extent();
-                var extent = brush.extent();
-
-                //The brush extent cannot be less than one.  If it is, don't update the line chart.
-                //if (Math.abs(extent[0] - extent[1]) <= 1) {
-                //    return;
-                //}
-
-                dispatch.brush({extent: extent, brush: brush});
+                else {
+                    dispatch.brush({extent: brush.extent(), brush: brush});
+                }
             }
     
             function onBrush() {
