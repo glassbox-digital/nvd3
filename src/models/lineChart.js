@@ -275,6 +275,7 @@ nv.models.lineChart = function() {
             {
                 lines2
                     .defined(lines.defined())
+                    .isArea(function(){ return true;})
                     .width(availableWidth)
                     .height(availableHeight2)
                     .color(data.map(function(d,i) {
@@ -291,15 +292,14 @@ nv.models.lineChart = function() {
                     ;
                     
                 d3.transition(contextLinesWrap).call(lines2);
-                
-            
+
                 // Setup Brush
                 brush
                     .x(x2)
                     .on('brush', function() {
                         onBrush();
                     });
-    
+
                 if (brushExtent) brush.extent(brushExtent);
     
                 var brushBG = g.select('.nv-brushBackground').selectAll('g')
@@ -325,9 +325,9 @@ nv.models.lineChart = function() {
                 gBrush.selectAll('rect')
                     .attr('height', availableHeight2);
                 gBrush.selectAll('.resize').append('path').attr('d', resizePath);
-    
+
                 onBrush();
-    
+
                 g.select('.nv-context .nv-background rect')
                     .attr('width', availableWidth)
                     .attr('height', availableHeight2);
@@ -508,7 +508,7 @@ nv.models.lineChart = function() {
             function onBrush() {
                 brushExtent = brush.empty() ? null : brush.extent();
                 var extent = brush.empty() ? x2.domain() : brush.extent();
-    
+
                 //The brush extent cannot be less than one.  If it is, don't update the line chart.
                 if (Math.abs(extent[0] - extent[1]) <= 1) {
                     return;
