@@ -7243,14 +7243,15 @@ nv.models.lineChart = function() {
                 // Setup Brush
                 brush
                     .x(x)
-                    .on('brush', function() {
-                        onBrush();
-                    })
+                    .clear()
+                    //.on('brush', function() {
+                    //    onBrush();
+                    //})
                     .on('brushend', function() {
                         onBrushEnd();
                     });
 
-                if (brushExtent) brush.extent(brushExtent);
+                //if (brushExtent) brush.extent(brushExtent);
     
                 //var brushBG = g.select('.nv-brushBackground').selectAll('g')
                 //    .data([brushExtent || brush.extent()]);
@@ -7330,7 +7331,7 @@ nv.models.lineChart = function() {
                         return !series.disabled && !series.disableTooltip;
                     })
                     .forEach(function(series,i) {
-                        var extent = focusEnable ? (brush.empty() ? x.domain() : brush.extent()) : x.domain();
+                        var extent = /*focusEnable ? (brush.empty() ?*/ x.domain() /*: brush.extent()) : x.domain()*/;
                         var currentValues = series.values.filter(function(d,i) {
                             return lines.x()(d,i) >= extent[0] && lines.x()(d,i) <= extent[1];
                         });
@@ -7456,25 +7457,30 @@ nv.models.lineChart = function() {
             //}
 
             function onBrushEnd() {
-                brushExtent = brush.empty() ? null : brush.extent();
-                var extent = brush.empty() ? x.domain() : brush.extent();
+                if ( brush.empty() ) {
+                    console.log('onBrushEnd empty');
+                    dispatch.brush({extent: null, brush: brush});
+                }
+
+                //brushExtent = brush.empty() ? null : brush.extent();
+                var extent = brush.extent();
 
                 //The brush extent cannot be less than one.  If it is, don't update the line chart.
-                if (Math.abs(extent[0] - extent[1]) <= 1) {
-                    return;
-                }
+                //if (Math.abs(extent[0] - extent[1]) <= 1) {
+                //    return;
+                //}
 
                 dispatch.brush({extent: extent, brush: brush});
             }
     
             function onBrush() {
-                brushExtent = brush.empty() ? null : brush.extent();
+             /*   brushExtent = brush.empty() ? null : brush.extent();
                 var extent = brush.empty() ? x.domain() : brush.extent();
 
                 //The brush extent cannot be less than one.  If it is, don't update the line chart.
                 if (Math.abs(extent[0] - extent[1]) <= 1) {
                     return;
-                }
+                }*/
 
 
                 //g.selectAll('.nv-point').classed("selected", function(d) {
