@@ -13,6 +13,7 @@ nv.models.stackedAreaChart = function() {
         , controls = nv.models.legend()
         , interactiveLayer = nv.interactiveGuideline()
         , tooltip = nv.models.tooltip()
+        , brush = d3.svg.brush()
         ;
 
     var margin = {top: 30, right: 25, bottom: 50, left: 60}
@@ -23,6 +24,7 @@ nv.models.stackedAreaChart = function() {
         , showLegend = true
         , showXAxis = true
         , showYAxis = true
+        , focusEnable = false
         , rightAlignYAxis = false
         , useInteractiveGuideline = false
         , showTotalInTooltip = true
@@ -32,7 +34,7 @@ nv.models.stackedAreaChart = function() {
         , state = nv.utils.state()
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'brush')
         , controlWidth = 250
         , controlOptions = ['Stacked','Stream','Expanded']
         , controlLabels = {}
@@ -155,6 +157,9 @@ nv.models.stackedAreaChart = function() {
             gEnter.append('g').attr('class', 'nv-interactive');
 
             g.select("rect").attr("width",availableWidth).attr("height",availableHeight);
+
+            var contextEnter = gEnter.append('g').attr('class', 'nv-context');
+
 
             // Legend
             if (showLegend) {
@@ -296,6 +301,26 @@ nv.models.stackedAreaChart = function() {
                     .transition().duration(0)
                     .call(yAxis);
             }
+
+            if( focusEnable )
+            {
+                // Setup Brush
+                brush
+                    .x(x)
+                    .clear()
+                    .on('brushend', function() {
+                        onBrushEnd();
+                    });
+
+                var gBrush = g.select('.nv-context')
+                    .call(brush)
+                    .selectAll('rect')
+                    .attr('height', availableHeight);
+
+                onBrush();
+            }
+
+
 
             //============================================================
             // Event Handling/Dispatching (in chart's scope)
@@ -464,6 +489,19 @@ nv.models.stackedAreaChart = function() {
                 chart.update();
             });
 
+            function onBrushEnd() {
+                if ( brush.empty() ) {
+                    dispatch.brush({extent: null, brush: brush});
+                }
+                else {
+                    dispatch.brush({extent: brush.extent(), brush: brush});
+                }
+            }
+
+            function onBrush() {
+
+            }
+
         });
 
         renderWatch.renderEnd('stacked Area chart immediate');
@@ -508,6 +546,7 @@ nv.models.stackedAreaChart = function() {
         showLegend: {get: function(){return showLegend;}, set: function(_){showLegend=_;}},
         showXAxis:      {get: function(){return showXAxis;}, set: function(_){showXAxis=_;}},
         showYAxis:    {get: function(){return showYAxis;}, set: function(_){showYAxis=_;}},
+        focusEnable:    {get: function(){return focusEnable;}, set: function(_){focusEnable=_;}},
         defaultState:    {get: function(){return defaultState;}, set: function(_){defaultState=_;}},
         noData:    {get: function(){return noData;}, set: function(_){noData=_;}},
         showControls:    {get: function(){return showControls;}, set: function(_){showControls=_;}},
