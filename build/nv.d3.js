@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-12 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-25 */
 (function(){
 
 // set up main nv object
@@ -7069,7 +7069,7 @@ nv.models.lineChart = function() {
             }
 
             // Display noData message if there's nothing to show.
-            if (!data || !data.length || !data.filter(function(d) { return d.values.length; }).length) {
+            if (!data || !data.length || !data.filter(function(d) { return d.values && d.values.length; }).length) {
                 nv.utils.noData(chart, container);
                 return chart;
             } else {
@@ -14702,7 +14702,7 @@ nv.models.stackedAreaChart = function() {
             }
 
             // Display No Data message if there's nothing to show.
-            if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+            if (!data || !data.length || !data.filter(function(d) { return d.values && d.values.length }).length) {
                 nv.utils.noData(chart, container)
                 return chart;
             } else {

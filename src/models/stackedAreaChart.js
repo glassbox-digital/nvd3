@@ -132,7 +132,7 @@ nv.models.stackedAreaChart = function() {
             }
 
             // Display No Data message if there's nothing to show.
-            if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+            if (!data || !data.length || !data.filter(function(d) { return d.values && d.values.length }).length) {
                 nv.utils.noData(chart, container)
                 return chart;
             } else {
