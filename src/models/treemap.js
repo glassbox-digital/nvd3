@@ -119,6 +119,10 @@ nv.models.treemap = function () {
             nodesEnter
                 .append("rect");
 
+            nodesEnter
+                .append("clipPath").attr('id', function(d){ return 'clip' + d.x + '-' + d.y; })
+                .append("rect");
+
 
             if (href && typeof href === 'function') {
                 var a = nodesEnter
@@ -127,8 +131,9 @@ nv.models.treemap = function () {
                     });
 
                 a.append("text").text(function (d) {
-                        return d.name + "..";
+                        return d.name;
                     })
+                    .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
                     .attr("dx", "1em")
                     .attr("dy", "1em");
 
@@ -150,6 +155,7 @@ nv.models.treemap = function () {
                     .append("text").text(function (d) {
                         return d.name;
                     })
+                    .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
                     .attr("dy", "1em");
             }
 
