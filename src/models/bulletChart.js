@@ -19,9 +19,10 @@ nv.models.bulletChart = function() {
         , markers = function(d) { return d.markers ? d.markers : [] }
         , measures = function(d) { return d.measures }
         , width = null
-        , height = 55
+        , height = null
         , tickFormat = null
-	, ticks = null
+        , valueFormat = d3.format(',.3f')
+	    , ticks = null
         , noData = null
         , dispatch = d3.dispatch()
         ;
@@ -36,11 +37,13 @@ nv.models.bulletChart = function() {
             nv.utils.initSVG(container);
 
             var availableWidth = nv.utils.availableWidth(width, container, margin),
-                availableHeight = height - margin.top - margin.bottom,
+                availableHeight = nv.utils.availableHeight(height, container, margin),
                 that = this;
 
             chart.update = function() { chart(selection) };
             chart.container = this;
+
+            tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
             if (!d || !ranges.call(this, d, i)) {
@@ -103,6 +106,8 @@ nv.models.bulletChart = function() {
             // Compute the tick format.
             var format = tickFormat || x1.tickFormat( availableWidth / 100 );
 
+            tooltip.valueFormatter(valueFormat);
+
             // Update the tick groups.
             var tick = g.selectAll('g.nv-tick')
                 .data(x1.ticks( ticks ? ticks : (availableWidth / 50) ), function(d) {
@@ -117,28 +122,28 @@ nv.models.bulletChart = function() {
 
             tickEnter.append('line')
                 .attr('y1', availableHeight)
-                .attr('y2', availableHeight * 7 / 6);
+                .attr('y2', availableHeight + 6);
 
             tickEnter.append('text')
                 .attr('text-anchor', 'middle')
-                .attr('dy', '1em')
-                .attr('y', availableHeight * 7 / 6)
+                //.attr('dy', '1em')
+                .attr('y', availableHeight + 7)
                 .text(format);
 
             // Transition the updating ticks to the new scale, x1.
-            var tickUpdate = d3.transition(tick)
+            var tickUpdate = /*d3.transition*/(tick)
                 .attr('transform', function(d) { return 'translate(' + x1(d) + ',0)' })
                 .style('opacity', 1);
 
             tickUpdate.select('line')
                 .attr('y1', availableHeight)
-                .attr('y2', availableHeight * 7 / 6);
+                .attr('y2', availableHeight + 10);
 
             tickUpdate.select('text')
-                .attr('y', availableHeight * 7 / 6);
+                .attr('y', availableHeight + 10);
 
             // Transition the exiting ticks to the new scale, x1.
-            d3.transition(tick.exit())
+            /*d3.transition*/(tick.exit())
                 .attr('transform', function(d) { return 'translate(' + x1(d) + ',0)' })
                 .style('opacity', 1e-6)
                 .remove();
@@ -187,6 +192,7 @@ nv.models.bulletChart = function() {
         width:    {get: function(){return width;}, set: function(_){width=_;}},
         height:    {get: function(){return height;}, set: function(_){height=_;}},
         tickFormat:    {get: function(){return tickFormat;}, set: function(_){tickFormat=_;}},
+        valueFormat:    {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
         ticks:    {get: function(){return ticks;}, set: function(_){ticks=_;}},
         noData:    {get: function(){return noData;}, set: function(_){noData=_;}},
 

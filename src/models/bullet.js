@@ -21,7 +21,7 @@ nv.models.bullet = function() {
         , measureLabels = function(d) { return d.measureLabels ? d.measureLabels : []  }
         , forceX = [0] // List of numbers to Force into the X scale (ie. 0, or a max / min, etc.)
         , width = 380
-        , height = 30
+        , height = null
         , container = null
         , tickFormat = null
         , color = nv.utils.getColor(['#1f77b4'])
@@ -38,7 +38,7 @@ nv.models.bullet = function() {
 
             var rangez = ranges.call(this, d, i).slice().sort(d3.descending),
                 markerz = markers.call(this, d, i).slice().sort(d3.descending),
-                measurez = measures.call(this, d, i).slice().sort(d3.descending),
+                measurez = measures.call(this, d, i).slice()/*.sort(d3.descending)*/,
                 rangeLabelz = rangeLabels.call(this, d, i).slice(),
                 markerLabelz = markerLabels.call(this, d, i).slice(),
                 measureLabelz = measureLabels.call(this, d, i).slice();
@@ -99,48 +99,54 @@ nv.models.bullet = function() {
                 .attr('x', xp1(rangeMax > 0 ? rangeMin : rangeMax))
                 .datum(rangeMax > 0 ? rangeMin : rangeMax)
 
-            g.select('rect.nv-measure')
+            g.selectAll('rect.nv-measure')
+                .data(measurez)
+                .enter()
+                .append('rect')
+                .attr('class', 'nv-measure');
+
+
+            g.selectAll('rect.nv-measure')
                 .style('fill', color)
-                .attr('height', availableHeight / 3)
-                .attr('y', availableHeight / 3)
-                .attr('width', measurez < 0 ?
-                    x1(0) - x1(measurez[0])
-                    : x1(measurez[0]) - x1(0))
-                .attr('x', xp1(measurez))
-                .on('mouseover', function() {
+                .attr('height', 20)
+                .attr('y', function(d,i){ return i * 20; } )
+                .attr('width', function(d){ return d < 0 ? x1(0) - x1(d) : x1(d) - x1(0); } )
+                .attr('x', function(d,i){ return x1(i > 0 ? d3.sum(measurez.slice(0,i)) : 0); })
+                .on('mouseover', function(d,i) {
                     dispatch.elementMouseover({
-                        value: measurez[0],
-                        label: measureLabelz[0] || 'Current',
+                        value: d,
+                        label: measureLabelz[i] || 'Current',
                         color: d3.select(this).style("fill")
                     })
                 })
-                .on('mousemove', function() {
+                .on('mousemove', function(d,i) {
                     dispatch.elementMousemove({
-                        value: measurez[0],
-                        label: measureLabelz[0] || 'Current',
+                        value: d,
+                        label: measureLabelz[i] || 'Current',
                         color: d3.select(this).style("fill")
                     })
                 })
-                .on('mouseout', function() {
+                .on('mouseout', function(d,i) {
                     dispatch.elementMouseout({
-                        value: measurez[0],
-                        label: measureLabelz[0] || 'Current',
+                        value: d,
+                        label: measureLabelz[i] || 'Current',
                         color: d3.select(this).style("fill")
                     })
                 });
 
-            var h3 =  availableHeight / 6;
+            //var h3 =  availableHeight / 6;
 
             var markerData = markerz.map( function(marker, index) {
                 return {value: marker, label: markerLabelz[index]}
             });
             gEnter
-              .selectAll("path.nv-markerTriangle")
+              .selectAll("circle.nv-markerTriangle")
               .data(markerData)
               .enter()
-              .append('path')
+              .append('circle')
               .attr('class', 'nv-markerTriangle')
-              .attr('d', 'M0,' + h3 + 'L' + h3 + ',' + (-h3) + ' ' + (-h3) + ',' + (-h3) + 'Z')
+              /*.attr('d', 'M0,0 L' + (availableHeight/6)+ ',' + (availableHeight/2) + ' ' + (-availableHeight/6) + ',' + (availableHeight/2) + 'Z')*/
+                .attr('r', 6 )
               .on('mouseover', function(d) {
                 dispatch.elementMouseover({
                   value: d.value,
@@ -165,31 +171,30 @@ nv.models.bullet = function() {
                   })
               });
 
-            g.selectAll("path.nv-markerTriangle")
+            g.selectAll("circle.nv-markerTriangle")
               .data(markerData)
               .attr('transform', function(d) { return 'translate(' + x1(d.value) + ',' + (availableHeight / 2) + ')' });
 
             wrap.selectAll('.nv-range')
                 .on('mouseover', function(d,i) {
-                    var label = rangeLabelz[i] || (!i ? "Maximum" : i == 1 ? "Mean" : "Minimum");
                     dispatch.elementMouseover({
                         value: d,
-                        label: label,
+                        label: rangeLabelz[i],
                         color: d3.select(this).style("fill")
                     })
                 })
-                .on('mousemove', function() {
+                .on('mousemove', function(d,i) {
                     dispatch.elementMousemove({
-                        value: measurez[0],
-                        label: measureLabelz[0] || 'Previous',
+                        value: d,
+                        label: measureLabelz[i],
                         color: d3.select(this).style("fill")
                     })
                 })
                 .on('mouseout', function(d,i) {
-                    var label = rangeLabelz[i] || (!i ? "Maximum" : i == 1 ? "Mean" : "Minimum");
+                    //var label = rangeLabelz[i] || (!i ? "Maximum" : i == 1 ? "Mean" : "Minimum");
                     dispatch.elementMouseout({
                         value: d,
-                        label: label,
+                        label: rangeLabelz[i],
                         color: d3.select(this).style("fill")
                     })
                 });
