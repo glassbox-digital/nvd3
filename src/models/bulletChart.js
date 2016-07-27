@@ -22,7 +22,9 @@ nv.models.bulletChart = function() {
         , height = null
         , tickFormat = null
         , valueFormat = d3.format(',.3f')
-	    , ticks = null
+        , ticks = null
+        , getX = function(d) { return d[0]; }
+        , getY = function(d) { return d[1]; }
         , noData = null
         , dispatch = d3.dispatch()
         ;
@@ -53,9 +55,9 @@ nv.models.bulletChart = function() {
                 container.selectAll('.nv-noData').remove();
             }
 
-            var rangez = ranges.call(this, d, i).slice().sort(d3.descending),
-                markerz = markers.call(this, d, i).slice().sort(d3.descending),
-                measurez = measures.call(this, d, i).slice().sort(d3.descending);
+            var rangez = ranges.call(this, d, i).slice(),
+                markerz = markers.call(this, d, i).slice(),
+                measurez = measures.call(this, d, i).slice();
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-bulletChart').data([d]);
@@ -70,7 +72,17 @@ nv.models.bulletChart = function() {
 
             // Compute the new x-scale.
             var x1 = d3.scale.linear()
-                .domain([0, Math.max(rangez[0], (markerz[0] || 0), d3.sum(measurez))])  // TODO: need to allow forceX and forceY, and xDomain, yDomain
+                .domain(
+                    d3.extent(
+
+                        d3.merge([
+                            bullet.forceX(),
+                            d3.extent(rangez, bullet.y()),
+                            d3.extent(markerz, bullet.y()),
+                            [d3.sum(measurez, bullet.y())]
+                            ])
+                    )
+                )  // TODO: need to allow forceX and forceY, and xDomain, yDomain
                 .range(reverse ? [availableWidth, 0] : [0, availableWidth]);
 
             // Retrieve the old x-scale, if this is an update.
@@ -110,7 +122,7 @@ nv.models.bulletChart = function() {
 
             // Update the tick groups.
             var tick = g.selectAll('g.nv-tick')
-                .data(x1.ticks( ticks ? ticks : (availableWidth / 50) ), function(d) {
+                .data(x1.ticks( ticks ? ticks : (availableWidth / 100) ), function(d) {
                     return this.textContent || format(d);
                 });
 
