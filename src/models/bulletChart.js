@@ -46,8 +46,8 @@ nv.models.bulletChart = function() {
             tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
-            if (!d || !ranges.call(this, d, i)) {
-                nv.utils.noData(chart, container)
+            if (!d || !measures.call(this, d, i)) {
+                nv.utils.noData(chart, container);
                 return chart;
             } else {
                 container.selectAll('.nv-noData').remove();
@@ -70,7 +70,7 @@ nv.models.bulletChart = function() {
 
             // Compute the new x-scale.
             var x1 = d3.scale.linear()
-                .domain([0, Math.max(rangez[0], (markerz[0] || 0), measurez[0])])  // TODO: need to allow forceX and forceY, and xDomain, yDomain
+                .domain([0, Math.max(rangez[0], (markerz[0] || 0), d3.sum(measurez))])  // TODO: need to allow forceX and forceY, and xDomain, yDomain
                 .range(reverse ? [availableWidth, 0] : [0, availableWidth]);
 
             // Retrieve the old x-scale, if this is an update.
@@ -81,8 +81,8 @@ nv.models.bulletChart = function() {
             // Stash the new scale.
             this.__chart__ = x1;
 
-            var w0 = function(d) { return Math.abs(x0(d) - x0(0)) }, // TODO: could optimize by precalculating x0(0) and x1(0)
-                w1 = function(d) { return Math.abs(x1(d) - x1(0)) };
+            //var w0 = function(d) { return Math.abs(x0(d) - x0(0)) }, // TODO: could optimize by precalculating x0(0) and x1(0)
+            //    w1 = function(d) { return Math.abs(x1(d) - x1(0)) };
 
             var title = gEnter.select('.nv-titles').append('g')
                 .attr('text-anchor', 'end')
@@ -98,7 +98,7 @@ nv.models.bulletChart = function() {
 
             bullet
                 .width(availableWidth)
-                .height(availableHeight)
+                .height(availableHeight);
 
             var bulletWrap = g.select('.nv-bulletWrap');
             d3.transition(bulletWrap).call(bullet);
@@ -166,11 +166,11 @@ nv.models.bulletChart = function() {
         tooltip.data(evt).hidden(false);
     });
 
-    bullet.dispatch.on('elementMouseout.tooltip', function(evt) {
+    bullet.dispatch.on('elementMouseout.tooltip', function(/*evt*/) {
         tooltip.hidden(true);
     });
 
-    bullet.dispatch.on('elementMousemove.tooltip', function(evt) {
+    bullet.dispatch.on('elementMousemove.tooltip', function(/*evt*/) {
         tooltip();
     });
 

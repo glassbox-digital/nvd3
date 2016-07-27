@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-26 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-27 */
 (function(){
 
 // set up main nv object
@@ -2570,8 +2570,8 @@ nv.models.bullet = function() {
             container = d3.select(this);
             nv.utils.initSVG(container);
 
-            var rangez = ranges.call(this, d, i).slice().sort(d3.descending),
-                markerz = markers.call(this, d, i).slice().sort(d3.descending),
+            var rangez = ranges.call(this, d, i).slice()/*.sort(d3.descending)*/,
+                markerz = markers.call(this, d, i)/*.slice().sort(d3.descending)*/,
                 measurez = measures.call(this, d, i).slice()/*.sort(d3.descending)*/,
                 rangeLabelz = rangeLabels.call(this, d, i).slice(),
                 markerLabelz = markerLabels.call(this, d, i).slice(),
@@ -2580,7 +2580,7 @@ nv.models.bullet = function() {
             // Setup Scales
             // Compute the new x-scale.
             var x1 = d3.scale.linear()
-                .domain( d3.extent(d3.merge([forceX, rangez])) )
+                .domain( d3.extent(d3.merge([forceX, rangez, [d3.sum(measurez)]])) )
                 .range(reverse ? [availableWidth, 0] : [0, availableWidth]);
 
             // Retrieve the old x-scale, if this is an update.
@@ -2591,9 +2591,11 @@ nv.models.bullet = function() {
             // Stash the new scale.
             this.__chart__ = x1;
 
+/*
             var rangeMin = d3.min(rangez), //rangez[2]
                 rangeMax = d3.max(rangez), //rangez[0]
                 rangeAvg = rangez[1];
+*/
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-bullet').data([d]);
@@ -2601,29 +2603,39 @@ nv.models.bullet = function() {
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
 
-            gEnter.append('rect').attr('class', 'nv-range nv-rangeMax');
-            gEnter.append('rect').attr('class', 'nv-range nv-rangeAvg');
-            gEnter.append('rect').attr('class', 'nv-range nv-rangeMin');
-            gEnter.append('rect').attr('class', 'nv-measure');
+            g.selectAll('rect.nv-range').data(rangez)
+                .enter()
+                .append('rect')
+                .attr('class', 'nv-range');
+
+            //gEnter.append('rect').attr('class', 'nv-measure');
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-            var w0 = function(d) { return Math.abs(x0(d) - x0(0)) }, // TODO: could optimize by precalculating x0(0) and x1(0)
-                w1 = function(d) { return Math.abs(x1(d) - x1(0)) };
-            var xp0 = function(d) { return d < 0 ? x0(d) : x0(0) },
-                xp1 = function(d) { return d < 0 ? x1(d) : x1(0) };
+            var w0 = function (d) {
+                    return Math.abs(x0(d) - x0(0))
+                }, // TODO: could optimize by precalculating x0(0) and x1(0)
+                w1 = function (d) {
+                    return Math.abs(x1(d) - x1(0))
+                };
+            var xp0 = function (d) {
+                    return d < 0 ? x0(d) : x0(0)
+                },
+                xp1 = function (d) {
+                    return d < 0 ? x1(d) : x1(0)
+                };
 
-            g.select('rect.nv-rangeMax')
+            g.selectAll('rect.nv-range')
                 .attr('height', availableHeight)
-                .attr('width', w1(rangeMax > 0 ? rangeMax : rangeMin))
-                .attr('x', xp1(rangeMax > 0 ? rangeMax : rangeMin))
-                .datum(rangeMax > 0 ? rangeMax : rangeMin)
+                .attr('width', w1)
+                .attr('x', xp1);
 
+/*
             g.select('rect.nv-rangeAvg')
                 .attr('height', availableHeight)
                 .attr('width', w1(rangeAvg))
                 .attr('x', xp1(rangeAvg))
-                .datum(rangeAvg)
+                .datum(rangeAvg);
 
             g.select('rect.nv-rangeMin')
                 .attr('height', availableHeight)
@@ -2631,7 +2643,8 @@ nv.models.bullet = function() {
                 .attr('x', xp1(rangeMax))
                 .attr('width', w1(rangeMax > 0 ? rangeMin : rangeMax))
                 .attr('x', xp1(rangeMax > 0 ? rangeMin : rangeMax))
-                .datum(rangeMax > 0 ? rangeMin : rangeMax)
+                .datum(rangeMax > 0 ? rangeMin : rangeMax);
+*/
 
             g.selectAll('rect.nv-measure')
                 .data(measurez)
@@ -2674,14 +2687,18 @@ nv.models.bullet = function() {
                 return {value: marker, label: markerLabelz[index]}
             });
             gEnter
-              .selectAll("circle.nv-markerTriangle")
+              .selectAll("line.nv-marker")
               .data(markerData)
               .enter()
-              .append('circle')
-              .attr('class', 'nv-markerTriangle')
+              .append('line')
+              .attr('class', 'nv-marker')
               /*.attr('d', 'M0,0 L' + (availableHeight/6)+ ',' + (availableHeight/2) + ' ' + (-availableHeight/6) + ',' + (availableHeight/2) + 'Z')*/
-                .attr('r', 6 )
-              .on('mouseover', function(d) {
+                /*.attr('r', 6 )*/
+                .attr('x1', function(d){ return x1(d.value); })
+                .attr('x2', function(d){ return x1(d.value); })
+                .attr('y1', 0)
+                .attr('y2', availableHeight)
+/*              .on('mouseover', function(d) {
                 dispatch.elementMouseover({
                   value: d.value,
                   label: d.label || 'Previous',
@@ -2703,7 +2720,7 @@ nv.models.bullet = function() {
                       label: d.label || 'Previous',
                       color: d3.select(this).style("fill")
                   })
-              });
+              })*/;
 
             g.selectAll("circle.nv-markerTriangle")
               .data(markerData)
@@ -2823,8 +2840,8 @@ nv.models.bulletChart = function() {
             tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
-            if (!d || !ranges.call(this, d, i)) {
-                nv.utils.noData(chart, container)
+            if (!d || !measures.call(this, d, i)) {
+                nv.utils.noData(chart, container);
                 return chart;
             } else {
                 container.selectAll('.nv-noData').remove();
@@ -2847,7 +2864,7 @@ nv.models.bulletChart = function() {
 
             // Compute the new x-scale.
             var x1 = d3.scale.linear()
-                .domain([0, Math.max(rangez[0], (markerz[0] || 0), measurez[0])])  // TODO: need to allow forceX and forceY, and xDomain, yDomain
+                .domain([0, Math.max(rangez[0], (markerz[0] || 0), d3.sum(measurez))])  // TODO: need to allow forceX and forceY, and xDomain, yDomain
                 .range(reverse ? [availableWidth, 0] : [0, availableWidth]);
 
             // Retrieve the old x-scale, if this is an update.
@@ -2858,8 +2875,8 @@ nv.models.bulletChart = function() {
             // Stash the new scale.
             this.__chart__ = x1;
 
-            var w0 = function(d) { return Math.abs(x0(d) - x0(0)) }, // TODO: could optimize by precalculating x0(0) and x1(0)
-                w1 = function(d) { return Math.abs(x1(d) - x1(0)) };
+            //var w0 = function(d) { return Math.abs(x0(d) - x0(0)) }, // TODO: could optimize by precalculating x0(0) and x1(0)
+            //    w1 = function(d) { return Math.abs(x1(d) - x1(0)) };
 
             var title = gEnter.select('.nv-titles').append('g')
                 .attr('text-anchor', 'end')
@@ -2875,7 +2892,7 @@ nv.models.bulletChart = function() {
 
             bullet
                 .width(availableWidth)
-                .height(availableHeight)
+                .height(availableHeight);
 
             var bulletWrap = g.select('.nv-bulletWrap');
             d3.transition(bulletWrap).call(bullet);
@@ -2943,11 +2960,11 @@ nv.models.bulletChart = function() {
         tooltip.data(evt).hidden(false);
     });
 
-    bullet.dispatch.on('elementMouseout.tooltip', function(evt) {
+    bullet.dispatch.on('elementMouseout.tooltip', function(/*evt*/) {
         tooltip.hidden(true);
     });
 
-    bullet.dispatch.on('elementMousemove.tooltip', function(evt) {
+    bullet.dispatch.on('elementMousemove.tooltip', function(/*evt*/) {
         tooltip();
     });
 

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-26 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-27 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -122,6 +122,11 @@
 /* bullet */
 .nvd3.nv-bullet {
   font: 10px sans-serif;
+  /*
+  .nv-range.nv-s0 { fill: #eee; }
+  .nv-range.nv-s1 { fill: #ddd; }
+  .nv-range.nv-s2 { fill: #ccc; }
+  */
 }
 .nvd3.nv-bullet .nv-measure {
   fill-opacity: .8;
@@ -133,8 +138,9 @@
   fill-opacity: 1;
 }
 .nvd3.nv-bullet .nv-marker {
-  stroke: #000;
-  stroke-width: 2px;
+  stroke: rgba(0, 0, 0, 0.4);
+  stroke-width: .5px;
+  stroke-dasharray: 4px;
 }
 .nvd3.nv-bullet .nv-markerTriangle {
   stroke: #000;
@@ -145,11 +151,6 @@
   stroke: #666;
   stroke-width: .5px;
 }
-/*
-.nvd3.nv-bullet .nv-range.nv-s0 { fill: #eee; }
-.nvd3.nv-bullet .nv-range.nv-s1 { fill: #ddd; }
-.nvd3.nv-bullet .nv-range.nv-s2 { fill: #ccc; }
-*/
 .nvd3.nv-bullet .nv-title {
   font-size: 14px;
   font-weight: bold;
@@ -158,7 +159,7 @@
   fill: #999;
 }
 .nvd3.nv-bullet .nv-range {
-  fill: rgba(0, 0, 0, 0.2);
+  fill: rgba(0, 0, 0, 0.1);
   fill-opacity: 0;
 }
 .nvd3.nv-bullet .nv-range:hover {
