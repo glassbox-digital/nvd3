@@ -48,19 +48,19 @@ nv.models.bulletChart = function() {
             tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
-            if (!d || !measures.call(this, d, i)) {
+            if (!d || !d.length) {
                 nv.utils.noData(chart, container);
                 return chart;
             } else {
                 container.selectAll('.nv-noData').remove();
             }
 
-            var rangez = ranges.call(this, d, i).slice(),
-                markerz = markers.call(this, d, i).slice(),
-                measurez = measures.call(this, d, i).slice();
+            var rangez = ranges.call(this, d[0], i).slice(),
+                markerz = markers.call(this, d[0], i).slice(),
+                measurez = measures.call(this, d[0], i).slice();
 
             // Setup containers and skeleton of chart
-            var wrap = container.selectAll('g.nv-wrap.nv-bulletChart').data([d]);
+            var wrap = container.selectAll('g.nv-wrap.nv-bulletChart').data(d);
             var wrapEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-bulletChart');
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
