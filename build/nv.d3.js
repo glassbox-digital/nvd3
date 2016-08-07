@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-07-27 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-08-07 */
 (function(){
 
 // set up main nv object
@@ -2628,11 +2628,12 @@ nv.models.bullet = function() {
                 .append('rect')
                 .attr('class', 'nv-measure');
 
+            var measureHeight = Math.max(10, measurez.length > 0 ? availableHeight / (measurez.length): 20);
 
             g.selectAll('rect.nv-measure')
                 .style('fill', color)
-                .attr('height', 20)
-                .attr('y', function(d,i){ return i * 20; } )
+                .attr('height', measureHeight)
+                .attr('y', function(d,i){ return i * measureHeight; } )
                 .attr('width', function(d){ return getY(d) < 0 ? x1(0) - x1(getY(d)) : x1(getY(d)) - x1(0); } )
                 .attr('x', function(d,i){ return x1(i > 0 ? d3.sum(measurez.slice(0,i), getY) : 0); })
                 .on('mouseover', function(d,i) {
