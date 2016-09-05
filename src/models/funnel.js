@@ -27,7 +27,7 @@ nv.models.funnel = function() {
         , showValues = false
         , showBarLabels = true
         , showChecks = false
-        , showReducers = true
+        , showDropoff = true
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
@@ -149,25 +149,43 @@ nv.models.funnel = function() {
                     return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + (stacked ? 0 : (j * x.rangeBand() / data.length ) + x(getX(d,i))) + ')'
                 });
 
-            barsEnter.append('rect')
-                .attr('width', 0)
-                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
+            function draw_rect(w,w1,h){
+                return [
+                    'M', 0, 0,
+                    'H', w,
+                    'L', w-w1, h,
+                    'H', 0,
+                    'Z'
+
+                ].join(' ');
+            }
+
+            barsEnter.append('path')
+                .attr('class', 'nv-bar-rect');
+                /*.attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )*/
+
+            barsEnter.append('path')
+                .attr('class', 'nv-bar-arrow');
+
+            if ( showDropoff ) {
+                var gDropoffEnter = barsEnter.append('g')
+                    .attr('class', 'nv-dropoff');
+
+                gDropoffEnter.append('path')
+                    .attr('class', 'nv-reducer');
+                gDropoffEnter.append('path')
+                    .attr('class', 'nv-reducer-arrow');
+
+                if ( showValues ) {
+                    gDropoffEnter.append('text')
+                        .attr('class', 'nv-reducer-value');
+                }
+            }
 
             if ( showChecks ) {
                 barsEnter.append('path')
                     .attr('class', 'nv-check')
                     .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
-            }
-
-            if ( showReducers ) {
-                barsEnter.append('path')
-                    .attr('class', 'nv-reducer');
-                barsEnter.append('path')
-                    .attr('class', 'nv-reducer-arrow');
-                barsEnter.append('path')
-                    .attr('class', 'nv-bar-arrow');
-                barsEnter.append('text')
-                    .attr('class', 'nv-reducer-value');
             }
 
             bars
@@ -201,16 +219,6 @@ nv.models.funnel = function() {
                         color: d3.select(this).style("fill")
                     });
                 })
-                .on('click', function(d,i) {
-                    d.selected = !d.selected;
-                    d3.select(this).classed('selected', d.selected);
-                    dispatch.elementClick({
-                        data: d,
-                        index: i,
-                        color: d3.select(this).style("fill")
-                    });
-                    d3.event.stopPropagation();
-                })
                 .on('dblclick', function(d,i) {
                     dispatch.elementDblClick({
                         data: d,
@@ -219,6 +227,24 @@ nv.models.funnel = function() {
                     });
                     d3.event.stopPropagation();
                 });
+
+            bars.on('click', function(d,i) {
+                if (!d3.select(d3.event.target).classed('nv-bar-rect')){
+                    return;
+                }
+
+                d.selected = !d.selected;
+                d3.select(this).classed('selected', d.selected);
+
+                dispatch.elementClick({
+                    data: d,
+                    index: i,
+                    color: d3.select(this).style("fill")
+                });
+
+                d3.event.stopPropagation();
+            })
+
 
             if (getYerr(data[0],0)) {
                 barsEnter.append('polyline');
@@ -269,8 +295,9 @@ nv.models.funnel = function() {
                     .attr('y', barWidth - 10)
                     .attr('dy', '.32em')
                     .text(function(d,i) {
-                        var v = getYC(d,i),
-                            t = v > 0 ? valueFormat(v) : '';
+                        var v = getY(d,i),
+                            vc = getYC(d,i),
+                            t = v > 0 && vc > 0 ? d3.format('.1%')(vc/v) : '';
                         return t;
                     });
                 bars.watchTransition(renderWatch, 'funnel: bars')
@@ -400,18 +427,24 @@ nv.models.funnel = function() {
                         return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x(getX(d, i)) + ')'
                     });
 
-                watch.select('rect')
-                    .attr('width', function (d, i) {
-                        return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
-                    })
-                    .attr('height', barWidth || x.rangeBand());
+                watch.select('.nv-bar-rect')
+                    .attr('d', function (d, i) {
+                        var w = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0,
+                            w1 = Math.abs(y(getYC(d,i) + d.y0) - y(d.y0)) || 0,
+                            h = barWidth || x.rangeBand();
+
+                        return draw_rect(w,w1,h);
+
+                    });
+                    /*.attr('height', barWidth || x.rangeBand());*/
 
                 if ( showChecks ) {
                     watch.select('path.nv-check')
                         .attr('transform', function (d, i) {
                             var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
+                                w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)),
                                 height = barWidth || x.rangeBand();
-                            return 'translate(' + (width - 27) + ',' + (height - 24) / 2 + ' )';
+                            return 'translate(' + Math.min(width - w1, width - 27) + ',' + (height - 24) / 2 + ' )';
                         });
                 }
 
@@ -446,9 +479,9 @@ nv.models.funnel = function() {
                             h = barWidth || x.rangeBand();
                         return arrow(w,h/2);
                     })
-                    .attr('opacity', function(d,i){
+                    .style('visibility', function(d,i){
                         var v = getYC(d, i);
-                        return v > 0 ? 1 : 0;
+                        return v > 0 ? 'visible' : 'hidden';
                     });
 
             }
@@ -467,12 +500,21 @@ nv.models.funnel = function() {
                     });
 
                 watch
-                    .select('rect')
+                    .select('.nv-bar-rect')
+                    .attr('d', function(d){
+                        var h = barWidth || x.rangeBand() / data.length,
+                            w1 = Math.max(Math.abs(y(getYC(d, i)) - y(0)), 1) || 0,
+                            w = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0;
 
+                        return draw_rect(w,w1,h);
+                    });
+
+/*
                     .attr('height', barWidth || x.rangeBand() / data.length)
                     .attr('width', function (d, i) {
                         return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
                     });
+*/
 
                 if ( showChecks ) {
                     watch.select('path.nv-check')

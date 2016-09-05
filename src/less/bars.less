@@ -75,24 +75,80 @@
 
 .nvd3 .nv-funnel .nv-bar {
 
-  stroke: none !important;
-  
-  .nv-reducer,
-  .nv-reducer-arrow
-  {
-    stroke: none;
-    fill: #bc5050;
+  fill-opacity: .8;
+
+  &:hover {
+    fill-opacity: 1;
   }
 
-  .nv-bar-value,
-  .nv-reducer-value
-  {
+  stroke: none !important;
+
+  .nv-check {
+    opacity: 0;
     fill: white;
-    stroke-opacity: .2;
-    stroke: white;
+  }
+
+  &.selected {
+    .nv-check {
+      opacity: 1;
+    }
+  }
+
+
+  .nv-dropoff {
+    opacity: .4;
+
+    .nv-reducer,
+    .nv-reducer-arrow {
+      stroke: none;
+      fill: rgba(0,0,0,0.6);
+    }
+
+    .nv-reducer-value {
+      fill: white;
+      stroke-opacity: .6;
+      stroke: white;
+    }
+
+  }
+
+  &:hover {
+    .nv-dropoff {
+      opacity: 1;
+    }
+  }
+
+  .nv-bar-value {
+    fill: #444;
+    stroke-opacity: .6;
+    stroke: #444;
+  }
+
+  &:last-child {
+    .nv-bar-arrow {
+      display: none;
+      opacity: 0;
+    }
   }
 
 }
+
+/*.nvd3-svg {
+  .nv-funnel .nv-bar {
+    .nv-reducer-value {
+      opacity: 0;
+    }
+  }
+
+  &:hover {
+    .nv-funnel .nv-bar {
+      .nv-reducer-value {
+        opacity: 1;
+      }
+    }
+  }
+}*/
+
 
 .nvd3 .nv-multibarHorizontal .nv-bar {
   path {
