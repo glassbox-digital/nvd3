@@ -177,7 +177,7 @@ nv.models.treemap = function () {
                 .attr("height", function (d) {
                     return d.dy;
                 })
-                .style("fill", function (d) {
+                .style("fill", function (d, i) {
                     if (d.color) {
                         return d.color;
                     }
@@ -185,7 +185,7 @@ nv.models.treemap = function () {
                         return color((d.children ? d : d.parent));
                     }
                     else {
-                        return color(d);
+                        return color(d, d.name);
                     }
                 })
                 .style("stroke", "#FFF");

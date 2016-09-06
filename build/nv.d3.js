@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-09-05 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-09-06 */
 (function(){
 
 // set up main nv object
@@ -16700,7 +16700,7 @@ nv.models.treemap = function () {
                 .attr("height", function (d) {
                     return d.dy;
                 })
-                .style("fill", function (d) {
+                .style("fill", function (d, i) {
                     if (d.color) {
                         return d.color;
                     }
@@ -16708,7 +16708,7 @@ nv.models.treemap = function () {
                         return color((d.children ? d : d.parent));
                     }
                     else {
-                        return color(d);
+                        return color(d, d.name);
                     }
                 })
                 .style("stroke", "#FFF");
