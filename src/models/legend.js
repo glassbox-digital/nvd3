@@ -8,7 +8,7 @@ nv.models.legend = function() {
     var margin = {top: 5, right: 0, bottom: 5, left: 0}
         , width = 400
         , height = 20
-        , getKey = function(d) { return d.key }
+        , getKey = function(d) { return d.name || d.key }
         , color = nv.utils.getColor()
         , maxKeyLength = 20 //default value for key lengths
         , align = true
@@ -117,7 +117,7 @@ nv.models.legend = function() {
                 .attr('dy', '.32em')
                 .attr('dx', '8');
 
-            series
+            seriesShape
                 .on('mouseover', function(d,i) {
                     dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
                 })
