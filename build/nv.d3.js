@@ -7637,6 +7637,7 @@ nv.models.legend = function() {
                 .style('fill-opacity', setBGOpacity)
                 .style('stroke', setBGColor);
         });
+        
 
         function setTextColor(d,i) {
             if(vers != 'furious') return '#000';
