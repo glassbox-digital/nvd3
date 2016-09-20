@@ -204,10 +204,11 @@ nv.models.legend = function() {
                 var seriesWidths = [];
                 series.each(function(d,i) {
                     var legendText;
-                    if (getKey(d).length > maxKeyLength) { 
-                        var trimmedKey = getKey(d).substring(0, maxKeyLength);
+                    var k = getKey(d);
+                    if (k && k.length > maxKeyLength) {
+                        var trimmedKey = k.substring(0, maxKeyLength);
                         legendText = d3.select(this).select('text').text(trimmedKey + "...");
-                        d3.select(this).append("svg:title").text(getKey(d));
+                        d3.select(this).append("svg:title").text(k);
                     } else {
                         legendText = d3.select(this).select('text');
                     } 

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-09-18 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-09-20 */
 (function(){
 
 // set up main nv object
@@ -7506,10 +7506,11 @@ nv.models.legend = function() {
                 var seriesWidths = [];
                 series.each(function(d,i) {
                     var legendText;
-                    if (getKey(d).length > maxKeyLength) { 
-                        var trimmedKey = getKey(d).substring(0, maxKeyLength);
+                    var k = getKey(d);
+                    if (k && k.length > maxKeyLength) {
+                        var trimmedKey = k.substring(0, maxKeyLength);
                         legendText = d3.select(this).select('text').text(trimmedKey + "...");
-                        d3.select(this).append("svg:title").text(getKey(d));
+                        d3.select(this).append("svg:title").text(k);
                     } else {
                         legendText = d3.select(this).select('text');
                     } 
@@ -7637,7 +7638,7 @@ nv.models.legend = function() {
                 .style('fill-opacity', setBGOpacity)
                 .style('stroke', setBGColor);
         });
-        
+
 
         function setTextColor(d,i) {
             if(vers != 'furious') return '#000';
