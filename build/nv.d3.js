@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-09-22 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-10-10 */
 (function(){
 
 // set up main nv object
@@ -2927,7 +2927,7 @@ nv.models.bulletChart = function() {
     bullet.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
             key: evt.label,
-            value: evt.value,
+            value: Math.abs(evt.value),
             color: evt.color
         };
         tooltip.data(evt).hidden(false);

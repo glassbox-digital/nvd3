@@ -172,7 +172,7 @@ nv.models.bulletChart = function() {
     bullet.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
             key: evt.label,
-            value: evt.value,
+            value: Math.abs(evt.value),
             color: evt.color
         };
         tooltip.data(evt).hidden(false);
