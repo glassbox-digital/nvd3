@@ -424,7 +424,8 @@ nv.models.funnel = function() {
             if (stacked) {
                 var watch = bars.watchTransition(renderWatch, 'funnel: bars')
                     .attr('transform', function (d, i) {
-                        return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x(getX(d, i)) + ')'
+                        var x1 = i * (barWidth + 13);
+                        return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x1 /*x(getX(d, i))*/ + ')'
                     });
 
                 watch.select('.nv-bar-rect')

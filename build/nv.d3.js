@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-10-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-10-30 */
 (function(){
 
 // set up main nv object
@@ -4977,7 +4977,8 @@ nv.models.funnel = function() {
             if (stacked) {
                 var watch = bars.watchTransition(renderWatch, 'funnel: bars')
                     .attr('transform', function (d, i) {
-                        return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x(getX(d, i)) + ')'
+                        var x1 = i * (barWidth + 13);
+                        return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x1 /*x(getX(d, i))*/ + ')'
                     });
 
                 watch.select('.nv-bar-rect')
