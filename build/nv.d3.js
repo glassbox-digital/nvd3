@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-10-30 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-02 */
 (function(){
 
 // set up main nv object
@@ -4743,60 +4743,59 @@ nv.models.funnel = function() {
 
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
+                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
                     d3.select(this).classed('hover', true);
                     dispatch.elementMouseover({
                         data: d,
                         index: i,
+                        reducer: reducer,
                         color: d3.select(this).style("fill")
                     });
                 })
                 .on('mouseout', function(d,i) {
+                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
                     d3.select(this).classed('hover', false);
                     dispatch.elementMouseout({
                         data: d,
                         index: i,
-                        color: d3.select(this).style("fill")
-                    });
-                })
-                .on('mouseout', function(d,i) {
-                    dispatch.elementMouseout({
-                        data: d,
-                        index: i,
+                        reducer: reducer,
                         color: d3.select(this).style("fill")
                     });
                 })
                 .on('mousemove', function(d,i) {
+                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
                     dispatch.elementMousemove({
                         data: d,
                         index: i,
+                        reducer: reducer,
                         color: d3.select(this).style("fill")
                     });
                 })
                 .on('dblclick', function(d,i) {
+                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
                     dispatch.elementDblClick({
                         data: d,
                         index: i,
+                        reducer: reducer,
                         color: d3.select(this).style("fill")
                     });
                     d3.event.stopPropagation();
+                })
+                .on('click', function(d,i) {
+                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+
+                    d.selected = !d.selected;
+                    d3.select(this).classed('selected', d.selected);
+
+                    dispatch.elementClick({
+                        data: d,
+                        index: i,
+                        reducer: reducer,
+                        color: d3.select(this).style("fill")
+                    });
+
+                    d3.event.stopPropagation();
                 });
-
-            bars.on('click', function(d,i) {
-                if (!d3.select(d3.event.target).classed('nv-bar-rect')){
-                    return;
-                }
-
-                d.selected = !d.selected;
-                d3.select(this).classed('selected', d.selected);
-
-                dispatch.elementClick({
-                    data: d,
-                    index: i,
-                    color: d3.select(this).style("fill")
-                });
-
-                d3.event.stopPropagation();
-            })
 
 
             if (getYerr(data[0],0)) {
@@ -5203,7 +5202,7 @@ nv.models.funnelChart = function() {
         , state = nv.utils.state()
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange', 'activate')
         , controlWidth = function() { return showControls ? 180 : 0 }
         , duration = 250
         ;
@@ -5275,6 +5274,8 @@ nv.models.funnelChart = function() {
 
             chart.update = function() { container.transition().duration(duration).call(chart) };
             chart.container = this;
+
+            tooltip.chartContainer(chart.container.parentNode).gravity('x');
 
             stacked = multibar.stacked();
 
@@ -5468,11 +5469,13 @@ nv.models.funnelChart = function() {
     // Event Handling/Dispatching (out of chart's scope)
     //------------------------------------------------------------
 
+
 /*
     multibar.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt.value = chart.x()(evt.data);
+
         evt['series'] = {
-            key: evt.data.key,
+            key: evt.data.key + (evt.reducer ? ' abandoned' : ' continued'),
             value: chart.y()(evt.data),
             color: evt.color
         };
@@ -5484,8 +5487,13 @@ nv.models.funnelChart = function() {
     });
 */
 
+
     multibar.dispatch.on('elementClick.select', function(evt) {
         dispatch.selectChange(evt);
+    });
+
+    multibar.dispatch.on('elementDblClick.activate', function(evt) {
+        dispatch.activate(evt);
     });
 
     //============================================================

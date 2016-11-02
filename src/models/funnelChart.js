@@ -29,7 +29,7 @@ nv.models.funnelChart = function() {
         , state = nv.utils.state()
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange', 'activate')
         , controlWidth = function() { return showControls ? 180 : 0 }
         , duration = 250
         ;
@@ -101,6 +101,8 @@ nv.models.funnelChart = function() {
 
             chart.update = function() { container.transition().duration(duration).call(chart) };
             chart.container = this;
+
+            tooltip.chartContainer(chart.container.parentNode).gravity('x');
 
             stacked = multibar.stacked();
 
@@ -294,11 +296,13 @@ nv.models.funnelChart = function() {
     // Event Handling/Dispatching (out of chart's scope)
     //------------------------------------------------------------
 
+
 /*
     multibar.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt.value = chart.x()(evt.data);
+
         evt['series'] = {
-            key: evt.data.key,
+            key: evt.data.key + (evt.reducer ? ' abandoned' : ' continued'),
             value: chart.y()(evt.data),
             color: evt.color
         };
@@ -310,8 +314,13 @@ nv.models.funnelChart = function() {
     });
 */
 
+
     multibar.dispatch.on('elementClick.select', function(evt) {
         dispatch.selectChange(evt);
+    });
+
+    multibar.dispatch.on('elementDblClick.activate', function(evt) {
+        dispatch.activate(evt);
     });
 
     //============================================================
