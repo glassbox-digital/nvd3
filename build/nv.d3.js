@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-02 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-07 */
 (function(){
 
 // set up main nv object
@@ -4889,7 +4889,7 @@ nv.models.funnel = function() {
                 }
 
                 bars.select('text.nv-bar-label')
-                    .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
+                    .attr('text-anchor', function(d,i) { return (getY(d,i) >= 0) ? 'start' : 'end' })
                     .attr('y', barWidth ? (barWidth-10) : (x.rangeBand() / (data.length * 2)))
                     .attr('dx', '.32em')
                     .attr('dy', '.1em')
@@ -4916,7 +4916,7 @@ nv.models.funnel = function() {
             }
 
             bars
-                .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'});
+                .attr('class', function(d,i) { var y = getY(d,i); return y === 0 ? 'nv-bar zero' : (y < 0 ? 'nv-bar negative' : 'nv-bar positive'); });
 
             bars.classed('selected', function(d,i){ return d.selected; });
 
@@ -4986,6 +4986,7 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d,i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
+                        w = Math.max(50, w);
                         return draw_rect(w,w1,h);
 
                     });
