@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-07 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-08 */
 (function(){
 
 // set up main nv object
@@ -4986,8 +4986,10 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d,i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        w = Math.max(50, w);
-                        return draw_rect(w,w1,h);
+                        var wf = Math.max(50, w),
+                            w1f = w > 0? wf / w * w1 : wf;
+
+                        return draw_rect(wf,w1f,h);
 
                     });
                     /*.attr('height', barWidth || x.rangeBand());*/
@@ -5005,8 +5007,8 @@ nv.models.funnel = function() {
                 watch.select('path.nv-bar-arrow')
                     .attr('d', function (d, i) {
 
-                        var w = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0,
-                            h = barWidth || x.rangeBand();
+                        var h = barWidth || x.rangeBand();
+
                         return arrow_down(20,h);
                     });
 
@@ -5018,8 +5020,10 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        /*M 0 0 V 50 H 209 V 0 L 173.5 50 H 35 L 0 0 Z*/
-                        return reducer(w, w1, h);
+                        var wf = Math.max(50, w),
+                            w1f = w > 0? wf / w * w1 : wf;
+
+                        return reducer(wf, w1f, h);
                     })
                     .attr('opacity', function (d, i) {
                         var v = getYC(d, i);
@@ -5029,8 +5033,9 @@ nv.models.funnel = function() {
                 watch.select('path.nv-reducer-arrow')
                     .attr('d', function (d, i) {
                         var w = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0,
-
                             h = barWidth || x.rangeBand();
+
+                        w = Math.max(50, w);
                         return arrow(w,h/2);
                     })
                     .style('visibility', function(d,i){
@@ -5060,7 +5065,10 @@ nv.models.funnel = function() {
                             w1 = Math.max(Math.abs(y(getYC(d, i)) - y(0)), 1) || 0,
                             w = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0;
 
-                        return draw_rect(w,w1,h);
+                        var wf = Math.max(50, w),
+                            w1f = w > 0? wf / w * w1 : wf;
+
+                        return draw_rect(wf,w1f,h);
                     });
 
 /*
@@ -5082,8 +5090,7 @@ nv.models.funnel = function() {
                 watch.select('path.nv-bar-arrow')
                     .attr('d', function (d, i) {
 
-                        var w = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0,
-                            h = barWidth || x.rangeBand();
+                        var h = barWidth || x.rangeBand();
                         return arrow_down(20,h);
                     });
 
@@ -5095,7 +5102,10 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        return reducer(w,w1,h);
+                        var wf = Math.max(50, w),
+                            w1f = w > 0? wf / w * w1 : wf;
+
+                        return reducer(wf,w1f,h);
                     });
 
 
