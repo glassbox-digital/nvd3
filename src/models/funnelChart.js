@@ -102,7 +102,7 @@ nv.models.funnelChart = function() {
             chart.update = function() { container.transition().duration(duration).call(chart) };
             chart.container = this;
 
-            tooltip.chartContainer(chart.container.parentNode).gravity('x');
+            tooltip.chartContainer(chart.container.parentNode);
 
             stacked = multibar.stacked();
 
@@ -302,10 +302,11 @@ nv.models.funnelChart = function() {
         evt.value = chart.x()(evt.data);
 
         evt['series'] = {
-            key: evt.data.key + (evt.reducer ? ' abandoned' : ' continued'),
+            key: (evt.reducer ? ' abandoned' : ' continued'),
             value: chart.y()(evt.data),
-            color: evt.color
+            color: evt.reducer ? '#ccc' : evt.color
         };
+
         tooltip.data(evt).hidden(false);
     });
 
@@ -319,9 +320,11 @@ nv.models.funnelChart = function() {
         dispatch.selectChange(evt);
     });
 
+/*
     multibar.dispatch.on('elementDblClick.activate', function(evt) {
         dispatch.activate(evt);
     });
+*/
 
     //============================================================
     // Expose Public Variables
