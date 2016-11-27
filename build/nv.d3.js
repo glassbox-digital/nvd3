@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-09 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-27 */
 (function(){
 
 // set up main nv object
@@ -4743,7 +4743,7 @@ nv.models.funnel = function() {
 
             bars
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
-                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
                     d3.select(this).classed('hover', true);
                     dispatch.elementMouseover({
                         data: d,
@@ -4753,7 +4753,7 @@ nv.models.funnel = function() {
                     });
                 })
                 .on('mouseout', function(d,i) {
-                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
                     d3.select(this).classed('hover', false);
                     dispatch.elementMouseout({
                         data: d,
@@ -4763,7 +4763,7 @@ nv.models.funnel = function() {
                     });
                 })
                 .on('mousemove', function(d,i) {
-                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
                     dispatch.elementMousemove({
                         data: d,
                         index: i,
@@ -4772,7 +4772,7 @@ nv.models.funnel = function() {
                     });
                 })
                 .on('dblclick', function(d,i) {
-                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
                     dispatch.elementDblClick({
                         data: d,
                         index: i,
@@ -4782,7 +4782,7 @@ nv.models.funnel = function() {
                     d3.event.stopPropagation();
                 })
                 .on('click', function(d,i) {
-                    var reducer = d3.select(d3.event.target).classed('nv-reducer');
+                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
 
                     d.selected = !d.selected;
                     d3.select(this).classed('selected', d.selected);

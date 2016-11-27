@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-09 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-27 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -75,6 +75,7 @@
   font-weight: bold;
   fill: #000000;
   stroke: rgba(0, 0, 0, 0);
+  pointer-events: none;
 }
 .nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-href:hover text,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-href:hover text,
