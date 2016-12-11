@@ -85,13 +85,20 @@
   stroke: none !important;
 
   .nv-check {
-    opacity: 0;
-    fill: white;
+    /*opacity: 0.5;*/
+    pointer-events: bounding-box;
   }
 
   &.selected {
     .nv-check {
       opacity: 1;
+    }
+  }
+
+  &.reduced {
+    .nv-check {
+      opacity: 1;
+      fill: rgba(0,0,0,0.6);
     }
   }
 

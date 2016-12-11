@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-11-27 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-11 */
 (function(){
 
 // set up main nv object
@@ -4659,7 +4659,7 @@ nv.models.funnel = function() {
             if (showValues && !stacked)
                 y.range(yRange || [(y.domain()[0] < 0 ? valuePadding : 0), availableWidth - (y.domain()[1] > 0 ? valuePadding : 0) ]);
             else
-                y.range(yRange || [0, availableWidth-15]);
+                y.range(yRange || [30, availableWidth-15]);
 
             x0 = x0 || x;
             y0 = y0 || d3.scale.linear().domain(y.domain()).range([y(0),y(0)]);
@@ -4733,12 +4733,66 @@ nv.models.funnel = function() {
                     gDropoffEnter.append('text')
                         .attr('class', 'nv-reducer-value');
                 }
+
+                gDropoffEnter.on('click', function(d,i){
+                    var reducer = true;
+/*
+                    d.selected = d.selected === 'reduce' ? '' : 'reduce';
+                    d3.select(this.parentNode)
+                        .classed('selected', d.selected === 'select')
+                        .classed('reduced', d.selected === 'reduce')
+                        .select('.nv-check')
+                        .attr('d', function (d) {
+                            return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                                d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                    'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+                        });
+*/
+
+                    dispatch.elementClick({
+                        data: d,
+                        index: i,
+                        reducer: reducer,
+                        color: d3.select(this.parentNode).style("fill")
+                    });
+
+                    d3.event.stopPropagation();
+
+
+                });
             }
 
-            if ( showChecks ) {
-                barsEnter.append('path')
+            if (showChecks) {
+                var checks = barsEnter.append('path')
                     .attr('class', 'nv-check')
-                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+                    .attr('d', function (d) {
+                        return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                            d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+                    });
+
+                checks.on('click', function (d, i) {
+                    d.selected = d.selected === 'select' ? 'reduce' : d.selected === 'reduce' ? '' : 'select';
+
+                    d3.select(this.parentNode)
+                        .classed('selected', d.selected === 'select')
+                        .classed('reduced', d.selected === 'reduce')
+                        .select('.nv-check')
+                        .attr('d', function (d) {
+                            return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                                d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                    'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+                        });
+
+                    dispatch.elementClick({
+                        data: d,
+                        index: i,
+                        selected: d.selected,
+                        color: d3.select(this.parentNode).style("fill")
+                    });
+
+                    d3.event.stopPropagation();
+                });
             }
 
             bars
@@ -4771,7 +4825,7 @@ nv.models.funnel = function() {
                         color: d3.select(this).style("fill")
                     });
                 })
-                .on('dblclick', function(d,i) {
+                .on('dblclick', function (d, i) {
                     var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
                     dispatch.elementDblClick({
                         data: d,
@@ -4781,11 +4835,22 @@ nv.models.funnel = function() {
                     });
                     d3.event.stopPropagation();
                 })
-                .on('click', function(d,i) {
-                    var reducer = d3.select(d3.event.target.parentNode).classed('nv-dropoff');
+                .on('click', function (d, i) {
+                    var reducer = false;
+/*
+                    d.selected = d.selected === 'select' ? '' : 'select';
 
-                    d.selected = !d.selected;
-                    d3.select(this).classed('selected', d.selected);
+                    d3.select(this)
+                        .classed('selected', d.selected === 'select')
+                        .classed('reduced', d.selected === 'reduce')
+                        .select('.nv-check')
+                        .attr('d', function (d) {
+                            return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                                d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                    'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
+                        });
+*/
+
 
                     dispatch.elementClick({
                         data: d,
@@ -4854,7 +4919,7 @@ nv.models.funnel = function() {
                     });
                 bars.watchTransition(renderWatch, 'funnel: bars')
                     .select('text')
-                    .attr('x', function(d,i) { return y(getY(d,i)) - 4 })
+                    .attr('x', function(d,i) { return y(getY(d,i)) - 34 })
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
@@ -4918,7 +4983,8 @@ nv.models.funnel = function() {
             bars
                 .attr('class', function(d,i) { var y = getY(d,i); return y === 0 ? 'nv-bar zero' : (y < 0 ? 'nv-bar negative' : 'nv-bar positive'); });
 
-            bars.classed('selected', function(d,i){ return d.selected; });
+            bars.classed('selected', function(d,i){ return d.selected === 'select'; })
+                .classed('reduced', function(d,i){ return d.selected === 'reduce'; });
 
             if (barColor) {
                 if (!disabled) disabled = data.map(function() { return true });
@@ -5000,7 +5066,12 @@ nv.models.funnel = function() {
                             var width = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)),
                                 w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)),
                                 height = barWidth || x.rangeBand();
-                            return 'translate(' + Math.min(width - w1, width - 27) + ',' + (height - 24) / 2 + ' )';
+                            return 'translate(-30,' + (height - 24) / 2 + ' )';
+                        })
+                        .attr('d', function(d){
+                            return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                                d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                    'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
                         });
                 }
 
@@ -5084,6 +5155,11 @@ nv.models.funnel = function() {
                             var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
                                 height = barWidth || x.rangeBand() / data.length;
                             return 'translate(' + (width - 20) + ',' + (height - 20) / 2 + ' )';
+                        })
+                        .attr('d', function (d) {
+                            return d.selected === 'select' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' :
+                                d.selected === 'reduce' ? 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H7V11H17V13Z' :
+                                    'M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z';
                         });
                 }
 
@@ -5501,7 +5577,9 @@ nv.models.funnelChart = function() {
 
 
     multibar.dispatch.on('elementClick.select', function(evt) {
-        dispatch.selectChange(evt);
+        if ( evt.hasOwnProperty('selected')) {
+            dispatch.selectChange(evt);
+        }
     });
 
 /*

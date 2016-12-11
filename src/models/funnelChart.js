@@ -317,7 +317,9 @@ nv.models.funnelChart = function() {
 
 
     multibar.dispatch.on('elementClick.select', function(evt) {
-        dispatch.selectChange(evt);
+        if ( evt.hasOwnProperty('selected')) {
+            dispatch.selectChange(evt);
+        }
     });
 
 /*
