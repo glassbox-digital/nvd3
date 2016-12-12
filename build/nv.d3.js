@@ -4659,7 +4659,7 @@ nv.models.funnel = function() {
             if (showValues && !stacked)
                 y.range(yRange || [(y.domain()[0] < 0 ? valuePadding : 0), availableWidth - (y.domain()[1] > 0 ? valuePadding : 0) ]);
             else
-                y.range(yRange || [30, availableWidth-15]);
+                y.range(yRange || [showChecks ? 30 : 0, availableWidth-15]);
 
             x0 = x0 || x;
             y0 = y0 || d3.scale.linear().domain(y.domain()).range([y(0),y(0)]);
@@ -4919,7 +4919,7 @@ nv.models.funnel = function() {
                     });
                 bars.watchTransition(renderWatch, 'funnel: bars')
                     .select('text')
-                    .attr('x', function(d,i) { return y(getY(d,i)) - 34 })
+                    .attr('x', function(d,i) { return y(getY(d,i)) - (showChecks ? 30 : 0) - 4 })
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
