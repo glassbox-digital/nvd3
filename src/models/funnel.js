@@ -442,7 +442,7 @@ nv.models.funnel = function() {
                 if ( selected && selected.length > 0 ){
                     bars.selectAll('.nv-bar-rect')
                         .style('opacity', function(d,i){
-                            return d.selected === 'select' ? 1 : 0.2;
+                            return d.selected ? 1 : 0.2;
                         });
 
                     bars.selectAll('.nv-bar-arrow')
