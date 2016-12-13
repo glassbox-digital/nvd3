@@ -434,9 +434,50 @@ nv.models.funnel = function() {
                 .classed('reduced', function(d,i){ return d.selected === 'reduce'; });
 
             if (barColor) {
+
+                var selected = bars.data().filter(function(d){
+                    return !!d.selected;
+                });
+
+                if ( selected && selected.length > 0 ){
+                    bars.selectAll('.nv-bar-rect')
+                        .style('opacity', function(d,i){
+                            return d.selected === 'select' ? 1 : 0.2;
+                        });
+
+                    bars.selectAll('.nv-bar-arrow')
+                        .style('opacity', function(d,i){
+                            return d.selected === 'select' ? 1 : 0.2;
+                        });
+
+                    bars.selectAll('.nv-dropoff')
+                        .style('opacity', function(d,i){
+                            return d.selected === 'reduce' ? 1 : 0.2;
+                        });
+                }
+                else {
+                    bars.selectAll('.nv-bar-rect')
+                        .style('opacity', 'auto');
+
+                    bars.selectAll('.nv-bar-arrow')
+                        .style('opacity', 'auto');
+
+                    bars.selectAll('.nv-dropoff')
+                        .style('opacity', 'auto');
+
+                }
+
                 if (!disabled) disabled = data.map(function() { return true });
                 bars
-                    .style('fill', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); })
+                    .style('fill', function (d, i, j) {
+                        return d3.rgb(barColor(d, i)).darker(disabled.map(function (d, i) {
+                            return i
+                        }).filter(function (d, i) {
+                            return !disabled[i]
+                        })[j]).toString();
+                    });
+
+
                     //.style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); });
             }
 
