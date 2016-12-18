@@ -442,18 +442,22 @@ nv.models.funnel = function() {
                 if ( selected && selected.length > 0 ){
                     bars.selectAll('.nv-bar-rect')
                         .style('opacity', function(d,i){
-                            return d.selected ? 1 : 0.2;
+                            return d.selected ? 1 : 0.1;
                         });
 
                     bars.selectAll('.nv-bar-arrow')
                         .style('opacity', function(d,i){
-                            return d.selected === 'select' ? 1 : 0.2;
+                            return d.selected === 'select' ? 1 : 0.1;
                         });
 
                     bars.selectAll('.nv-dropoff')
                         .style('opacity', function(d,i){
-                            return d.selected === 'reduce' ? 1 : 0.2;
+                            return d.selected === 'reduce' ? 1 : 0.1;
                         });
+
+                    bars.style('filter', function(d){
+                        return d.selected === 'reduce' || d.selected === 'select' ? 'url(#drop-shadow)' : '';
+                    });
                 }
                 else {
                     bars.selectAll('.nv-bar-rect')
@@ -464,6 +468,8 @@ nv.models.funnel = function() {
 
                     bars.selectAll('.nv-dropoff')
                         .style('opacity', 'auto');
+
+                    bars.style('filter', '');
 
                 }
 

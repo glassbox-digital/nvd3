@@ -137,6 +137,8 @@ nv.models.funnelChart = function() {
             x = multibar.xScale();
             y = multibar.yScale();
 
+            nv.utils.dropShadow(container, 1, 1, 1.2);
+
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-funnelChart').data([data]);
             var gEnter = wrap.enter().append('g').attr('class', 'nvd3 nv-wrap nv-funnelChart').append('g');

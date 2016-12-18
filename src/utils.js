@@ -629,6 +629,33 @@
             .attr("version","1.1");
     };
 
+    nv.utils.dropShadow = function(container, dy, dx, stdDeviation){
+        var filter = container.selectAll('filter#drop-shadow').data([1]);
+        var filterEnter = filter.enter().append('filter')
+            .attr('id', 'drop-shadow');
+
+        filterEnter.append('feGaussianBlur')
+            .attr('in', 'SourceAlpha')
+            .attr('stdDeviation', stdDeviation || 1.2);
+
+        filterEnter.append('feOffset')
+            .attr('dx', dx || 1)
+            .attr('dy', dy || 1)
+            .attr('result', 'offsetblur');
+
+        filterEnter.append('feFlood')
+            .attr('floodColor', 'rgba(250,250,250,0.3)');
+
+        filterEnter.append('feComposite')
+            .attr('in2', 'offsetblur')
+            .attr('operator', 'in');
+
+        var feMerge = filterEnter.append('feMerge');
+        feMerge.append('feMergeNode');
+        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+    };
+
 
     /*
      Sanitize and provide default for the container height.

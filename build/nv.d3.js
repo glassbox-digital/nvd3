@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-13 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-18 */
 (function(){
 
 // set up main nv object
@@ -1475,6 +1475,33 @@ nv.models.tooltip = function() {
         svg.attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("xmlns:xlink","http://www.w3.org/1999/xlink")
             .attr("version","1.1");
+    };
+
+    nv.utils.dropShadow = function(container, dy, dx, stdDeviation){
+        var filter = container.selectAll('filter#drop-shadow').data([1]);
+        var filterEnter = filter.enter().append('filter')
+            .attr('id', 'drop-shadow');
+
+        filterEnter.append('feGaussianBlur')
+            .attr('in', 'SourceAlpha')
+            .attr('stdDeviation', stdDeviation || 1.2);
+
+        filterEnter.append('feOffset')
+            .attr('dx', dx || 1)
+            .attr('dy', dy || 1)
+            .attr('result', 'offsetblur');
+
+        filterEnter.append('feFlood')
+            .attr('floodColor', 'rgba(250,250,250,0.3)');
+
+        filterEnter.append('feComposite')
+            .attr('in2', 'offsetblur')
+            .attr('operator', 'in');
+
+        var feMerge = filterEnter.append('feMerge');
+        feMerge.append('feMergeNode');
+        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
     };
 
 
@@ -4995,18 +5022,22 @@ nv.models.funnel = function() {
                 if ( selected && selected.length > 0 ){
                     bars.selectAll('.nv-bar-rect')
                         .style('opacity', function(d,i){
-                            return d.selected ? 1 : 0.2;
+                            return d.selected ? 1 : 0.1;
                         });
 
                     bars.selectAll('.nv-bar-arrow')
                         .style('opacity', function(d,i){
-                            return d.selected === 'select' ? 1 : 0.2;
+                            return d.selected === 'select' ? 1 : 0.1;
                         });
 
                     bars.selectAll('.nv-dropoff')
                         .style('opacity', function(d,i){
-                            return d.selected === 'reduce' ? 1 : 0.2;
+                            return d.selected === 'reduce' ? 1 : 0.1;
                         });
+
+                    bars.style('filter', function(d){
+                        return d.selected === 'reduce' || d.selected === 'select' ? 'url(#drop-shadow)' : '';
+                    });
                 }
                 else {
                     bars.selectAll('.nv-bar-rect')
@@ -5017,6 +5048,8 @@ nv.models.funnel = function() {
 
                     bars.selectAll('.nv-dropoff')
                         .style('opacity', 'auto');
+
+                    bars.style('filter', '');
 
                 }
 
@@ -5437,6 +5470,8 @@ nv.models.funnelChart = function() {
             // Setup Scales
             x = multibar.xScale();
             y = multibar.yScale();
+
+            nv.utils.dropShadow(container, 1, 1, 1.2);
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-funnelChart').data([data]);
