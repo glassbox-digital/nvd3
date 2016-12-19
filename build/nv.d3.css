@@ -141,7 +141,6 @@
   fill: #666;
   font-size: .6em;
   font-style: italic;
-  stroke: #666;
 }
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {
   display: none;
