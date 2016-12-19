@@ -458,6 +458,14 @@ nv.models.funnel = function() {
                     bars.style('filter', function(d){
                         return d.selected === 'reduce' || d.selected === 'select' ? 'url(#drop-shadow)' : '';
                     });
+
+                    bars.selectAll('text')
+                        .style('fill-opacity', function(d){
+                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.2;
+                        })
+                        .style('stroke-opacity', function(d){
+                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.2;
+                        });
                 }
                 else {
                     bars.selectAll('.nv-bar-rect')
@@ -470,6 +478,11 @@ nv.models.funnel = function() {
                         .style('opacity', 'auto');
 
                     bars.style('filter', '');
+
+                    bars.selectAll('text')
+                        .style('fill-opacity', '')
+                        .style('stroke-opacity', '');
+
 
                 }
 
