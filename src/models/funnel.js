@@ -455,9 +455,9 @@ nv.models.funnel = function() {
                             return d.selected === 'reduce' ? 1 : 0.1;
                         });
 
-                    bars.style('filter', function(d){
+                    /*bars.style('filter', function(d){
                         return d.selected === 'reduce' || d.selected === 'select' ? 'url(#drop-shadow)' : '';
-                    });
+                    });*/
 
                     bars.selectAll('text')
                         .style('fill-opacity', function(d){
@@ -477,7 +477,7 @@ nv.models.funnel = function() {
                     bars.selectAll('.nv-dropoff')
                         .style('opacity', 'auto');
 
-                    bars.style('filter', '');
+                    // bars.style('filter', '');
 
                     bars.selectAll('text')
                         .style('fill-opacity', '')
