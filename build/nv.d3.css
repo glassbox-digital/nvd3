@@ -125,7 +125,7 @@
 }
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-value {
   fill: white;
-  stroke-opacity: .6;
+  stroke-opacity: .4;
   stroke: white;
 }
 .nvd3 .nv-funnel .nv-bar:hover .nv-dropoff {
@@ -135,6 +135,13 @@
   fill: #444;
   stroke-opacity: .6;
   stroke: #444;
+}
+.nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
+  stroke-opacity: .4;
+  fill: #666;
+  font-size: .6em;
+  font-style: italic;
+  stroke: #666;
 }
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {
   display: none;

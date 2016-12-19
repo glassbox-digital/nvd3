@@ -15,6 +15,7 @@ nv.models.funnel = function() {
         , y = d3.scale.linear()
         , getX = function(d) { return d.x }
         , getY = function(d) { return d.y }
+        , getY2 = function(d) {}
         , getYC = function(d) { return 0; }
         , getYerr = function(d) { return d.yErr }
         , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
@@ -342,17 +343,32 @@ nv.models.funnel = function() {
                     .text(function(d,i) {
                         var t = valueFormat(getY(d,i))
                             , yerr = getYerr(d,i);
+
                         if (yerr === undefined)
                             return t;
                         if (!yerr.length)
                             return t + '±' + valueFormat(Math.abs(yerr));
                         return t + '+' + valueFormat(Math.abs(yerr[1])) + '-' + valueFormat(Math.abs(yerr[0]));
                     });
-/*
-                bars.watchTransition(renderWatch, 'funnel: bars')
-                    .select('text')
-                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) -y(getY(d,i)) - 4 : + 4 })
-*/
+
+                barsEnter.append('text').classed('nv-bar-value2', true);
+
+                bars.select('text.nv-bar-value2')
+                    .attr('text-anchor', 'start' )
+                    .attr('y', 10)
+                    .attr('dy', '.32em')
+                    .attr('dx', '4.32em')
+                    .text(function(d,i) {
+                        var t = valueFormat(getY2(d,i));
+
+                        return t;
+                    });
+
+                /*
+                                bars.watchTransition(renderWatch, 'funnel: bars')
+                                    .select('text')
+                                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) -y(getY(d,i)) - 4 : + 4 })
+                */
 
                 bars.select('text.nv-reducer-value')
                     .attr('text-anchor', 'end')
@@ -370,6 +386,7 @@ nv.models.funnel = function() {
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
+                bars.selectAll('text.nv-bar-value2').remove();
                 bars.selectAll('text.nv-reducer-value').remove();
             }
 
@@ -559,7 +576,7 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d,i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        var wf = Math.max(50, w),
+                        var wf = Math.max(70, w),
                             w1f = w > 0? wf / w * w1 : wf;
 
                         return draw_rect(wf,w1f,h);
@@ -718,6 +735,7 @@ nv.models.funnel = function() {
         height:  {get: function(){return height;}, set: function(_){height=_;}},
         x:       {get: function(){return getX;}, set: function(_){getX=_;}},
         y:       {get: function(){return getY;}, set: function(_){getY=_;}},
+        y2:       {get: function(){return getY2;}, set: function(_){getY2=_;}},
         yc:       {get: function(){return getYC;}, set: function(_){getYC=_;}},
         yErr:       {get: function(){return getYerr;}, set: function(_){getYerr=_;}},
         xScale:  {get: function(){return x;}, set: function(_){x=_;}},
