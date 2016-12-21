@@ -749,7 +749,7 @@ nv.models.funnel = function() {
         showValues: {get: function(){return showValues;}, set: function(_){showValues=_;}},
         // this shows the group name, seems pointless?
         showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
-        showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
+        showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=false;}},
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
