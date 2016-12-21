@@ -364,7 +364,9 @@ nv.models.funnel = function() {
                         return t;
                     });
 
-                bars.select('text.nv-bar-value2')
+                barsEnter.append('text').classed('nv-continue-value', true);
+
+                bars.select('text.nv-continue-value')
                     .attr('text-anchor', 'start' )
                     .attr('y', 12)
                     .attr('dy', '50')
@@ -373,7 +375,7 @@ nv.models.funnel = function() {
                     .text(function(d,i) {
                         var v = getY(d,i),
                             vc = getYC(d,i),
-                            t = v > 0 && vc > 0 ? d3.format('.1%')(1 - vc/v) : '';
+                            t = v > 0 ? d3.format('.1%')(1 - vc/v) : '';
                         return t;
                     });
 

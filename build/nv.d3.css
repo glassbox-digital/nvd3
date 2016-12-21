@@ -138,12 +138,14 @@
   stroke-opacity: .6;
   stroke: #444;
 }
+.nvd3 .nv-funnel .nv-bar .nv-continue-value,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   stroke-opacity: .4;
   fill: #666;
   font-size: .7em;
   font-style: italic;
 }
+.nvd3 .nv-funnel .nv-bar:last-child .nv-continue-value,
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {
   display: none;
   opacity: 0;
