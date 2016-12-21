@@ -4944,6 +4944,20 @@ nv.models.funnel = function() {
                         return t;
                     });
 
+                bars.select('text.nv-bar-value2')
+                    .attr('text-anchor', 'start' )
+                    .attr('y', 12)
+                    .attr('dy', '50')
+                    .attr('dx', '33')
+                    .style('fill', 'auto')
+                    .text(function(d,i) {
+                        var v = getY(d,i),
+                            vc = getYC(d,i),
+                            t = v > 0 && vc > 0 ? d3.format('.1%')(1 - vc/v) : '';
+                        return t;
+                    });
+
+
                 /*
                                 bars.watchTransition(renderWatch, 'funnel: bars')
                                     .select('text')
@@ -5126,10 +5140,10 @@ nv.models.funnel = function() {
 
                 return ['M', x, y,
                     'H', x - 3,
-                    'V', y + 4,
+                    'V', y + 8,
                     'H', x - 8,
-                    'L', x, y + 13,
-                    'L', x + 8, y + 4,
+                    'L', x, y + 17,
+                    'L', x + 8, y + 8,
                     'H', x + 3,
                     'V', y,
                     'Z'].join(' ');
@@ -5146,7 +5160,7 @@ nv.models.funnel = function() {
             if (stacked) {
                 var watch = bars.watchTransition(renderWatch, 'funnel: bars')
                     .attr('transform', function (d, i) {
-                        var x1 = i * (barWidth + 13) + x.range()[0];
+                        var x1 = i * (barWidth + 17) + x.range()[0];
                         return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x1 /*x(getX(d, i))*/ + ')'
                     });
 
