@@ -631,7 +631,7 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        var wf = Math.max(50, w),
+                        var wf = Math.max(70, w),
                             w1f = w > 0? wf / w * w1 : wf;
 
                         return reducer(wf, w1f, h);
@@ -646,7 +646,7 @@ nv.models.funnel = function() {
                         var w = Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        w = Math.max(50, w);
+                        w = Math.max(70, w);
                         return arrow(w,h/2);
                     })
                     .style('visibility', function(d,i){
@@ -676,7 +676,7 @@ nv.models.funnel = function() {
                             w1 = Math.max(Math.abs(y(getYC(d, i)) - y(0)), 1) || 0,
                             w = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0;
 
-                        var wf = Math.max(50, w),
+                        var wf = Math.max(70, w),
                             w1f = w > 0? wf / w * w1 : wf;
 
                         return draw_rect(wf,w1f,h);
@@ -718,7 +718,7 @@ nv.models.funnel = function() {
                             w1 = Math.abs(y(getYC(d, i) + d.y0) - y(d.y0)) || 0,
                             h = barWidth || x.rangeBand();
 
-                        var wf = Math.max(50, w),
+                        var wf = Math.max(70, w),
                             w1f = w > 0? wf / w * w1 : wf;
 
                         return reducer(wf,w1f,h);
