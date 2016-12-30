@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-26 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-30 */
 (function(){
 
 // set up main nv object
@@ -7955,6 +7955,7 @@ nv.models.line = function() {
         , getX = function(d) { return d.x } // accessor to get the x value from a data point
         , getY = function(d) { return d.y } // accessor to get the y value from a data point
         , defined = function(d,i) { return !isNaN(getY(d,i)) && getY(d,i) !== null } // allows a line to be not continuous when it is not defined
+        , forceY = [0, 1]
         , isArea = function(d) { return d.area } // decides if a line is an area or just a line
         , clipEdge = false // if true, masks lines within x and y scale
         , x //can be accessed via chart.xScale()
@@ -7991,6 +7992,8 @@ nv.models.line = function() {
             var availableWidth = nv.utils.availableWidth(width, container, margin),
                 availableHeight = nv.utils.availableHeight(height, container, margin);
             nv.utils.initSVG(container);
+
+            scatter.forceY([0,1]);
 
             // Setup Scales
             x = scatter.xScale();
@@ -8128,6 +8131,13 @@ nv.models.line = function() {
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
         defined: {get: function(){return defined;}, set: function(_){defined=_;}},
+        forceY: {
+            get: function () {
+                return forceY;
+            }, set: function (_) {
+                forceY = _;
+            }
+        },
         interpolate:      {get: function(){return interpolate;}, set: function(_){interpolate=_;}},
         clipEdge:    {get: function(){return clipEdge;}, set: function(_){clipEdge=_;}},
 
