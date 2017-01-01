@@ -1,24 +1,31 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-30 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-01 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
 }
+.nvd3 .nv-axis.nv-disabled {
+  opacity: 0;
+}
 .nvd3 .nv-axis path {
   fill: none;
-  stroke: #000;
+  stroke: #888;
   stroke-opacity: .75;
-  shape-rendering: crispEdges;
+  /*shape-rendering: crispEdges;*/
 }
 .nvd3 .nv-axis path.domain {
   stroke-opacity: .75;
 }
-.nvd3 .nv-axis.nv-x path.domain {
-  stroke-opacity: 0;
-}
 .nvd3 .nv-axis line {
+  /*
+    fill: none;
+    stroke: #e5e5e5;
+    shape-rendering: crispEdges;
+    */
   fill: none;
-  stroke: #e5e5e5;
-  shape-rendering: crispEdges;
+  stroke: #888;
+  stroke-width: 1px;
+  stroke-opacity: .4;
+  stroke-dasharray: 1,2;
 }
 .nvd3 .nv-axis .zero line,
 .nvd3 .nv-axis line.zero {
@@ -27,13 +34,15 @@
 .nvd3 .nv-axis .nv-axisMaxMin text {
   font-weight: bold;
 }
+/*
+.nvd3 .nv-axis.nv-x path.domain {
+  stroke-opacity: 0;
+}
+*/
 .nvd3 .x .nv-axis .nv-axisMaxMin text,
 .nvd3 .x2 .nv-axis .nv-axisMaxMin text,
 .nvd3 .x3 .nv-axis .nv-axisMaxMin text {
   text-anchor: middle;
-}
-.nvd3 .nv-axis.nv-disabled {
-  opacity: 0;
 }
 
 .nvd3 .nv-bars rect {
@@ -814,7 +823,8 @@ Interactive Layer
   pointer-events: none;
 }
 .nvd3 line.nv-guideline {
-  stroke: #ccc;
+  stroke: #fafafa;
+  stroke-width: 2px;
 }
 
 .nvd3.nv-treemap .node rect {

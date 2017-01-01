@@ -37,7 +37,7 @@ nv.models.lineChart = function() {
         ;
 
     // set options on sub-objects for this chart
-    xAxis.orient('bottom').tickPadding(7);
+    xAxis.orient('bottom').tickValues();// .tickPadding(7);
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);

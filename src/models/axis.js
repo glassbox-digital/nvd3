@@ -18,6 +18,7 @@ nv.models.axis = function() {
         , staggerLabels = false
         , isOrdinal = false
         , ticks = null
+        , tickValues = null
         , axisLabelDistance = 0
         , duration = 250
         , dispatch = d3.dispatch('renderEnd')
@@ -47,7 +48,9 @@ nv.models.axis = function() {
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
 
-            if (ticks !== null)
+            if (tickValues !== null)
+                axis.tickValues(tickValues);
+            else if (ticks !== null)
                 axis.ticks(ticks);
             else if (axis.orient() == 'top' || axis.orient() == 'bottom')
                 axis.ticks(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
@@ -354,6 +357,7 @@ nv.models.axis = function() {
         axisLabel:         {get: function(){return axisLabelText;}, set: function(_){axisLabelText=_;}},
         height:            {get: function(){return height;}, set: function(_){height=_;}},
         ticks:             {get: function(){return ticks;}, set: function(_){ticks=_;}},
+        tickValues:        {get: function(){return tickValues;}, set: function(_){tickValues=_;}},
         width:             {get: function(){return width;}, set: function(_){width=_;}},
 
         // options that require extra logic in the setter

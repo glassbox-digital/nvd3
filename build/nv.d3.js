@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2016-12-30 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-01 */
 (function(){
 
 // set up main nv object
@@ -1642,6 +1642,7 @@ nv.models.tooltip = function() {
         , staggerLabels = false
         , isOrdinal = false
         , ticks = null
+        , tickValues = null
         , axisLabelDistance = 0
         , duration = 250
         , dispatch = d3.dispatch('renderEnd')
@@ -1671,7 +1672,9 @@ nv.models.tooltip = function() {
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
 
-            if (ticks !== null)
+            if (tickValues !== null)
+                axis.tickValues(tickValues);
+            else if (ticks !== null)
                 axis.ticks(ticks);
             else if (axis.orient() == 'top' || axis.orient() == 'bottom')
                 axis.ticks(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
@@ -1978,6 +1981,7 @@ nv.models.tooltip = function() {
         axisLabel:         {get: function(){return axisLabelText;}, set: function(_){axisLabelText=_;}},
         height:            {get: function(){return height;}, set: function(_){height=_;}},
         ticks:             {get: function(){return ticks;}, set: function(_){ticks=_;}},
+        tickValues:        {get: function(){return tickValues;}, set: function(_){tickValues=_;}},
         width:             {get: function(){return width;}, set: function(_){width=_;}},
 
         // options that require extra logic in the setter
@@ -8214,7 +8218,7 @@ nv.models.lineChart = function() {
         ;
 
     // set options on sub-objects for this chart
-    xAxis.orient('bottom').tickPadding(7);
+    xAxis.orient('bottom').tickValues();// .tickPadding(7);
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);
