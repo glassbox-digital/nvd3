@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-01 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-04 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -272,6 +272,15 @@
   stroke: #333;
 }
 
+.nvd3 .nv-legend .nv-series .nv-check {
+  pointer-events: none;
+  transform: scale(0.9) translate(-12px, -12px);
+  fill-opacity: 0;
+  fill: white;
+}
+.nvd3 .nv-legend .nv-series.selected .nv-check {
+  fill-opacity: 1;
+}
 .nvd3 .nv-legend .nv-disabled rect {
   /*fill-opacity: 0;*/
 }

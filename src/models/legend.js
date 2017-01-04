@@ -62,6 +62,12 @@ nv.models.legend = function() {
                     .attr('class','nv-legend-symbol')
                     .attr('r', 5);
 
+                if (!updateState) {
+                    seriesEnter.append('path')
+                        .attr('class', 'nv-check')
+                        .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+                }
+
                 seriesShape = series.select('circle');
             } else if (vers == 'furious') {
                 seriesEnter.append('rect')
@@ -189,7 +195,9 @@ nv.models.legend = function() {
                     }
                 });
 
-            series.classed('nv-disabled', function(d) { return d.userDisabled });
+            series
+                .classed('nv-disabled', function(d) { return d.userDisabled })
+                .classed('selected', function(d) { return d.selected });
             series.exit().remove();
 
             seriesText

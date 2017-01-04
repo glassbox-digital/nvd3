@@ -22,6 +22,7 @@ nv.models.stackedAreaChart = function() {
         , color = nv.utils.defaultColor()
         , showControls = true
         , showLegend = true
+        , showChecks = false
         , showXAxis = true
         , showYAxis = true
         , focusEnable = false
@@ -34,7 +35,7 @@ nv.models.stackedAreaChart = function() {
         , state = nv.utils.state()
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'brush')
+        , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'brush', 'selectChange')
         , controlWidth = 250
         , controlOptions = ['Stacked','Stream','Expanded']
         , controlLabels = {}
@@ -165,7 +166,10 @@ nv.models.stackedAreaChart = function() {
             if (showLegend) {
                 var legendWidth = (showControls) ? availableWidth - controlWidth : availableWidth;
 
-                legend.width(legendWidth);
+                legend
+                    .width(legendWidth)
+                    .updateState(!showLegend);
+
                 g.select('.nv-legendWrap').datum(data).call(legend);
 
                 if ( margin.top != legend.height()) {
@@ -342,11 +346,16 @@ nv.models.stackedAreaChart = function() {
                 chart.update();
             });
 
-            legend.dispatch.on('stateChange', function(newState) {
-                for (var key in newState)
-                    state[key] = newState[key];
-                dispatch.stateChange(state);
-                chart.update();
+            legend.dispatch
+                .on('stateChange', function (newState) {
+                    for (var key in newState)
+                        state[key] = newState[key];
+                    dispatch.stateChange(state);
+                    chart.update();
+                }).on('legendClick', function (d, i) {
+                d.selected = !d.selected;
+                dispatch.selectChange(d);
+                // chart.update();
             });
 
             controls.dispatch.on('legendClick', function(d,i) {
@@ -543,6 +552,7 @@ nv.models.stackedAreaChart = function() {
         // simple options, just get/set the necessary values
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
+        showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         showLegend: {get: function(){return showLegend;}, set: function(_){showLegend=_;}},
         showXAxis:      {get: function(){return showXAxis;}, set: function(_){showXAxis=_;}},
         showYAxis:    {get: function(){return showYAxis;}, set: function(_){showYAxis=_;}},
