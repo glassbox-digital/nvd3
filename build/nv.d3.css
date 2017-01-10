@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-04 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-10 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -133,9 +133,16 @@
   fill: rgba(0, 0, 0, 0.6);
 }
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-value {
+  fill: #444;
+  stroke: #444;
+  stroke-opacity: .3;
+  font-weight: normal !important;
+  font-size: 12px;
+}
+.nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-ratio {
   font-size: .7em;
   font-style: italic;
-  fill: white;
+  fill: #444;
   stroke-opacity: .4;
   /*stroke: white;*/
 }
@@ -147,12 +154,15 @@
   stroke-opacity: .6;
   stroke: #444;
 }
-.nvd3 .nv-funnel .nv-bar .nv-continue-value,
+.nvd3 .nv-funnel .nv-bar .nv-continue-ratio,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   stroke-opacity: .4;
   fill: #666;
   font-size: .7em;
   font-style: italic;
+}
+.nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
+  fill: white;
 }
 .nvd3 .nv-funnel .nv-bar:last-child .nv-continue-value,
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {

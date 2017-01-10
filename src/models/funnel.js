@@ -107,7 +107,7 @@ nv.models.funnel = function() {
             if (showValues && !stacked)
                 y.range(yRange || [(y.domain()[0] < 0 ? valuePadding : 0), availableWidth - (y.domain()[1] > 0 ? valuePadding : 0) ]);
             else
-                y.range(yRange || [showChecks ? 30 : 0, availableWidth-15]);
+                y.range(yRange || [showChecks ? 30 : 0, availableWidth-50]);
 
             x0 = x0 || x;
             y0 = y0 || d3.scale.linear().domain(y.domain()).range([y(0),y(0)]);
@@ -180,6 +180,8 @@ nv.models.funnel = function() {
                 if ( showValues ) {
                     gDropoffEnter.append('text')
                         .attr('class', 'nv-reducer-value');
+                    gDropoffEnter.append('text')
+                        .attr('class', 'nv-reducer-ratio');
                 }
 
                 gDropoffEnter.on('click', function(d,i){
@@ -357,19 +359,19 @@ nv.models.funnel = function() {
                     .attr('text-anchor', 'start' )
                     .attr('y', 10)
                     .attr('dy', '.32em')
-                    .attr('dx', '4.32em')
+                    .attr('dx', '3.32em')
                     .text(function(d,i) {
                         var t = valueFormat(getY2(d,i));
 
                         return t;
                     });
 
-                barsEnter.append('text').classed('nv-continue-value', true);
+                barsEnter.append('text').classed('nv-continue-ratio', true);
 
-                bars.select('text.nv-continue-value')
+                bars.select('text.nv-continue-ratio')
                     .attr('text-anchor', 'start' )
-                    .attr('y', 12)
-                    .attr('dy', '50')
+                    .attr('y', barWidth)
+                    .attr('dy', '1.32em')
                     .attr('dx', '33')
                     .style('fill', 'auto')
                     .text(function(d,i) {
@@ -387,7 +389,19 @@ nv.models.funnel = function() {
                 */
 
                 bars.select('text.nv-reducer-value')
-                    .attr('text-anchor', 'end')
+                    .attr('text-anchor', 'start')
+                    .attr('y', 10)
+                    .attr('dy', '.32em')
+                    .text(function(d,i) {
+                        var v = getY(d,i),
+                            vc = getYC(d,i),
+                            t = valueFormat(getYC(d,i));
+
+                        return t;
+                    });
+
+                bars.select('text.nv-reducer-ratio')
+                    .attr('text-anchor', 'start')
                     .attr('y', barWidth - 10)
                     .attr('dy', '.32em')
                     .text(function(d,i) {
@@ -396,14 +410,20 @@ nv.models.funnel = function() {
                             t = v > 0 && vc > 0 ? d3.format('.1%')(vc/v) : '';
                         return t;
                     });
+
                 bars.watchTransition(renderWatch, 'funnel: bars')
                     .select('text')
                     .attr('x', function(d,i) { return y(getY(d,i)) - (showChecks ? 30 : 0) - 4 })
+
+                bars.watchTransition(renderWatch, 'funnel: bars')
+                    .selectAll('g.nv-dropoff text')
+                    .attr('x', function(d,i) { return y(getY(d,i)) - (showChecks ? 30 : 0) + 16 })
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
                 bars.selectAll('text.nv-bar-value2').remove();
                 bars.selectAll('text.nv-reducer-value').remove();
+                bars.selectAll('text.nv-reducer-ratio').remove();
             }
 
             if (showBarLabels /*&& !stacked*/) {
@@ -562,10 +582,10 @@ nv.models.funnel = function() {
 
                 return ['M', x, y,
                     'H', x - 3,
-                    'V', y + 8,
+                    'V', y + 12,
                     'H', x - 8,
-                    'L', x, y + 17,
-                    'L', x + 8, y + 8,
+                    'L', x, y + 21,
+                    'L', x + 8, y + 12,
                     'H', x + 3,
                     'V', y,
                     'Z'].join(' ');
@@ -582,7 +602,7 @@ nv.models.funnel = function() {
             if (stacked) {
                 var watch = bars.watchTransition(renderWatch, 'funnel: bars')
                     .attr('transform', function (d, i) {
-                        var x1 = i * (barWidth + 17) + x.range()[0];
+                        var x1 = i * (barWidth + 21) + x.range()[0];
                         return 'translate(' + y(d.y1 /*+ d.prev/2*/) + ',' + x1 /*x(getX(d, i))*/ + ')'
                     });
 
