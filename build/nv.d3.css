@@ -164,7 +164,7 @@
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   fill: white;
 }
-.nvd3 .nv-funnel .nv-bar:last-child .nv-continue-value,
+.nvd3 .nv-funnel .nv-bar:last-child .nv-continue-ratio,
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {
   display: none;
   opacity: 0;
