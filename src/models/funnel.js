@@ -395,7 +395,7 @@ nv.models.funnel = function() {
                     .text(function(d,i) {
                         var v = getY(d,i),
                             vc = getYC(d,i),
-                            t = valueFormat(getYC(d,i));
+                            t = vc > 0 ? valueFormat(getYC(d,i)): '';
 
                         return t;
                     });
