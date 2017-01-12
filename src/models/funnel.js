@@ -514,10 +514,10 @@ nv.models.funnel = function() {
 
                     bars.selectAll('text')
                         .style('fill-opacity', function(d){
-                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.2;
+                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.1;
                         })
                         .style('stroke-opacity', function(d){
-                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.2;
+                            return d.selected === 'reduce' || d.selected === 'select' ? null : 0.1;
                         });
                 }
                 else {

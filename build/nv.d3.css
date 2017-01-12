@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-12 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -157,7 +157,6 @@
 .nvd3 .nv-funnel .nv-bar .nv-continue-ratio,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   stroke-opacity: .4;
-  fill: #666;
   font-size: .7em;
   font-style: italic;
 }
