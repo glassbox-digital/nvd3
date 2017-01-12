@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-12 */
 (function(){
 
 // set up main nv object
@@ -4922,10 +4922,10 @@ nv.models.funnel = function() {
                 barsEnter.append('text').classed('nv-bar-value', true);
 
                 bars.select('text.nv-bar-value')
-                    .attr('text-anchor', 'start' )
+                    .attr('text-anchor', 'middle' )
                     .attr('y', 10)
                     .attr('dy', '.32em')
-                    .attr('dx', '.32em')
+                    .attr('dx', 20)
                     .text(function(d,i) {
                         var t = valueFormat(getY(d,i))
                             , yerr = getYerr(d,i);
@@ -4943,7 +4943,7 @@ nv.models.funnel = function() {
                     .attr('text-anchor', 'start' )
                     .attr('y', 10)
                     .attr('dy', '.32em')
-                    .attr('dx', '3.32em')
+                    .attr('dx', '4em')
                     .text(function(d,i) {
                         var t = valueFormat(getY2(d,i));
 
@@ -4974,7 +4974,7 @@ nv.models.funnel = function() {
 
                 bars.select('text.nv-reducer-value')
                     .attr('text-anchor', 'start')
-                    .attr('y', 10)
+                    .attr('y', 15)
                     .attr('dy', '.32em')
                     .text(function(d,i) {
                         var v = getY(d,i),
@@ -4986,7 +4986,7 @@ nv.models.funnel = function() {
 
                 bars.select('text.nv-reducer-ratio')
                     .attr('text-anchor', 'start')
-                    .attr('y', barWidth - 10)
+                    .attr('y', barWidth - 15)
                     .attr('dy', '.32em')
                     .text(function(d,i) {
                         var v = getY(d,i),
