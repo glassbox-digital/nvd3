@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-12 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-16 */
 (function(){
 
 // set up main nv object
@@ -584,6 +584,10 @@ nv.models.tooltip = function() {
             return '';
         }
 
+        if ( (d.series || []).filter( function(d){ return d.value !== null; }).length === 0 ){
+            return ' ';
+        }
+
         var table = d3.select(document.createElement("table"));
         if (headerEnabled) {
             var theadEnter = table.selectAll("thead")
@@ -602,8 +606,10 @@ nv.models.tooltip = function() {
             .data([d])
             .enter().append("tbody");
 
+
+
         var trowEnter = tbodyEnter.selectAll("tr")
-                .data(function(p) { return p.series})
+                .data(function(p) { return (p.series || []).filter(function(p){ return p.value; })})
                 .enter()
                 .append("tr")
                 .classed("highlight", function(p) { return p.highlight});
