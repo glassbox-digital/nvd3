@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-16 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-01-30 */
 (function(){
 
 // set up main nv object
@@ -17105,8 +17105,10 @@ nv.models.treemap = function () {
             });
 
             nodes.selectAll('rect')
+/*
                 .transition()
                 .duration(duration)
+*/
                 .attr("width", function (d) {
                     return d.dx;
                 })

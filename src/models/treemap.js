@@ -169,8 +169,10 @@ nv.models.treemap = function () {
             });
 
             nodes.selectAll('rect')
+/*
                 .transition()
                 .duration(duration)
+*/
                 .attr("width", function (d) {
                     return d.dx;
                 })
