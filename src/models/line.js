@@ -55,7 +55,7 @@ nv.models.line = function() {
                 availableHeight = nv.utils.availableHeight(height, container, margin);
             nv.utils.initSVG(container);
 
-            scatter.forceY([0,1]);
+            scatter.forceY(forceY || [0,1]);
 
             // Setup Scales
             x = scatter.xScale();
