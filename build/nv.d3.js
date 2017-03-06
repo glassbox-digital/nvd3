@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-05 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-06 */
 (function(){
 
 // set up main nv object
@@ -10430,6 +10430,7 @@ nv.models.multiBarHorizontal = function() {
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
+        , keyFormat = function(d){ return d; }
         , delay = 1200
         , xDomain
         , yDomain
@@ -10681,7 +10682,7 @@ nv.models.multiBarHorizontal = function() {
                     .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
                     .attr('y', barWidth && (stacked? 1.33 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
                     .attr('dy', '.32em')
-                    .text(function(d,i) { return getX(d,i) });
+                    .text(function(d,i) { return keyFormat(getX(d,i)) });
 
                 {
                     bars
@@ -10811,6 +10812,7 @@ nv.models.multiBarHorizontal = function() {
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
+        keyFormat:  {get: function(){return keyFormat;}, set: function(_){keyFormat=_;}},
         valuePadding: {get: function(){return valuePadding;}, set: function(_){valuePadding=_;}},
         groupSpacing:{get: function(){return groupSpacing;}, set: function(_){groupSpacing=_;}},
 
@@ -11206,6 +11208,9 @@ nv.models.multiBarHorizontalChart = function() {
         barColor:  {get: function(){return multibar.barColor;}, set: function(_){
             multibar.barColor(_);
             legend.color(function(d,i) {return d3.rgb('#ccc').darker(i * 1.5).toString();})
+        }},
+        keyFormat:  {get: function(){return multibar.keyFormat;}, set: function(_){
+            multibar.keyFormat(_);
         }}
     });
 

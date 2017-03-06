@@ -363,6 +363,9 @@ nv.models.multiBarHorizontalChart = function() {
         barColor:  {get: function(){return multibar.barColor;}, set: function(_){
             multibar.barColor(_);
             legend.color(function(d,i) {return d3.rgb('#ccc').darker(i * 1.5).toString();})
+        }},
+        keyFormat:  {get: function(){return multibar.keyFormat;}, set: function(_){
+            multibar.keyFormat(_);
         }}
     });
 
