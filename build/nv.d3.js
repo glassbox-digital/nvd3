@@ -17275,6 +17275,7 @@ nv.models.treemapChart = function() {
         , defaultState = null
         , noData = null
         , duration = 250
+        , valueFormat = function(d){ return d; }
         , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
         ;
 
@@ -17287,9 +17288,7 @@ nv.models.treemapChart = function() {
     var renderWatch = nv.utils.renderWatch(dispatch);
     tooltip
         .headerEnabled(false)
-        .valueFormatter(function(d, i) {
-            return d;
-        });
+        .valueFormatter( valueFormat);
 
     //============================================================
     // Chart function
@@ -17394,6 +17393,10 @@ nv.models.treemapChart = function() {
         color: {get: function(){return color;}, set: function(_){
             color = _;
             treemap.color(color);
+        }},
+        valueFormat: {get: function(){return valueFormat;}, set: function(_){
+            valueFormat = _;
+            tooltip.valueFormatter(_);
         }},
         duration: {get: function(){return duration;}, set: function(_){
             duration = _;
