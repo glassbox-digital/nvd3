@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-06 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-07 */
 (function(){
 
 // set up main nv object
@@ -16561,7 +16561,23 @@ nv.models.stackedAreaChart = function() {
             chart.interactive(!_);
             chart.useVoronoi(!_);
             stacked.scatter.interactive(!_);
-        }}
+        }},
+        xTickFormat: {
+            get: function () {
+                return xAxis.tickFormat();
+            }, set: function (_) {
+                xAxis.tickFormat(_);
+                //x2Axis.tickFormat(_);
+            }
+        },
+        yTickFormat: {
+            get: function () {
+                return yAxis.tickFormat();
+            }, set: function (_) {
+                yAxis.tickFormat(_);
+                //y2Axis.tickFormat(_);
+            }
+        }
     });
 
     nv.utils.inheritOptions(chart, stacked);
