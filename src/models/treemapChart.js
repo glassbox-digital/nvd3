@@ -139,6 +139,9 @@ nv.models.treemapChart = function() {
             valueFormat = _;
             tooltip.valueFormatter(_);
         }},
+        keyFormat: {get: function(){return treemap.keyFormat();}, set: function(_){
+            treemap.keyFormat(_);
+        }},
         duration: {get: function(){return duration;}, set: function(_){
             duration = _;
             renderWatch.reset(duration);
