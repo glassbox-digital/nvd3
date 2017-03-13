@@ -28,7 +28,6 @@ nv.models.lineChart = function () {
         , x
         , y
         , focusEnable = false
-
         , brushExtent = null
         , state = nv.utils.state()
         , defaultState = null
@@ -340,9 +339,6 @@ nv.models.lineChart = function () {
 
                 interactiveLayer.tooltip
                     .chartContainer(chart.container.parentNode)
-                    .valueFormatter(function (d, i) {
-                        return d === null ? "N/A" : yAxis.tickFormat()(d);
-                    })
                     .data({
                         value: chart.x()(singlePoint, pointIndex),
                         index: pointIndex,
@@ -585,6 +581,13 @@ nv.models.lineChart = function () {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        valueFormat: {
+            get: function () {
+                return interactiveLayer.tooltip.valueFormatter();
+            }, set: function (_) {
+                interactiveLayer.tooltip.valueFormatter(_);
             }
         },
         x: {

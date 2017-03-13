@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-07 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-13 */
 (function(){
 
 // set up main nv object
@@ -8243,7 +8243,6 @@ nv.models.lineChart = function () {
         , x
         , y
         , focusEnable = false
-
         , brushExtent = null
         , state = nv.utils.state()
         , defaultState = null
@@ -8555,9 +8554,6 @@ nv.models.lineChart = function () {
 
                 interactiveLayer.tooltip
                     .chartContainer(chart.container.parentNode)
-                    .valueFormatter(function (d, i) {
-                        return d === null ? "N/A" : yAxis.tickFormat()(d);
-                    })
                     .data({
                         value: chart.x()(singlePoint, pointIndex),
                         index: pointIndex,
@@ -8800,6 +8796,13 @@ nv.models.lineChart = function () {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        valueFormat: {
+            get: function () {
+                return interactiveLayer.tooltip.valueFormatter();
+            }, set: function (_) {
+                interactiveLayer.tooltip.valueFormatter(_);
             }
         },
         x: {
@@ -16414,6 +16417,7 @@ nv.models.stackedAreaChart = function() {
                 var xValue = chart.x()(singlePoint,pointIndex);
 
                 var valueFormatter = interactiveLayer.tooltip.valueFormatter();
+
                 // Keeps track of the tooltip valueFormatter if the chart changes to expanded view
                 if (stacked.style() === 'expand' || stacked.style() === 'stack_percent') {
                     if ( !oldValueFormatter ) {
@@ -16576,6 +16580,13 @@ nv.models.stackedAreaChart = function() {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        valueFormat: {
+            get: function () {
+                return interactiveLayer.tooltip.valueFormatter();
+            }, set: function (_) {
+                interactiveLayer.tooltip.valueFormatter(_);
             }
         }
     });

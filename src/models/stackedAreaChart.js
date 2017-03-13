@@ -446,6 +446,7 @@ nv.models.stackedAreaChart = function() {
                 var xValue = chart.x()(singlePoint,pointIndex);
 
                 var valueFormatter = interactiveLayer.tooltip.valueFormatter();
+
                 // Keeps track of the tooltip valueFormatter if the chart changes to expanded view
                 if (stacked.style() === 'expand' || stacked.style() === 'stack_percent') {
                     if ( !oldValueFormatter ) {
@@ -608,6 +609,13 @@ nv.models.stackedAreaChart = function() {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        valueFormat: {
+            get: function () {
+                return interactiveLayer.tooltip.valueFormatter();
+            }, set: function (_) {
+                interactiveLayer.tooltip.valueFormatter(_);
             }
         }
     });
