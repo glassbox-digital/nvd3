@@ -149,7 +149,10 @@ nv.models.multiBarHorizontal = function() {
 
             barsEnter.append('rect')
                 .attr('width', 0)
-                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
+                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) );
+
+            barsEnter.append('svg:title')
+                .text(function(d,i) { return getX(d,i); });
 
             if ( showChecks ) {
                 barsEnter.append('path')
