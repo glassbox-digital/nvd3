@@ -10553,7 +10553,10 @@ nv.models.multiBarHorizontal = function() {
 
             barsEnter.append('rect')
                 .attr('width', 0)
-                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) )
+                .attr('height', barWidth || x.rangeBand() / (stacked ? 1 : data.length) );
+
+            barsEnter.append('svg:title')
+                .text(function(d,i) { return getX(d,i); });
 
             if ( showChecks ) {
                 barsEnter.append('path')
@@ -16992,6 +16995,7 @@ nv.models.treemap = function () {
         , groupColorByParent = false
         , showChecks = false
         , duration = 500
+        , keyFormat = function (d) { return d; }
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMousemove', 'elementMouseover', 'elementMouseout', 'renderEnd')
         ;
 
@@ -17099,7 +17103,7 @@ nv.models.treemap = function () {
                     });
 
                 a.append("text").text(function (d) {
-                        return d.name;
+                        return keyFormat(d.name);
                     })
                     .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
                     .attr("dx", "1em")
@@ -17121,7 +17125,7 @@ nv.models.treemap = function () {
             else {
                 nodesEnter
                     .append("text").text(function (d) {
-                        return d.name;
+                        return keyFormat(d.name);
                     })
                     .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
                     .attr("dy", "1em");
@@ -17261,6 +17265,13 @@ nv.models.treemap = function () {
                 return href;
             }, set: function (_) {
                 href = d3.functor(_);
+            }
+        },
+        keyFormat: {
+            get: function () {
+                return keyFormat;
+            }, set: function (_) {
+                keyFormat = d3.functor(_);
             }
         }
     });
@@ -17408,6 +17419,9 @@ nv.models.treemapChart = function() {
         valueFormat: {get: function(){return valueFormat;}, set: function(_){
             valueFormat = _;
             tooltip.valueFormatter(_);
+        }},
+        keyFormat: {get: function(){return treemap.keyFormat();}, set: function(_){
+            treemap.keyFormat(_);
         }},
         duration: {get: function(){return duration;}, set: function(_){
             duration = _;
