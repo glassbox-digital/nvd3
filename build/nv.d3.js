@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-13 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-14 */
 (function(){
 
 // set up main nv object
@@ -7569,6 +7569,7 @@ nv.models.legend = function() {
         , width = 400
         , height = 20
         , getKey = function(d) { return d.name || d.key }
+        , keyFormat = function(d){ return d; }
         , color = nv.utils.getColor()
         , maxKeyLength = 20 //default value for key lengths
         , align = true
@@ -7762,7 +7763,7 @@ nv.models.legend = function() {
 
             seriesText
                 .attr('fill', setTextColor)
-                .text(getKey);
+                .text(function(d,i){ return keyFormat(getKey(d)); });
 
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
@@ -7772,14 +7773,19 @@ nv.models.legend = function() {
                 var seriesWidths = [];
                 series.each(function(d,i) {
                     var legendText;
-                    var k = getKey(d);
-                    if (k && k.length > maxKeyLength) {
-                        var trimmedKey = k.substring(0, maxKeyLength);
+                    var k = getKey(d),
+                        fk = keyFormat(k);
+
+                    if (fk && fk.length > maxKeyLength) {
+                        var trimmedKey = fk.substring(0, maxKeyLength);
                         legendText = d3.select(this).select('text').text(trimmedKey + "...");
-                        d3.select(this).append("svg:title").text(k);
+
                     } else {
                         legendText = d3.select(this).select('text');
-                    } 
+                    }
+
+                    d3.select(this).append("svg:title").text(k);
+
                     var nodeTextLength;
                     try {
                         nodeTextLength = legendText.node().getComputedTextLength();
@@ -7967,6 +7973,9 @@ nv.models.legend = function() {
         }},
         color:  {get: function(){return color;}, set: function(_){
             color = nv.utils.getColor(_);
+        }},
+        keyFormat:  {get: function(){return keyFormat}, set: function(_){
+            keyFormat = _;
         }}
     });
 
@@ -8803,6 +8812,13 @@ nv.models.lineChart = function () {
                 return interactiveLayer.tooltip.valueFormatter();
             }, set: function (_) {
                 interactiveLayer.tooltip.valueFormatter(_);
+            }
+        },
+        keyFormat: {
+            get: function () {
+                return legend.keyFormat();
+            }, set: function (_) {
+                legend.keyFormat(_);
             }
         },
         x: {
@@ -16590,6 +16606,13 @@ nv.models.stackedAreaChart = function() {
                 return interactiveLayer.tooltip.valueFormatter();
             }, set: function (_) {
                 interactiveLayer.tooltip.valueFormatter(_);
+            }
+        },
+        keyFormat: {
+            get: function () {
+                return legend.keyFormat();
+            }, set: function (_) {
+                legend.keyFormat(_);
             }
         }
     });

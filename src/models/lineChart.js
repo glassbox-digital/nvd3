@@ -590,6 +590,13 @@ nv.models.lineChart = function () {
                 interactiveLayer.tooltip.valueFormatter(_);
             }
         },
+        keyFormat: {
+            get: function () {
+                return legend.keyFormat();
+            }, set: function (_) {
+                legend.keyFormat(_);
+            }
+        },
         x: {
             get: function () {
                 return lines.x();

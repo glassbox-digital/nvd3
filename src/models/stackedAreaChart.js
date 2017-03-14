@@ -617,6 +617,13 @@ nv.models.stackedAreaChart = function() {
             }, set: function (_) {
                 interactiveLayer.tooltip.valueFormatter(_);
             }
+        },
+        keyFormat: {
+            get: function () {
+                return legend.keyFormat();
+            }, set: function (_) {
+                legend.keyFormat(_);
+            }
         }
     });
 
