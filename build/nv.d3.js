@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-03-14 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-06 */
 (function(){
 
 // set up main nv object
@@ -8862,12 +8862,6 @@ nv.models.lineChart = function () {
     nv.utils.initOptions(chart);
 
     return chart;
-};
-
-nv.models.lineWithFocusChart = function () {
-    return nv.models.lineChart()
-        .margin({bottom: 30})
-        .focusEnable(true);
 };
 nv.models.linePlusBarChart = function() {
     "use strict";
