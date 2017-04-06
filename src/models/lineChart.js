@@ -440,7 +440,7 @@ nv.models.lineChart = function () {
     chart.interactiveLayer = interactiveLayer;
     chart.tooltip = tooltip;
     chart.state = state;
-    chart.dispatch = dispatch;
+
     chart.options = nv.utils.optionsFunc.bind(chart);
 
     chart._options = Object.create({}, {
@@ -494,7 +494,6 @@ nv.models.lineChart = function () {
                 focusEnable = _;
             }
         },
-
         brushExtent: {
             get: function () {
                 return brushExtent;
