@@ -15,7 +15,6 @@ nv.models.lineChart = function () {
         ;
 
     var margin = {top: 30, right: 20, bottom: 50, left: 60}
-        , margin2 = {top: 0, right: 20, bottom: 20, left: 60}
         , color = nv.utils.defaultColor()
         , width = null
         , height = null
@@ -33,11 +32,11 @@ nv.models.lineChart = function () {
         , defaultState = null
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
-        , duration = 250
+        , transitionDuration = 250
         ;
 
     // set options on sub-objects for this chart
-    xAxis.orient('bottom').tickValues();// .tickPadding(7);
+    xAxis.orient('bottom').tickValues();
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);
@@ -61,7 +60,7 @@ nv.models.lineChart = function () {
     // Private Variables
     //------------------------------------------------------------
 
-    var renderWatch = nv.utils.renderWatch(dispatch, duration);
+    var renderWatch = nv.utils.renderWatch(dispatch, transitionDuration);
 
     var stateGetter = function (data) {
         return function () {
@@ -85,7 +84,7 @@ nv.models.lineChart = function () {
     function chart(selection) {
         renderWatch.reset();
         renderWatch.models(lines);
-        //renderWatch.models(lines2);
+
         if (showXAxis) renderWatch.models(xAxis);
         if (showYAxis) renderWatch.models(yAxis);
 
@@ -93,13 +92,13 @@ nv.models.lineChart = function () {
             var container = d3.select(this);
             nv.utils.initSVG(container);
             var availableWidth = nv.utils.availableWidth(width, container, margin),
-                availableHeight1 = nv.utils.availableHeight(height, container, margin);
+                availableHeight = nv.utils.availableHeight(height, container, margin);
 
             chart.update = function () {
-                if (duration === 0) {
+                if (transitionDuration === 0) {
                     container.call(chart);
                 } else {
-                    container.transition().duration(duration).call(chart);
+                    container.transition().duration(transitionDuration).call(chart);
                 }
             };
             chart.container = this;
@@ -168,7 +167,7 @@ nv.models.lineChart = function () {
 
                 if (margin.top != legend.height()) {
                     margin.top = legend.height();
-                    availableHeight1 = nv.utils.availableHeight(height, container, margin);
+                    availableHeight = nv.utils.availableHeight(height, container, margin);
                 }
 
                 wrap.select('.nv-legendWrap')
@@ -186,7 +185,7 @@ nv.models.lineChart = function () {
             if (useInteractiveGuideline) {
                 interactiveLayer
                     .width(availableWidth)
-                    .height(availableHeight1)
+                    .height(availableHeight)
                     .margin({left: margin.left, top: margin.top})
                     .svgContainer(container)
                     .xScale(x);
@@ -195,11 +194,11 @@ nv.models.lineChart = function () {
 
             g.select('.nv-focus .nv-background rect')
                 .attr('width', availableWidth)
-                .attr('height', availableHeight1);
+                .attr('height', availableHeight);
 
             lines
                 .width(availableWidth)
-                .height(availableHeight1)
+                .height(availableHeight)
                 .color(data.map(function (d, i) {
                     return d.color || color(d, i);
 
@@ -218,14 +217,14 @@ nv.models.lineChart = function () {
                 xAxis
                     .scale(x)
                     ._ticks(nv.utils.calcTicksX(availableWidth / 100, data))
-                    .tickSize(-availableHeight1, 0);
+                    .tickSize(-availableHeight, 0);
 
             }
 
             if (showYAxis) {
                 yAxis
                     .scale(y)
-                    ._ticks(nv.utils.calcTicksY(availableHeight1 / 36, data))
+                    ._ticks(nv.utils.calcTicksY(availableHeight / 36, data))
                     .tickSize(-availableWidth, 0);
             }
 
@@ -236,7 +235,7 @@ nv.models.lineChart = function () {
                 if (showXAxis) {
                     g.select('.nv-focus .nv-x.nv-axis')
                         .transition()
-                        .duration(duration)
+                        .duration(transitionDuration)
                         .call(xAxis)
                     ;
                 }
@@ -246,14 +245,14 @@ nv.models.lineChart = function () {
                 if (showYAxis) {
                     g.select('.nv-focus .nv-y.nv-axis')
                         .transition()
-                        .duration(duration)
+                        .duration(transitionDuration)
                         .call(yAxis)
                     ;
                 }
             }
 
             g.select('.nv-focus .nv-x.nv-axis')
-                .attr('transform', 'translate(0,' + availableHeight1 + ')');
+                .attr('transform', 'translate(0,' + availableHeight + ')');
 
             linesWrap.call(lines);
             updateXAxis();
@@ -271,7 +270,7 @@ nv.models.lineChart = function () {
                 var gBrush = g.select('.nv-context')
                     .call(brush)
                     .selectAll('rect')
-                    .attr('height', availableHeight1);
+                    .attr('height', availableHeight);
 
                 onBrush();
             }
@@ -531,23 +530,13 @@ nv.models.lineChart = function () {
         },
         duration: {
             get: function () {
-                return duration;
+                return transitionDuration;
             }, set: function (_) {
-                duration = _;
-                renderWatch.reset(duration);
-                lines.duration(duration);
-                xAxis.duration(duration);
-                yAxis.duration(duration);
-            }
-        },
-        focusMargin: {
-            get: function () {
-                return margin2;
-            }, set: function (_) {
-                margin2.top = _.top !== undefined ? _.top : margin2.top;
-                margin2.right = _.right !== undefined ? _.right : margin2.right;
-                margin2.bottom = _.bottom !== undefined ? _.bottom : margin2.bottom;
-                margin2.left = _.left !== undefined ? _.left : margin2.left;
+                transitionDuration = _;
+                renderWatch.reset(transitionDuration);
+                lines.duration(transitionDuration);
+                xAxis.duration(transitionDuration);
+                yAxis.duration(transitionDuration);
             }
         },
         color: {
@@ -564,7 +553,6 @@ nv.models.lineChart = function () {
                 return lines.interpolate();
             }, set: function (_) {
                 lines.interpolate(_);
-                //lines2.interpolate(_);
             }
         },
         xTickFormat: {
@@ -602,7 +590,6 @@ nv.models.lineChart = function () {
                 return lines.x();
             }, set: function (_) {
                 lines.x(_);
-                //lines2.x(_);
             }
         },
         y: {
@@ -610,7 +597,6 @@ nv.models.lineChart = function () {
                 return lines.y();
             }, set: function (_) {
                 lines.y(_);
-                //lines2.y(_);
             }
         },
         rightAlignYAxis: {
