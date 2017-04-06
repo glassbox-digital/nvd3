@@ -57,7 +57,11 @@
         chart = nv.models.lineChart()
             .options({
                 transitionDuration: 300,
-                useInteractiveGuideline: true
+                useInteractiveGuideline: true,
+                showLegend: true,
+                color: d3.scale.category20().range(),
+                interpolate: 'cardinal',
+                focusEnable: true
             })
         ;
 
