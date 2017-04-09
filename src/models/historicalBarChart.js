@@ -387,6 +387,37 @@ nv.models.historicalBarChart = function(bar_model) {
             yAxis.duration(transitionDuration);
             xAxis.duration(transitionDuration);
         }},
+        xTickFormat: {
+            get: function () {
+                return xAxis.tickFormat();
+            }, set: function (_) {
+                xAxis.tickFormat(_);
+                //x2Axis.tickFormat(_);
+            }
+        },
+        yTickFormat: {
+            get: function () {
+                return yAxis.tickFormat();
+            }, set: function (_) {
+                yAxis.tickFormat(_);
+                //y2Axis.tickFormat(_);
+            }
+        },
+        valueFormat: {
+            get: function () {
+                return interactiveLayer.tooltip.valueFormatter();
+            }, set: function (_) {
+                interactiveLayer.tooltip.valueFormatter(_);
+            }
+        },
+        keyFormat: {
+            get: function () {
+                return legend.keyFormat();
+            }, set: function (_) {
+                legend.keyFormat(_);
+            }
+        },
+
         rightAlignYAxis: {get: function(){return rightAlignYAxis;}, set: function(_){
             rightAlignYAxis = _;
             yAxis.orient( (_) ? 'right' : 'left');
