@@ -29,7 +29,9 @@ nv.models.multiBar = function() {
         , xRange
         , yRange
         , groupSpacing = 0.1
+        , barWidth = 30
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
+        , interactive = true
         ;
 
     //============================================================
@@ -130,8 +132,8 @@ nv.models.multiBar = function() {
                     })
                 });
 
-            x.domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-                .rangeBands(xRange || [0, availableWidth], groupSpacing);
+            x.domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }));
+            x.rangeBands ? x.rangeBands(xRange || [0, availableWidth], groupSpacing) : x.range(xRange || [0, availableWidth]);
 
             y.domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) {
                 var domain = d.y;
@@ -224,13 +226,14 @@ nv.models.multiBar = function() {
                     })
                     .attr('y', function(d,i,j) { return y0(stacked && !data[j].nonStackable ? d.y0 : 0) || 0 })
                     .attr('height', 0)
-                    .attr('width', function(d,i,j) { return x.rangeBand() / (stacked && !data[j].nonStackable ? 1 : data.length) })
+                    .attr('width', function(d,i,j) { return x.rangeBand ? x.rangeBand() / (stacked && !data[j].nonStackable ? 1 : data.length) : barWidth})
                     .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
                 ;
             bars
                 .style('fill', function(d,i,j){ return color(d, j, i);  })
                 .style('stroke', function(d,i,j){ return color(d, j, i); })
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
+                    if (!interactive) return;
                     d3.select(this).classed('hover', true);
                     dispatch.elementMouseover({
                         data: d,
@@ -239,6 +242,7 @@ nv.models.multiBar = function() {
                     });
                 })
                 .on('mouseout', function(d,i) {
+                    if (!interactive) return;
                     d3.select(this).classed('hover', false);
                     dispatch.elementMouseout({
                         data: d,
@@ -247,6 +251,7 @@ nv.models.multiBar = function() {
                     });
                 })
                 .on('mousemove', function(d,i) {
+                    if (!interactive) return;
                     dispatch.elementMousemove({
                         data: d,
                         index: i,
@@ -254,6 +259,7 @@ nv.models.multiBar = function() {
                     });
                 })
                 .on('click', function(d,i) {
+                    if (!interactive) return;
                     var element = this;
                     dispatch.elementClick({
                         data: d,
@@ -265,6 +271,7 @@ nv.models.multiBar = function() {
                     d3.event.stopPropagation();
                 })
                 .on('dblclick', function(d,i) {
+                    if (!interactive) return;
                     dispatch.elementDblClick({
                         data: d,
                         index: i,
@@ -327,7 +334,7 @@ nv.models.multiBar = function() {
                     })
                     .attr('width', function(d,i,j){
                         if (!data[j].nonStackable) {
-                            return x.rangeBand();
+                            return x.rangeBand ? x.rangeBand() : barWidth;
                         } else {
                             // if all series are nonStacable, take the full width
                             var width = (x.rangeBand() / nonStackableCount);
@@ -374,6 +381,21 @@ nv.models.multiBar = function() {
         return chart;
     }
 
+    //Create methods to allow outside functions to highlight a specific bar.
+    chart.highlightPoint = function(pointIndex, isHoverOver) {
+        container
+            .select(".nv-bars .nv-bar-0-" + pointIndex)
+            .classed("hover", isHoverOver)
+        ;
+    };
+
+    chart.clearHighlights = function() {
+        container
+            .select(".nv-bars .nv-bar.hover")
+            .classed("hover", false)
+        ;
+    };
+
     //============================================================
     // Expose Public Variables
     //------------------------------------------------------------
@@ -402,6 +424,7 @@ nv.models.multiBar = function() {
         id:          {get: function(){return id;}, set: function(_){id=_;}},
         hideable:    {get: function(){return hideable;}, set: function(_){hideable=_;}},
         groupSpacing:{get: function(){return groupSpacing;}, set: function(_){groupSpacing=_;}},
+        barWidth:{get: function(){return barWidth;}, set: function(_){barWidth=_;}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
@@ -419,7 +442,8 @@ nv.models.multiBar = function() {
         }},
         barColor:  {get: function(){return barColor;}, set: function(_){
             barColor = _ ? nv.utils.getColor(_) : null;
-        }}
+        }},
+        interactive: {get: function(){return interactive;}, set: function(_){interactive=_;}},
     });
 
     nv.utils.initOptions(chart);
