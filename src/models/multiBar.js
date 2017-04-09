@@ -132,8 +132,22 @@ nv.models.multiBar = function() {
                     })
                 });
 
-            x.domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }));
+            var dps = d3.merge(seriesData),
+                threshold = -1;
+
+            seriesData.forEach(function(s){
+                s.forEach(function (d, i) {
+                    if (i > 0) {
+                        var step = d.x - dps[i - 1].x;
+                        threshold = threshold === -1 ? step : Math.min(step, threshold);
+                    }
+                });
+            });
+
+            x.domain(xDomain || dps.map(function(d){ return d.x; }) );
             x.rangeBands ? x.rangeBands(xRange || [0, availableWidth], groupSpacing) : x.range(xRange || [0, availableWidth]);
+
+            barWidth = Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth);
 
             y.domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) {
                 var domain = d.y;
@@ -292,10 +306,13 @@ nv.models.multiBar = function() {
 
             var barSelection =
                 bars.watchTransition(renderWatch, 'multibar', Math.min(250, duration))
-                    .delay(function(d,i) {
+                    /*.delay(function(d,i) {
                         return i * duration / data[0].values.length;
-                    });
+                    })*/;
             if (stacked){
+
+
+
                 barSelection
                     .attr('y', function(d,i,j) {
                         var yVal = 0;
