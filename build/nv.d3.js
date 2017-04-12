@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-09 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-12 */
 (function(){
 
 // set up main nv object
@@ -17228,7 +17228,7 @@ nv.models.treemap = function () {
                 .append("rect");
 
             nodesEnter
-                .append("clipPath").attr('id', function(d){ return 'clip' + d.x + '-' + d.y; })
+                .append("clipPath").attr('id', function(d,i){ return 'clip-node-' + id + '-' + i ; })
                 .append("rect");
 
 
@@ -17241,8 +17241,8 @@ nv.models.treemap = function () {
                 a.append("text").text(function (d) {
                         return keyFormat(d.name);
                     })
-                    .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
-                    .attr("dx", "1em")
+                    .attr("clip-path", function(d,i){return 'url(#clip-node-' + id + '-' + i + ')'})
+                    .attr("dx", ".3em")
                     .attr("dy", "1em");
 
                 a.on('mouseover', function (d, i) {
@@ -17263,7 +17263,8 @@ nv.models.treemap = function () {
                     .append("text").text(function (d) {
                         return keyFormat(d.name);
                     })
-                    .attr("clip-path", function(d){return 'url(#clip' + d.x + '-' + d.y; + ')'})
+                    .attr("clip-path", function(d, i){return 'url(#clip-node-' + id + '-' + i + ')'})
+                    .attr("dx", ".3em")
                     .attr("dy", "1em");
             }
 
