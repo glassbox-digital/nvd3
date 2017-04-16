@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-12 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-16 */
 (function(){
 
 // set up main nv object
@@ -9732,7 +9732,7 @@ nv.models.multiBar = function() {
             x.domain(xDomain || dps.map(function(d){ return d.x; }) );
             x.rangeBands ? x.rangeBands(xRange || [0, availableWidth], groupSpacing) : x.range(xRange || [0, availableWidth]);
 
-            barWidth = Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth);
+            barWidth = x.rangeBand ? x.rangeBand() : Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth);
 
             y.domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) {
                 var domain = d.y;
@@ -9818,14 +9818,15 @@ nv.models.multiBar = function() {
                 .data(function(d) { return (hideable && !data.length) ? hideable.values : d.values });
             bars.exit().remove();
 
+
             var barsEnter = bars.enter().append('rect')
                     .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
                     .attr('x', function(d,i,j) {
-                        return stacked && !data[j].nonStackable ? 0 : (j * x.rangeBand() / data.length )
+                        return stacked && !data[j].nonStackable ? 0 : (j * barWidth / data.length )
                     })
                     .attr('y', function(d,i,j) { return y0(stacked && !data[j].nonStackable ? d.y0 : 0) || 0 })
                     .attr('height', 0)
-                    .attr('width', function(d,i,j) { return x.rangeBand ? x.rangeBand() / (stacked && !data[j].nonStackable ? 1 : data.length) : barWidth})
+                    .attr('width', function(d,i,j) { return barWidth / (stacked && !data[j].nonStackable ? 1 : data.length)})
                     .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
                 ;
             bars
@@ -9894,10 +9895,8 @@ nv.models.multiBar = function() {
                     /*.delay(function(d,i) {
                         return i * duration / data[0].values.length;
                     })*/;
+
             if (stacked){
-
-
-
                 barSelection
                     .attr('y', function(d,i,j) {
                         var yVal = 0;
@@ -9927,34 +9926,34 @@ nv.models.multiBar = function() {
                     .attr('x', function(d,i,j) {
                         var width = 0;
                         if (data[j].nonStackable) {
-                            width = d.series * x.rangeBand() / data.length;
+                            width = d.series * barWidth / data.length;
                             if (data.length !== nonStackableCount){
-                                width = data[j].nonStackableSeries * x.rangeBand()/(nonStackableCount*2);
+                                width = data[j].nonStackableSeries * barWidth /(nonStackableCount*2);
                             }
                         }
                         return width;
                     })
                     .attr('width', function(d,i,j){
                         if (!data[j].nonStackable) {
-                            return x.rangeBand ? x.rangeBand() : barWidth;
+                            return barWidth;
                         } else {
                             // if all series are nonStacable, take the full width
-                            var width = (x.rangeBand() / nonStackableCount);
-                            // otherwise, nonStackable graph will be only taking the half-width
-                            // of the x rangeBand
+                            var width = (barWidth / nonStackableCount);
+                            // otherwise, nonStackable graph will be only taking the half-width of the x rangeBand
                             if (data.length !== nonStackableCount) {
-                                width = x.rangeBand()/(nonStackableCount*2);
+                                width = barWidth/(nonStackableCount*2);
                             }
                             return width;
                         }
                     });
             }
             else {
+
                 barSelection
                     .attr('x', function(d,i) {
-                        return d.series * x.rangeBand() / data.length;
+                        return d.series * barWidth / data.length;
                     })
-                    .attr('width', x.rangeBand() / data.length)
+                    .attr('width', barWidth / data.length)
                     .attr('y', function(d,i) {
                         return getY(d,i) < 0 ?
                             y(0) :
