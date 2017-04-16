@@ -9608,7 +9608,7 @@ nv.models.multiBar = function() {
         , hideable = false
         , barColor = null // adding the ability to set the color for each rather than the whole group
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
-        , duration = 500
+        , duration = 0
         , xDomain
         , yDomain
         , xRange
@@ -9732,7 +9732,7 @@ nv.models.multiBar = function() {
             x.domain(xDomain || dps.map(function(d){ return d.x; }) );
             x.rangeBands ? x.rangeBands(xRange || [0, availableWidth], groupSpacing) : x.range(xRange || [0, availableWidth]);
 
-            barWidth = x.rangeBand ? x.rangeBand() : Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth);
+            var availableBarsWidth = x.rangeBand ? x.rangeBand() : (1.0 - (groupSpacing > 0 && groupSpacing < 1.0 ? groupSpacing : 0.0 )) * Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth*seriesData.length);
 
             y.domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) {
                 var domain = d.y;
@@ -9822,11 +9822,11 @@ nv.models.multiBar = function() {
             var barsEnter = bars.enter().append('rect')
                     .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
                     .attr('x', function(d,i,j) {
-                        return stacked && !data[j].nonStackable ? 0 : (j * barWidth / data.length )
+                        return stacked && !data[j].nonStackable ? 0 : (j * availableWidth / data.length )
                     })
                     .attr('y', function(d,i,j) { return y0(stacked && !data[j].nonStackable ? d.y0 : 0) || 0 })
                     .attr('height', 0)
-                    .attr('width', function(d,i,j) { return barWidth / (stacked && !data[j].nonStackable ? 1 : data.length)})
+                    .attr('width', function(d,i,j) { return availableBarsWidth / (stacked && !data[j].nonStackable ? 1 : data.length)})
                     .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
                 ;
             bars
@@ -9951,9 +9951,9 @@ nv.models.multiBar = function() {
 
                 barSelection
                     .attr('x', function(d,i) {
-                        return d.series * barWidth / data.length;
+                        return d.series * availableBarsWidth / data.length;
                     })
-                    .attr('width', barWidth / data.length)
+                    .attr('width', availableBarsWidth / data.length)
                     .attr('y', function(d,i) {
                         return getY(d,i) < 0 ?
                             y(0) :
