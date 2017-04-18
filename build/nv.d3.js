@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-16 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-18 */
 (function(){
 
 // set up main nv object
@@ -8167,7 +8167,8 @@ nv.models.line = function() {
 
             wrap.select('#nv-edge-clip-' + scatter.id() + ' rect')
                 .attr('width', availableWidth)
-                .attr('height', (availableHeight > 0) ? availableHeight : 0);
+                .attr('height', (availableHeight > 0) ? availableHeight+10 : 0)
+                .attr('y', (availableHeight > 0) ? -10 : 0);
 
             g   .attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + scatter.id() + ')' : '');
             scatterWrap
