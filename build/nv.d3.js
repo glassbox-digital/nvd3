@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-04-18 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-05-18 */
 (function(){
 
 // set up main nv object
@@ -9718,19 +9718,19 @@ nv.models.multiBar = function() {
                     })
                 });
 
-            var dps = d3.merge(seriesData),
-                threshold = -1;
+            var dps = (seriesData && seriesData.length > 0 ? seriesData[0].map(function(d){ return d.x;}) : []).sort(),
+                threshold = 0;
 
-            seriesData.forEach(function(s){
-                s.forEach(function (d, i) {
-                    if (i > 0) {
-                        var step = d.x - dps[i - 1].x;
-                        threshold = threshold === -1 ? step : Math.min(step, threshold);
-                    }
-                });
-            });
+            for ( var i = 1 ; i < dps.length ; i++ ){
+                if ( i === 1 ){
+                    threshold = dps[i] - dps[i-1];
+                }
+                else {
+                    threshold = Math.min(threshold, dps[i] - dps[i - 1]);
+                }
+            }
 
-            x.domain(xDomain || dps.map(function(d){ return d.x; }) );
+            x.domain(xDomain || dps );
             x.rangeBands ? x.rangeBands(xRange || [0, availableWidth], groupSpacing) : x.range(xRange || [0, availableWidth]);
 
             var availableBarsWidth = x.rangeBand ? x.rangeBand() : (1.0 - (groupSpacing > 0 && groupSpacing < 1.0 ? groupSpacing : 0.0 )) * Math.min(x(x.domain()[0] + threshold) - x(x.domain()[0]), barWidth*seriesData.length);
