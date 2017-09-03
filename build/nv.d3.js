@@ -1628,7 +1628,7 @@ nv.models.tooltip = function() {
         return true;
     };
 
-})();nv.models.axis = function() {
+})();nv.models.axis = function () {
     "use strict";
 
     //============================================================
@@ -1649,15 +1649,16 @@ nv.models.tooltip = function() {
         , isOrdinal = false
         , ticks = null
         , xValues = null
-        , xValueAlign = 60 * 1000
         , axisLabelDistance = 0
         , duration = 250
         , dispatch = d3.dispatch('renderEnd')
-        ;
+    ;
     axis
         .scale(scale)
         .orient('bottom')
-        .tickFormat(function(d) { return d })
+        .tickFormat(function (d) {
+            return d
+        })
     ;
 
     //============================================================
@@ -1667,10 +1668,10 @@ nv.models.tooltip = function() {
     var scale0;
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
-    function _unique(values){
+    function _unique(values) {
         var vs = [];
-        for ( var i = 0 ; i < values.length ; i++ ){
-            if ( i === 0 || values[i] !== values[i-1]){
+        for (var i = 0; i < values.length; i++) {
+            if (i === 0 || values[i] !== values[i - 1]) {
                 vs.push(values[i]);
             }
 
@@ -1680,64 +1681,24 @@ nv.models.tooltip = function() {
     }
 
 
-    function _dialate(values, maxLength, align) {
-
-        // align = align > 0 ? align : (60 * 1000);
+    function _dialate(values, maxLength) {
 
         values = _unique(values.sort());
 
-/*
-        values.forEach(function (d) {
-            console.log(d3.time.format('%b %d %H:%M')(new Date(d)));
-        });
-*/
-
-        if ( values.length > (maxLength+1) ){
+        if (values.length > (maxLength + 1)) {
 
             var vs = [],
                 step = Math.max(1, Math.ceil(values.length / maxLength));
 
-            // console.log( values.length, step, maxLength);
-
-
-            for ( var i = 0 ; i < values.length ; i++ ){
-                if ( (i % step) === 0 || i === (values.length-1) ){
+            for (var i = 0; i < values.length; i++) {
+                if ((i % step) === 0 || i === (values.length - 1)) {
                     var v = values[i];
                     vs.push(v);
-                    // console.log( d3.time.format('%b %d %H:%M')( new Date(v) ));
-
                 }
             }
 
             return vs;
         }
-
-
-/*
-        var extent =  d3.extent(values),
-            jump = Math.max(align, Math.abs(extent[1] - extent[0]) / maxLength);
-
-        if (values.length > (maxLength+1)) {
-            var vs = [],
-                v = values[0];
-
-            do {
-                vs.push(v);
-                v += jump;
-                v = Math.floor(v / align) * align;
-            }
-            while ( v < extent[1] ); /!*for (var i = 0 ; i < values.length ; ) {
-                var v = /!*values[i]; //!*!/Math.floor(values[i] / align) * align;
-                vs.push(v);
-                i += step
-            }*!/
-
-
-            console.log(vs.map( function(d) { return d3.time.format('%b %d %H:%M')(new Date(d)); }));
-
-            return vs;
-        }
-*/
 
         return values;
 
@@ -1745,7 +1706,7 @@ nv.models.tooltip = function() {
 
     function chart(selection) {
         renderWatch.reset();
-        selection.each(function(data) {
+        selection.each(function (data) {
             var container = d3.select(this);
             nv.utils.initSVG(container);
 
@@ -1760,10 +1721,10 @@ nv.models.tooltip = function() {
 
             if (xValues !== null) {
 
-                if (axis.orient() == 'top' || axis.orient() == 'bottom'){
+                if (axis.orient() == 'top' || axis.orient() == 'bottom') {
                     var maxTicks = Math.ceil(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
 
-                    axis.tickValues(_dialate(xValues, maxTicks, xValueAlign ));
+                    axis.tickValues(_dialate(xValues, maxTicks));
                 }
                 else {
                     axis.tickValues(xValues);
@@ -1794,39 +1755,40 @@ nv.models.tooltip = function() {
             switch (axis.orient()) {
                 case 'top':
                     axisLabel.enter().append('text').attr('class', 'nv-axislabel');
-                  w = 0;
-                  if (scale.range().length === 1) {
-                    w = isOrdinal ? scale.range()[0] * 2 + scale.rangeBand() : 0;
-                  } else if (scale.range().length === 2) {
-                    w = isOrdinal ? scale.range()[0] + scale.range()[1] + scale.rangeBand() : scale.range()[1];
-                  } else if ( scale.range().length > 2){
-                    w = scale.range()[scale.range().length-1]+(scale.range()[1]-scale.range()[0]);
-                  };
+                    w = 0;
+                    if (scale.range().length === 1) {
+                        w = isOrdinal ? scale.range()[0] * 2 + scale.rangeBand() : 0;
+                    } else if (scale.range().length === 2) {
+                        w = isOrdinal ? scale.range()[0] + scale.range()[1] + scale.rangeBand() : scale.range()[1];
+                    } else if (scale.range().length > 2) {
+                        w = scale.range()[scale.range().length - 1] + (scale.range()[1] - scale.range()[0]);
+                    }
+                    ;
                     axisLabel
                         .attr('text-anchor', 'middle')
                         .attr('y', 0)
-                        .attr('x', w/2);
+                        .attr('x', w / 2);
                     if (showMaxMin) {
                         axisMaxMin = wrap.selectAll('g.nv-axisMaxMin')
                             .data(scale.domain());
-                        axisMaxMin.enter().append('g').attr('class',function(d,i){
-                                return ['nv-axisMaxMin','nv-axisMaxMin-x',(i == 0 ? 'nv-axisMin-x':'nv-axisMax-x')].join(' ')
+                        axisMaxMin.enter().append('g').attr('class', function (d, i) {
+                            return ['nv-axisMaxMin', 'nv-axisMaxMin-x', (i == 0 ? 'nv-axisMin-x' : 'nv-axisMax-x')].join(' ')
                         }).append('text');
                         axisMaxMin.exit().remove();
                         axisMaxMin
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(' + nv.utils.NaNtoZero(scale(d)) + ',0)'
                             })
                             .select('text')
                             .attr('dy', '-0.5em')
                             .attr('y', -axis.tickPadding())
                             .attr('text-anchor', 'middle')
-                            .text(function(d,i) {
+                            .text(function (d, i) {
                                 var v = fmt(d);
                                 return ('' + v).match('NaN') ? '' : v;
                             });
                         axisMaxMin.watchTransition(renderWatch, 'min-max top')
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(' + nv.utils.NaNtoZero(scale.range()[i]) + ',0)'
                             });
                     }
@@ -1837,26 +1799,26 @@ nv.models.tooltip = function() {
                     var textHeight = 0;
                     var xTicks = g.selectAll('g').select("text");
                     var rotateLabelsRule = '';
-                    if (rotateLabels%360) {
+                    if (rotateLabels % 360) {
                         //Calculate the longest xTick width
-                        xTicks.each(function(d,i){
+                        xTicks.each(function (d, i) {
                             var box = this.getBoundingClientRect();
                             var width = box.width;
                             textHeight = box.height;
-                            if(width > maxTextWidth) maxTextWidth = width;
+                            if (width > maxTextWidth) maxTextWidth = width;
                         });
-                        rotateLabelsRule = 'rotate(' + rotateLabels + ' 0,' + (textHeight/2 + axis.tickPadding()) + ')';
+                        rotateLabelsRule = 'rotate(' + rotateLabels + ' 0,' + (textHeight / 2 + axis.tickPadding()) + ')';
                         //Convert to radians before calculating sin. Add 30 to margin for healthy padding.
-                        var sin = Math.abs(Math.sin(rotateLabels*Math.PI/180));
-                        xLabelMargin = (sin ? sin*maxTextWidth : maxTextWidth)+30;
+                        var sin = Math.abs(Math.sin(rotateLabels * Math.PI / 180));
+                        xLabelMargin = (sin ? sin * maxTextWidth : maxTextWidth) + 30;
                         //Rotate all xTicks
                         xTicks
                             .attr('transform', rotateLabelsRule)
-                            .style('text-anchor', rotateLabels%360 > 0 ? 'start' : 'end');
+                            .style('text-anchor', rotateLabels % 360 > 0 ? 'start' : 'end');
                     } else {
                         if (staggerLabels) {
                             xTicks
-                                .attr('transform', function(d,i) {
+                                .attr('transform', function (d, i) {
                                     return 'translate(0,' + (i % 2 == 0 ? '0' : '12') + ')'
                                 });
                         } else {
@@ -1869,37 +1831,38 @@ nv.models.tooltip = function() {
                         w = isOrdinal ? scale.range()[0] * 2 + scale.rangeBand() : 0;
                     } else if (scale.range().length === 2) {
                         w = isOrdinal ? scale.range()[0] + scale.range()[1] + scale.rangeBand() : scale.range()[1];
-                    } else if ( scale.range().length > 2){
-                        w = scale.range()[scale.range().length-1]+(scale.range()[1]-scale.range()[0]);
-                    };
+                    } else if (scale.range().length > 2) {
+                        w = scale.range()[scale.range().length - 1] + (scale.range()[1] - scale.range()[0]);
+                    }
+                    ;
                     axisLabel
                         .attr('text-anchor', 'middle')
                         .attr('y', xLabelMargin)
-                        .attr('x', w/2);
+                        .attr('x', w / 2);
                     if (showMaxMin) {
                         //if (showMaxMin && !isOrdinal) {
                         axisMaxMin = wrap.selectAll('g.nv-axisMaxMin')
-                            //.data(scale.domain())
+                        //.data(scale.domain())
                             .data([scale.domain()[0], scale.domain()[scale.domain().length - 1]]);
-                        axisMaxMin.enter().append('g').attr('class',function(d,i){
-                                return ['nv-axisMaxMin','nv-axisMaxMin-x',(i == 0 ? 'nv-axisMin-x':'nv-axisMax-x')].join(' ')
+                        axisMaxMin.enter().append('g').attr('class', function (d, i) {
+                            return ['nv-axisMaxMin', 'nv-axisMaxMin-x', (i == 0 ? 'nv-axisMin-x' : 'nv-axisMax-x')].join(' ')
                         }).append('text');
                         axisMaxMin.exit().remove();
                         axisMaxMin
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(' + nv.utils.NaNtoZero((scale(d) + (isOrdinal ? scale.rangeBand() / 2 : 0))) + ',0)'
                             })
                             .select('text')
                             .attr('dy', '.71em')
                             .attr('y', axis.tickPadding())
                             .attr('transform', rotateLabelsRule)
-                            .style('text-anchor', rotateLabels ? (rotateLabels%360 > 0 ? 'start' : 'end') : 'middle')
-                            .text(function(d,i) {
+                            .style('text-anchor', rotateLabels ? (rotateLabels % 360 > 0 ? 'start' : 'end') : 'middle')
+                            .text(function (d, i) {
                                 var v = fmt(d);
                                 return ('' + v).match('NaN') ? '' : v;
                             });
                         axisMaxMin.watchTransition(renderWatch, 'min-max bottom')
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(' + nv.utils.NaNtoZero((scale(d) + (isOrdinal ? scale.rangeBand() / 2 : 0))) + ',0)'
                             });
                     }
@@ -1915,13 +1878,13 @@ nv.models.tooltip = function() {
                     if (showMaxMin) {
                         axisMaxMin = wrap.selectAll('g.nv-axisMaxMin')
                             .data(scale.domain());
-                       	axisMaxMin.enter().append('g').attr('class',function(d,i){
-                                return ['nv-axisMaxMin','nv-axisMaxMin-y',(i == 0 ? 'nv-axisMin-y':'nv-axisMax-y')].join(' ')
+                        axisMaxMin.enter().append('g').attr('class', function (d, i) {
+                            return ['nv-axisMaxMin', 'nv-axisMaxMin-y', (i == 0 ? 'nv-axisMin-y' : 'nv-axisMax-y')].join(' ')
                         }).append('text')
                             .style('opacity', 0);
                         axisMaxMin.exit().remove();
                         axisMaxMin
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(0,' + nv.utils.NaNtoZero(scale(d)) + ')'
                             })
                             .select('text')
@@ -1929,12 +1892,12 @@ nv.models.tooltip = function() {
                             .attr('y', 0)
                             .attr('x', axis.tickPadding())
                             .style('text-anchor', 'start')
-                            .text(function(d, i) {
+                            .text(function (d, i) {
                                 var v = fmt(d);
                                 return ('' + v).match('NaN') ? '' : v;
                             });
                         axisMaxMin.watchTransition(renderWatch, 'min-max right')
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(0,' + nv.utils.NaNtoZero(scale.range()[i]) + ')'
                             })
                             .select('text')
@@ -1959,13 +1922,13 @@ nv.models.tooltip = function() {
                     if (showMaxMin) {
                         axisMaxMin = wrap.selectAll('g.nv-axisMaxMin')
                             .data(scale.domain());
-                        axisMaxMin.enter().append('g').attr('class',function(d,i){
-                                return ['nv-axisMaxMin','nv-axisMaxMin-y',(i == 0 ? 'nv-axisMin-y':'nv-axisMax-y')].join(' ')
+                        axisMaxMin.enter().append('g').attr('class', function (d, i) {
+                            return ['nv-axisMaxMin', 'nv-axisMaxMin-y', (i == 0 ? 'nv-axisMin-y' : 'nv-axisMax-y')].join(' ')
                         }).append('text')
                             .style('opacity', 0);
                         axisMaxMin.exit().remove();
                         axisMaxMin
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(0,' + nv.utils.NaNtoZero(scale0(d)) + ')'
                             })
                             .select('text')
@@ -1973,12 +1936,12 @@ nv.models.tooltip = function() {
                             .attr('y', 0)
                             .attr('x', -axis.tickPadding())
                             .attr('text-anchor', 'end')
-                            .text(function(d,i) {
+                            .text(function (d, i) {
                                 var v = fmt(d);
                                 return ('' + v).match('NaN') ? '' : v;
                             });
                         axisMaxMin.watchTransition(renderWatch, 'min-max right')
-                            .attr('transform', function(d,i) {
+                            .attr('transform', function (d, i) {
                                 return 'translate(0,' + nv.utils.NaNtoZero(scale.range()[i]) + ')'
                             })
                             .select('text')
@@ -1986,12 +1949,14 @@ nv.models.tooltip = function() {
                     }
                     break;
             }
-            axisLabel.text(function(d) { return d });
+            axisLabel.text(function (d) {
+                return d
+            });
 
             if (showMaxMin && (axis.orient() === 'left' || axis.orient() === 'right')) {
                 //check if max and min overlap other values, if so, hide the values that overlap
                 g.selectAll('g') // the g's wrapping each tick
-                    .each(function(d,i) {
+                    .each(function (d, i) {
                         d3.select(this).select('text').attr('opacity', 1);
                         if (scale(d) < scale.range()[1] + 10 || scale(d) > scale.range()[0] - 10) { // 10 is assuming text height is 16... if d is 0, leave it!
                             if (d > 1e-10 || d < -1e-10) // accounts for minor floating point errors... though could be problematic if the scale is EXTREMELY SMALL
@@ -2012,13 +1977,13 @@ nv.models.tooltip = function() {
             if (showMaxMin && (axis.orient() === 'top' || axis.orient() === 'bottom')) {
                 var maxMinRange = [];
                 wrap.selectAll('g.nv-axisMaxMin')
-                    .each(function(d,i) {
+                    .each(function (d, i) {
                         try {
                             if (i) // i== 1, max position
                                 maxMinRange.push(scale(d) - this.getBoundingClientRect().width - 4);  //assuming the max and min labels are as wide as the next tick (with an extra 4 pixels just in case)
                             else // i==0, min position
                                 maxMinRange.push(scale(d) + this.getBoundingClientRect().width + 4)
-                        }catch (err) {
+                        } catch (err) {
                             if (i) // i== 1, max position
                                 maxMinRange.push(scale(d) - 4);  //assuming the max and min labels are as wide as the next tick (with an extra 4 pixels just in case)
                             else // i==0, min position
@@ -2026,7 +1991,7 @@ nv.models.tooltip = function() {
                         }
                     });
                 // the g's wrapping each tick
-                g.selectAll('g').each(function(d, i) {
+                g.selectAll('g').each(function (d, i) {
                     if (scale(d) < maxMinRange[0] || scale(d) > maxMinRange[1]) {
                         if (d > 1e-10 || d < -1e-10) // accounts for minor floating point errors... though could be problematic if the scale is EXTREMELY SMALL
                             d3.select(this).remove();
@@ -2040,14 +2005,14 @@ nv.models.tooltip = function() {
             g.selectAll('.tick')
                 .filter(function (d) {
                     /*
-                    The filter needs to return only ticks at or near zero.
-                    Numbers like 0.00001 need to count as zero as well,
-                    and the arithmetic trick below solves that.
-                    */
+                     The filter needs to return only ticks at or near zero.
+                     Numbers like 0.00001 need to count as zero as well,
+                     and the arithmetic trick below solves that.
+                     */
                     return !parseFloat(Math.round(d * 100000) / 1000000) && (d !== undefined)
-                }) 
+                })
                 .classed('zero', true);
-            
+
             //store old scales for use in transitions on update
             scale0 = scale.copy();
 
@@ -2068,35 +2033,106 @@ nv.models.tooltip = function() {
     chart.options = nv.utils.optionsFunc.bind(chart);
     chart._options = Object.create({}, {
         // simple options, just get/set the necessary values
-        axisLabelDistance: {get: function(){return axisLabelDistance;}, set: function(_){axisLabelDistance=_;}},
-        staggerLabels:     {get: function(){return staggerLabels;}, set: function(_){staggerLabels=_;}},
-        rotateLabels:      {get: function(){return rotateLabels;}, set: function(_){rotateLabels=_;}},
-        rotateYLabel:      {get: function(){return rotateYLabel;}, set: function(_){rotateYLabel=_;}},
-        showMaxMin:        {get: function(){return showMaxMin;}, set: function(_){showMaxMin=_;}},
-        axisLabel:         {get: function(){return axisLabelText;}, set: function(_){axisLabelText=_;}},
-        height:            {get: function(){return height;}, set: function(_){height=_;}},
-        ticks:             {get: function(){return ticks;}, set: function(_){ticks=_;}},
-        xValues:           {get: function(){return xValues; }, set: function(_){xValues = _; }},
-        xValueAlign:       {get: function(){return xValueAlign; }, set: function(_){xValueAlign = _; }},
-        width:             {get: function(){return width;}, set: function(_){width=_;}},
+        axisLabelDistance: {
+            get: function () {
+                return axisLabelDistance;
+            }, set: function (_) {
+                axisLabelDistance = _;
+            }
+        },
+        staggerLabels: {
+            get: function () {
+                return staggerLabels;
+            }, set: function (_) {
+                staggerLabels = _;
+            }
+        },
+        rotateLabels: {
+            get: function () {
+                return rotateLabels;
+            }, set: function (_) {
+                rotateLabels = _;
+            }
+        },
+        rotateYLabel: {
+            get: function () {
+                return rotateYLabel;
+            }, set: function (_) {
+                rotateYLabel = _;
+            }
+        },
+        showMaxMin: {
+            get: function () {
+                return showMaxMin;
+            }, set: function (_) {
+                showMaxMin = _;
+            }
+        },
+        axisLabel: {
+            get: function () {
+                return axisLabelText;
+            }, set: function (_) {
+                axisLabelText = _;
+            }
+        },
+        height: {
+            get: function () {
+                return height;
+            }, set: function (_) {
+                height = _;
+            }
+        },
+        ticks: {
+            get: function () {
+                return ticks;
+            }, set: function (_) {
+                ticks = _;
+            }
+        },
+        xValues: {
+            get: function () {
+                return xValues;
+            }, set: function (_) {
+                xValues = _;
+            }
+        },
+        width: {
+            get: function () {
+                return width;
+            }, set: function (_) {
+                width = _;
+            }
+        },
 
         // options that require extra logic in the setter
-        margin: {get: function(){return margin;}, set: function(_){
-            margin.top    = _.top !== undefined    ? _.top    : margin.top;
-            margin.right  = _.right !== undefined  ? _.right  : margin.right;
-            margin.bottom = _.bottom !== undefined ? _.bottom : margin.bottom;
-            margin.left   = _.left !== undefined   ? _.left   : margin.left;
-        }},
-        duration: {get: function(){return duration;}, set: function(_){
-            duration=_;
-            renderWatch.reset(duration);
-        }},
-        scale: {get: function(){return scale;}, set: function(_){
-            scale = _;
-            axis.scale(scale);
-            isOrdinal = typeof scale.rangeBands === 'function';
-            nv.utils.inheritOptionsD3(chart, scale, ['domain', 'range', 'rangeBand', 'rangeBands']);
-        }}
+        margin: {
+            get: function () {
+                return margin;
+            }, set: function (_) {
+                margin.top = _.top !== undefined ? _.top : margin.top;
+                margin.right = _.right !== undefined ? _.right : margin.right;
+                margin.bottom = _.bottom !== undefined ? _.bottom : margin.bottom;
+                margin.left = _.left !== undefined ? _.left : margin.left;
+            }
+        },
+        duration: {
+            get: function () {
+                return duration;
+            }, set: function (_) {
+                duration = _;
+                renderWatch.reset(duration);
+            }
+        },
+        scale: {
+            get: function () {
+                return scale;
+            }, set: function (_) {
+                scale = _;
+                axis.scale(scale);
+                isOrdinal = typeof scale.rangeBands === 'function';
+                nv.utils.inheritOptionsD3(chart, scale, ['domain', 'range', 'rangeBand', 'rangeBands']);
+            }
+        }
     });
 
     nv.utils.initOptions(chart);
