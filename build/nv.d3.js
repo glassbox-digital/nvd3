@@ -8668,8 +8668,6 @@ nv.models.lineChart = function () {
             // Setup Main (Focus) Axes
             if (showXAxis) {
 
-                console.log(x.range(), x.domain());
-
                 xAxis
                     .scale(x)
                     ._ticks(nv.utils.calcTicksX(availableWidth / 100, data))
