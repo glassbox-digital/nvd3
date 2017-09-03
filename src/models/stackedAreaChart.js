@@ -40,6 +40,7 @@ nv.models.stackedAreaChart = function() {
         , controlOptions = ['Stacked','Stream','Expanded']
         , controlLabels = {}
         , duration = 250
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     state.style = stacked.style();
@@ -48,7 +49,7 @@ nv.models.stackedAreaChart = function() {
 
     tooltip
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         })
         .valueFormatter(function(d, i) {
             return yAxis.tickFormat()(d, i);
@@ -56,7 +57,7 @@ nv.models.stackedAreaChart = function() {
 
     interactiveLayer.tooltip
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         })
         .valueFormatter(function(d, i) {
             return yAxis.tickFormat()(d, i);
@@ -609,6 +610,13 @@ nv.models.stackedAreaChart = function() {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-05-18 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-09-03 */
 (function(){
 
 // set up main nv object
@@ -1648,7 +1648,8 @@ nv.models.tooltip = function() {
         , staggerLabels = false
         , isOrdinal = false
         , ticks = null
-        , tickValues = null
+        , xValues = null
+        , xValueAlign = 60 * 1000
         , axisLabelDistance = 0
         , duration = 250
         , dispatch = d3.dispatch('renderEnd')
@@ -1666,11 +1667,90 @@ nv.models.tooltip = function() {
     var scale0;
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
+    function _unique(values){
+        var vs = [];
+        for ( var i = 0 ; i < values.length ; i++ ){
+            if ( i === 0 || values[i] !== values[i-1]){
+                vs.push(values[i]);
+            }
+
+        }
+
+        return vs;
+    }
+
+
+    function _dialate(values, maxLength, align) {
+
+        // align = align > 0 ? align : (60 * 1000);
+
+        values = _unique(values.sort());
+
+/*
+        values.forEach(function (d) {
+            console.log(d3.time.format('%b %d %H:%M')(new Date(d)));
+        });
+*/
+
+        if ( values.length > (maxLength+1) ){
+
+            var vs = [],
+                step = Math.max(1, Math.ceil(values.length / maxLength));
+
+            // console.log( values.length, step, maxLength);
+
+
+            for ( var i = 0 ; i < values.length ; i++ ){
+                if ( (i % step) === 0 || i === (values.length-1) ){
+                    var v = values[i];
+                    vs.push(v);
+                    // console.log( d3.time.format('%b %d %H:%M')( new Date(v) ));
+
+                }
+            }
+
+            return vs;
+        }
+
+
+/*
+        var extent =  d3.extent(values),
+            jump = Math.max(align, Math.abs(extent[1] - extent[0]) / maxLength);
+
+        if (values.length > (maxLength+1)) {
+            var vs = [],
+                v = values[0];
+
+            do {
+                vs.push(v);
+                v += jump;
+                v = Math.floor(v / align) * align;
+            }
+            while ( v < extent[1] ); /!*for (var i = 0 ; i < values.length ; ) {
+                var v = /!*values[i]; //!*!/Math.floor(values[i] / align) * align;
+                vs.push(v);
+                i += step
+            }*!/
+
+
+            console.log(vs.map( function(d) { return d3.time.format('%b %d %H:%M')(new Date(d)); }));
+
+            return vs;
+        }
+*/
+
+        return values;
+
+    }
+
     function chart(selection) {
         renderWatch.reset();
         selection.each(function(data) {
             var container = d3.select(this);
             nv.utils.initSVG(container);
+
+            // console.log( axis.orient(), axis.scale().range());
+
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-axis').data([data]);
@@ -1678,8 +1758,17 @@ nv.models.tooltip = function() {
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
 
-            if (tickValues !== null)
-                axis.tickValues(tickValues);
+            if (xValues !== null) {
+
+                if (axis.orient() == 'top' || axis.orient() == 'bottom'){
+                    var maxTicks = Math.ceil(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
+
+                    axis.tickValues(_dialate(xValues, maxTicks, xValueAlign ));
+                }
+                else {
+                    axis.tickValues(xValues);
+                }
+            }
             else if (ticks !== null)
                 axis.ticks(ticks);
             else if (axis.orient() == 'top' || axis.orient() == 'bottom')
@@ -1987,7 +2076,8 @@ nv.models.tooltip = function() {
         axisLabel:         {get: function(){return axisLabelText;}, set: function(_){axisLabelText=_;}},
         height:            {get: function(){return height;}, set: function(_){height=_;}},
         ticks:             {get: function(){return ticks;}, set: function(_){ticks=_;}},
-        tickValues:        {get: function(){return tickValues;}, set: function(_){tickValues=_;}},
+        xValues:           {get: function(){return xValues; }, set: function(_){xValues = _; }},
+        xValueAlign:       {get: function(){return xValueAlign; }, set: function(_){xValueAlign = _; }},
         width:             {get: function(){return width;}, set: function(_){width=_;}},
 
         // options that require extra logic in the setter
@@ -7196,6 +7286,7 @@ nv.models.historicalBarChart = function(bar_model) {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 0
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     xAxis.orient('bottom').tickPadding(7);
@@ -7207,7 +7298,7 @@ nv.models.historicalBarChart = function(bar_model) {
             return yAxis.tickFormat()(d, i);
         })
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         });
 
 
@@ -7562,6 +7653,13 @@ nv.models.historicalBarChart = function(bar_model) {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {
@@ -8351,10 +8449,11 @@ nv.models.lineChart = function () {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 250
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     // set options on sub-objects for this chart
-    xAxis.orient('bottom').tickValues();
+    xAxis.orient('bottom')/*.tickValues()*/;
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);
@@ -8364,13 +8463,13 @@ nv.models.lineChart = function () {
     tooltip.valueFormatter(function (d, i) {
         return yAxis.tickFormat()(d, i);
     }).headerFormatter(function (d, i) {
-        return xAxis.tickFormat()(d, i);
+        return headerFormat/* xAxis.tickFormat()*/(d, i);
     });
 
     interactiveLayer.tooltip.valueFormatter(function (d, i) {
         return yAxis.tickFormat()(d, i);
     }).headerFormatter(function (d, i) {
-        return xAxis.tickFormat()(d, i);
+        return headerFormat/* xAxis.tickFormat()*/(d, i);
     });
 
 
@@ -8532,6 +8631,9 @@ nv.models.lineChart = function () {
 
             // Setup Main (Focus) Axes
             if (showXAxis) {
+
+                console.log(x.range(), x.domain());
+
                 xAxis
                     .scale(x)
                     ._ticks(nv.utils.calcTicksX(availableWidth / 100, data))
@@ -8886,6 +8988,13 @@ nv.models.lineChart = function () {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {
@@ -16143,6 +16252,7 @@ nv.models.stackedAreaChart = function() {
         , controlOptions = ['Stacked','Stream','Expanded']
         , controlLabels = {}
         , duration = 250
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     state.style = stacked.style();
@@ -16151,7 +16261,7 @@ nv.models.stackedAreaChart = function() {
 
     tooltip
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         })
         .valueFormatter(function(d, i) {
             return yAxis.tickFormat()(d, i);
@@ -16159,7 +16269,7 @@ nv.models.stackedAreaChart = function() {
 
     interactiveLayer.tooltip
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         })
         .valueFormatter(function(d, i) {
             return yAxis.tickFormat()(d, i);
@@ -16712,6 +16822,13 @@ nv.models.stackedAreaChart = function() {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {

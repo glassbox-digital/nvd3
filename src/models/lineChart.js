@@ -33,10 +33,11 @@ nv.models.lineChart = function () {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 250
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     // set options on sub-objects for this chart
-    xAxis.orient('bottom').tickValues();
+    xAxis.orient('bottom')/*.tickValues()*/;
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);
@@ -46,13 +47,13 @@ nv.models.lineChart = function () {
     tooltip.valueFormatter(function (d, i) {
         return yAxis.tickFormat()(d, i);
     }).headerFormatter(function (d, i) {
-        return xAxis.tickFormat()(d, i);
+        return headerFormat/* xAxis.tickFormat()*/(d, i);
     });
 
     interactiveLayer.tooltip.valueFormatter(function (d, i) {
         return yAxis.tickFormat()(d, i);
     }).headerFormatter(function (d, i) {
-        return xAxis.tickFormat()(d, i);
+        return headerFormat/* xAxis.tickFormat()*/(d, i);
     });
 
 
@@ -214,6 +215,9 @@ nv.models.lineChart = function () {
 
             // Setup Main (Focus) Axes
             if (showXAxis) {
+
+                console.log(x.range(), x.domain());
+
                 xAxis
                     .scale(x)
                     ._ticks(nv.utils.calcTicksX(availableWidth / 100, data))
@@ -568,6 +572,13 @@ nv.models.lineChart = function () {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {

@@ -35,6 +35,7 @@ nv.models.historicalBarChart = function(bar_model) {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 0
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
 
     xAxis.orient('bottom').tickPadding(7);
@@ -46,7 +47,7 @@ nv.models.historicalBarChart = function(bar_model) {
             return yAxis.tickFormat()(d, i);
         })
         .headerFormatter(function(d, i) {
-            return xAxis.tickFormat()(d, i);
+            return headerFormat(d, i);
         });
 
 
@@ -401,6 +402,13 @@ nv.models.historicalBarChart = function(bar_model) {
             }, set: function (_) {
                 yAxis.tickFormat(_);
                 //y2Axis.tickFormat(_);
+            }
+        },
+        headerFormat: {
+            get: function () {
+                return headerFormat;
+            }, set: function (_) {
+                headerFormat = d3.functor(_);
             }
         },
         valueFormat: {

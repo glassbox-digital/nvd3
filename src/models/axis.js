@@ -18,7 +18,8 @@ nv.models.axis = function() {
         , staggerLabels = false
         , isOrdinal = false
         , ticks = null
-        , tickValues = null
+        , xValues = null
+        , xValueAlign = 60 * 1000
         , axisLabelDistance = 0
         , duration = 250
         , dispatch = d3.dispatch('renderEnd')
@@ -36,11 +37,90 @@ nv.models.axis = function() {
     var scale0;
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
+    function _unique(values){
+        var vs = [];
+        for ( var i = 0 ; i < values.length ; i++ ){
+            if ( i === 0 || values[i] !== values[i-1]){
+                vs.push(values[i]);
+            }
+
+        }
+
+        return vs;
+    }
+
+
+    function _dialate(values, maxLength, align) {
+
+        // align = align > 0 ? align : (60 * 1000);
+
+        values = _unique(values.sort());
+
+/*
+        values.forEach(function (d) {
+            console.log(d3.time.format('%b %d %H:%M')(new Date(d)));
+        });
+*/
+
+        if ( values.length > (maxLength+1) ){
+
+            var vs = [],
+                step = Math.max(1, Math.ceil(values.length / maxLength));
+
+            // console.log( values.length, step, maxLength);
+
+
+            for ( var i = 0 ; i < values.length ; i++ ){
+                if ( (i % step) === 0 || i === (values.length-1) ){
+                    var v = values[i];
+                    vs.push(v);
+                    // console.log( d3.time.format('%b %d %H:%M')( new Date(v) ));
+
+                }
+            }
+
+            return vs;
+        }
+
+
+/*
+        var extent =  d3.extent(values),
+            jump = Math.max(align, Math.abs(extent[1] - extent[0]) / maxLength);
+
+        if (values.length > (maxLength+1)) {
+            var vs = [],
+                v = values[0];
+
+            do {
+                vs.push(v);
+                v += jump;
+                v = Math.floor(v / align) * align;
+            }
+            while ( v < extent[1] ); /!*for (var i = 0 ; i < values.length ; ) {
+                var v = /!*values[i]; //!*!/Math.floor(values[i] / align) * align;
+                vs.push(v);
+                i += step
+            }*!/
+
+
+            console.log(vs.map( function(d) { return d3.time.format('%b %d %H:%M')(new Date(d)); }));
+
+            return vs;
+        }
+*/
+
+        return values;
+
+    }
+
     function chart(selection) {
         renderWatch.reset();
         selection.each(function(data) {
             var container = d3.select(this);
             nv.utils.initSVG(container);
+
+            // console.log( axis.orient(), axis.scale().range());
+
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-axis').data([data]);
@@ -48,8 +128,17 @@ nv.models.axis = function() {
             var gEnter = wrapEnter.append('g');
             var g = wrap.select('g');
 
-            if (tickValues !== null)
-                axis.tickValues(tickValues);
+            if (xValues !== null) {
+
+                if (axis.orient() == 'top' || axis.orient() == 'bottom'){
+                    var maxTicks = Math.ceil(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
+
+                    axis.tickValues(_dialate(xValues, maxTicks, xValueAlign ));
+                }
+                else {
+                    axis.tickValues(xValues);
+                }
+            }
             else if (ticks !== null)
                 axis.ticks(ticks);
             else if (axis.orient() == 'top' || axis.orient() == 'bottom')
@@ -357,7 +446,8 @@ nv.models.axis = function() {
         axisLabel:         {get: function(){return axisLabelText;}, set: function(_){axisLabelText=_;}},
         height:            {get: function(){return height;}, set: function(_){height=_;}},
         ticks:             {get: function(){return ticks;}, set: function(_){ticks=_;}},
-        tickValues:        {get: function(){return tickValues;}, set: function(_){tickValues=_;}},
+        xValues:           {get: function(){return xValues; }, set: function(_){xValues = _; }},
+        xValueAlign:       {get: function(){return xValueAlign; }, set: function(_){xValueAlign = _; }},
         width:             {get: function(){return width;}, set: function(_){width=_;}},
 
         // options that require extra logic in the setter
