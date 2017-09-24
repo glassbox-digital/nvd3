@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-09-03 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-09-24 */
 (function(){
 
 // set up main nv object
@@ -10774,7 +10774,7 @@ nv.models.multiBarHorizontal = function() {
                 });
 
             x.domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-                .rangeBands(xRange || [0, availableHeight], groupSpacing);
+                .rangeBands(xRange || [0, availableHeight], groupSpacing, 0);
 
             y.domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return stacked ? (d.y > 0 ? d.y1 + d.y : d.y1 ) : d.y }).concat(forceY)))
 
@@ -10820,7 +10820,7 @@ nv.models.multiBarHorizontal = function() {
 
             var barsEnter = bars.enter().append('g')
                 .attr('transform', function(d,i,j) {
-                    return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + (stacked ? 0 : (j * x.rangeBand() / data.length ) + x(getX(d,i))) + ')'
+                    return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + (stacked ? 0 : (j * 3.33 * barWidth )/* + x(getX(d,i))*/) + ')'
                 });
 
             barsEnter.append('rect')
@@ -10831,7 +10831,9 @@ nv.models.multiBarHorizontal = function() {
                 .text(function(d,i) { return getX(d,i); });
 
             if ( showChecks ) {
-                barsEnter.append('path')
+                barsEnter.filter(function(d,i,j){
+                    return j === 0;
+                }).append('path')
                     .attr('class', 'nv-check')
                     .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
             }
@@ -10932,8 +10934,9 @@ nv.models.multiBarHorizontal = function() {
             if (showBarLabels /*&& !stacked*/) {
 
                 if (href && typeof href === 'function') {
-                    var a = barsEnter
-                        .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
+                    var a = barsEnter.filter(function(d,i,j){
+                        return j === 0;
+                    }).append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                             return href(d);
                         });
 
@@ -10953,12 +10956,14 @@ nv.models.multiBarHorizontal = function() {
                     /*a.append('path').attr('d', 'M 10 6 L 8.59 7.41 L 13.17 12 l -4.58 4.59 L 10 18 l 6 -6 Z');*/
                 }
                 else {
-                    barsEnter.append('text').classed('nv-bar-label', true);
+                    barsEnter.filter(function(d,i,j){
+                        return j === 0;
+                    }).append('text').classed('nv-bar-label', true);
                 }
 
                 bars.select('text.nv-bar-label')
                     .attr('text-anchor', function(d,i) { return (getY(d,i) > 0) ? 'start' : 'end' })
-                    .attr('y', barWidth && (stacked? 1.33 : 0.5) * barWidth || x.rangeBand() / (data.length * 2))
+                    .attr('y', /*(stacked? 1.33 : 0.5)*/ (data.length + 0.33) * barWidth /*|| x.rangeBand() / (data.length * 2)*/)
                     .attr('dy', '.32em')
                     .text(function(d,i) { return keyFormat(getX(d,i)) });
 
@@ -10971,7 +10976,7 @@ nv.models.multiBarHorizontal = function() {
                                 return getY(d, i) < 0 ? Math.abs(y(getY(d,i) + d.y0) - y(d.y0)) || 0 : 0;
                             }
 
-                            return getY(d, i) < 0 ? y(0) - y(getY(d, i)) + 4 : -4;
+                            return 0; // getY(d, i) < 0 ? y(0) - y(getY(d, i)) + 4 : -4;
                         });
                 }
 
@@ -11026,15 +11031,13 @@ nv.models.multiBarHorizontal = function() {
                         return 'translate(' +
                             (getY(d, i) < 0 ? y(getY(d, i)) : y(0))
                             + ',' +
-                            (d.series * x.rangeBand() / data.length
-                            +
-                            x(getX(d, i)) )
+                            (d.series * barWidth + x(getX(d, i)) )
                             + ')'
                     });
 
                 watch
                     .select('rect')
-                    .attr('height', barWidth || x.rangeBand() / data.length)
+                    .attr('height', barWidth /*|| x.rangeBand() / data.length*/)
                     .attr('width', function (d, i) {
                         return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
                     });
