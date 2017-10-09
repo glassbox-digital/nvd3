@@ -212,6 +212,8 @@ nv.models.lineChart = function () {
                 }));
 
             lines2
+                .interpolate('cardinal')
+                .clipEdge(true)
                 .width(availableWidth)
                 .height(availableHeight)
                 .color(data.map(function (d, i) {
@@ -275,8 +277,8 @@ nv.models.lineChart = function () {
             g.select('.nv-focus .nv-x.nv-axis')
                 .attr('transform', 'translate(0,' + availableHeight + ')');
 
-            linesWrap.call(lines);
             lines2Wrap.call(lines2);
+            linesWrap.call(lines);
             updateXAxis();
             updateYAxis();
 
@@ -331,6 +333,7 @@ nv.models.lineChart = function () {
                         pointIndex = nv.interactiveBisect(currentValues, e.pointXValue, lines.x());
                         var point = currentValues[pointIndex];
                         var pointYValue = chart.y()(point, pointIndex);
+                        var pointYRefValue = chart.y2()(point, pointIndex);
                         if (pointYValue !== null) {
                             lines.highlightPoint(series.seriesIndex, pointIndex, true);
                         }
@@ -340,6 +343,7 @@ nv.models.lineChart = function () {
                         allData.push({
                             key: series.key,
                             value: pointYValue,
+                            refValue: pointYRefValue,
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),

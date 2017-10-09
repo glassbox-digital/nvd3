@@ -568,6 +568,17 @@ nv.models.tooltip = function() {
         return d;
     };
 
+    var refFormatter = function(d,i){
+        if ( Math.abs(d.refValue) > 0 ){
+            var r = (d.value - d.refValue) / d.refValue;
+
+            return d3.format('.1f')(r * 100.0) + '%';
+        }
+
+        return '';
+
+    };
+
     // Format function for the tooltip header value.
     var headerFormatter = function(d) {
         return d;
@@ -627,6 +638,16 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("value",true)
             .html(function(p, i) { return valueFormatter(p.value, i) });
+
+        trowEnter.append("td")
+            .classed("ref-value",true)
+            .classed("positive", function(p ,i){
+                return p.value > p.refValue;
+            })
+            .classed("negative", function(p ,i){
+                return p.value < p.refValue;
+            })
+            .html(function(p, i) { return refFormatter(p, i) });
 
         trowEnter.selectAll("td").each(function(p) {
             if (p.highlight) {
@@ -8235,7 +8256,7 @@ nv.models.line = function() {
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
         , interpolate = "linear" // controls the line interpolation
-        , duration = 250
+        , duration = 0
         , dispatch = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
         ;
 
@@ -8664,6 +8685,8 @@ nv.models.lineChart = function () {
                 }));
 
             lines2
+                .interpolate('cardinal')
+                .clipEdge(true)
                 .width(availableWidth)
                 .height(availableHeight)
                 .color(data.map(function (d, i) {
@@ -8727,8 +8750,8 @@ nv.models.lineChart = function () {
             g.select('.nv-focus .nv-x.nv-axis')
                 .attr('transform', 'translate(0,' + availableHeight + ')');
 
-            linesWrap.call(lines);
             lines2Wrap.call(lines2);
+            linesWrap.call(lines);
             updateXAxis();
             updateYAxis();
 
@@ -8783,6 +8806,7 @@ nv.models.lineChart = function () {
                         pointIndex = nv.interactiveBisect(currentValues, e.pointXValue, lines.x());
                         var point = currentValues[pointIndex];
                         var pointYValue = chart.y()(point, pointIndex);
+                        var pointYRefValue = chart.y2()(point, pointIndex);
                         if (pointYValue !== null) {
                             lines.highlightPoint(series.seriesIndex, pointIndex, true);
                         }
@@ -8792,6 +8816,7 @@ nv.models.lineChart = function () {
                         allData.push({
                             key: series.key,
                             value: pointYValue,
+                            refValue: pointYRefValue,
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),

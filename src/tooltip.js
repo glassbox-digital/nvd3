@@ -57,6 +57,17 @@ nv.models.tooltip = function() {
         return d;
     };
 
+    var refFormatter = function(d,i){
+        if ( Math.abs(d.refValue) > 0 ){
+            var r = (d.value - d.refValue) / d.refValue;
+
+            return d3.format('.1f')(r * 100.0) + '%';
+        }
+
+        return '';
+
+    };
+
     // Format function for the tooltip header value.
     var headerFormatter = function(d) {
         return d;
@@ -116,6 +127,16 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("value",true)
             .html(function(p, i) { return valueFormatter(p.value, i) });
+
+        trowEnter.append("td")
+            .classed("ref-value",true)
+            .classed("positive", function(p ,i){
+                return p.value > p.refValue;
+            })
+            .classed("negative", function(p ,i){
+                return p.value < p.refValue;
+            })
+            .html(function(p, i) { return refFormatter(p, i) });
 
         trowEnter.selectAll("td").each(function(p) {
             if (p.highlight) {
