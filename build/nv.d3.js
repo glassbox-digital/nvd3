@@ -620,7 +620,7 @@ nv.models.tooltip = function() {
 
 
         var trowEnter = tbodyEnter.selectAll("tr")
-                .data(function(p) { return (p.series || []).filter(function(p){ return p.value; })})
+                .data(function(p) { return (p.series || []).filter(function(p){ return p.value || p.refValue; })})
                 .enter()
                 .append("tr")
                 .classed("highlight", function(p) { return p.highlight});
