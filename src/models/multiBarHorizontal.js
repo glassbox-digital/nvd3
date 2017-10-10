@@ -166,11 +166,11 @@ nv.models.multiBarHorizontal = function() {
                 barRefs
                     .style('fill', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#ccc';
+                        return '#dedede';
                     })
                     .style('stroke', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#ccc';
+                        return '#dedede';
                     });
             }
 
