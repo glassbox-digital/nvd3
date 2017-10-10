@@ -23,7 +23,7 @@ nv.models.line = function() {
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
         , interpolate = "linear" // controls the line interpolation
-        , duration = 250
+        , duration = 0
         , dispatch = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
         ;
 

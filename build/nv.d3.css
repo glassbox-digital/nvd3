@@ -101,6 +101,25 @@
   font-weight: normal !important;
   font-size: 12px;
 }
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value {
+  stroke-opacity: .3;
+  font-weight: normal !important;
+  font-size: 12px;
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.positive,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.positive,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.positive {
+  fill: #28A02C;
+  stroke: #28A02C;
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.negative,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.negative,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.negative {
+  fill: #BC5050;
+  stroke: #BC5050;
+}
 .nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-group:not(.nv-series-0),
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-group:not(.nv-series-0),
 .nvd3 .nv-funnel .nv-groups .nv-group:not(.nv-series-0) {
@@ -419,6 +438,10 @@
 }
 .nvd3 .nv-indexLine {
   cursor: ew-resize;
+}
+.nvd3 .nv-lines2Wrap .nv-groups .nv-group {
+  stroke-opacity: 0 !important;
+  fill-opacity: 0.3 !important;
 }
 
 /********************
@@ -808,6 +831,17 @@ svg.nvd3-svg {
 .nvtooltip table td.value {
   text-align: right;
   font-weight: bold;
+}
+.nvtooltip table td.ref-value {
+  text-align: right;
+  font-weight: 100;
+  font-size: .9em;
+}
+.nvtooltip table td.ref-value.positive {
+  color: #28A02C;
+}
+.nvtooltip table td.ref-value.negative {
+  color: #BC5050;
 }
 .nvtooltip table tr.highlight td {
   padding: 1px 9px 1px 0;

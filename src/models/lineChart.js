@@ -6,6 +6,7 @@ nv.models.lineChart = function () {
     //------------------------------------------------------------
 
     var lines = nv.models.line()
+        , lines2 = nv.models.line()
         , xAxis = nv.models.axis()
         , yAxis = nv.models.axis()
         , legend = nv.models.legend()
@@ -41,6 +42,7 @@ nv.models.lineChart = function () {
     yAxis.orient(rightAlignYAxis ? 'right' : 'left');
 
     lines.clipEdge(true).duration(0);
+    lines2.isArea(true);
     // We don't want any points emitted for the focus chart's scatter graph.
 
 
@@ -85,6 +87,7 @@ nv.models.lineChart = function () {
     function chart(selection) {
         renderWatch.reset();
         renderWatch.models(lines);
+        renderWatch.models(lines2);
 
         if (showXAxis) renderWatch.models(xAxis);
         if (showYAxis) renderWatch.models(yAxis);
@@ -151,6 +154,7 @@ nv.models.lineChart = function () {
             focusEnter.append('g').attr('class', 'nv-background').append('rect');
             focusEnter.append('g').attr('class', 'nv-x nv-axis');
             focusEnter.append('g').attr('class', 'nv-y nv-axis');
+            focusEnter.append('g').attr('class', 'nv-lines2Wrap');
             focusEnter.append('g').attr('class', 'nv-linesWrap');
             focusEnter.append('g').attr('class', 'nv-interactive');
 
@@ -207,7 +211,24 @@ nv.models.lineChart = function () {
                     return !data[i].disabled;
                 }));
 
+            lines2
+                .interpolate('cardinal')
+                .clipEdge(true)
+                .width(availableWidth)
+                .height(availableHeight)
+                .color(data.map(function (d, i) {
+                    return d.color || color(d, i);
+
+                }).filter(function (d, i) {
+                    return !data[i].disabled;
+                }));
+
             var linesWrap = g.select('.nv-linesWrap')
+                .datum(data.filter(function (d) {
+                    return !d.disabled;
+                }));
+
+            var lines2Wrap = g.select('.nv-lines2Wrap')
                 .datum(data.filter(function (d) {
                     return !d.disabled;
                 }));
@@ -256,6 +277,7 @@ nv.models.lineChart = function () {
             g.select('.nv-focus .nv-x.nv-axis')
                 .attr('transform', 'translate(0,' + availableHeight + ')');
 
+            lines2Wrap.call(lines2);
             linesWrap.call(lines);
             updateXAxis();
             updateYAxis();
@@ -311,6 +333,7 @@ nv.models.lineChart = function () {
                         pointIndex = nv.interactiveBisect(currentValues, e.pointXValue, lines.x());
                         var point = currentValues[pointIndex];
                         var pointYValue = chart.y()(point, pointIndex);
+                        var pointYRefValue = chart.y2()(point, pointIndex);
                         if (pointYValue !== null) {
                             lines.highlightPoint(series.seriesIndex, pointIndex, true);
                         }
@@ -320,6 +343,7 @@ nv.models.lineChart = function () {
                         allData.push({
                             key: series.key,
                             value: pointYValue,
+                            refValue: pointYRefValue,
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),
@@ -436,6 +460,7 @@ nv.models.lineChart = function () {
     // expose chart's sub-components
     chart.dispatch = dispatch;
     chart.lines = lines;
+    chart.lines2 = lines2;
     chart.legend = legend;
     chart.xAxis = xAxis;
     chart.yAxis = yAxis;
@@ -547,6 +572,7 @@ nv.models.lineChart = function () {
                 color = nv.utils.getColor(_);
                 legend.color(color);
                 lines.color(color);
+                lines2.color(color);
             }
         },
         interpolate: {
@@ -598,6 +624,7 @@ nv.models.lineChart = function () {
                 return lines.x();
             }, set: function (_) {
                 lines.x(_);
+                lines2.x(_);
             }
         },
         y: {
@@ -605,6 +632,13 @@ nv.models.lineChart = function () {
                 return lines.y();
             }, set: function (_) {
                 lines.y(_);
+            }
+        },
+        y2: {
+            get: function () {
+                return lines2.y();
+            }, set: function (_) {
+                lines2.y(_);
             }
         },
         rightAlignYAxis: {
