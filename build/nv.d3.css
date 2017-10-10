@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-09 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-10 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -100,6 +100,25 @@
   stroke-opacity: .3;
   font-weight: normal !important;
   font-size: 12px;
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value {
+  stroke-opacity: .3;
+  font-weight: normal !important;
+  font-size: 12px;
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.positive,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.positive,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.positive {
+  fill: #28A02C;
+  stroke: #28A02C;
+}
+.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.negative,
+.nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.negative,
+.nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.negative {
+  fill: #BC5050;
+  stroke: #BC5050;
 }
 .nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-group:not(.nv-series-0),
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-group:not(.nv-series-0),

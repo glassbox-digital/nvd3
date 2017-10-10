@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-09 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-10 */
 (function(){
 
 // set up main nv object
@@ -10760,6 +10760,7 @@ nv.models.multiBarHorizontal = function() {
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
+        , refFormat = function(v){ return v ? d3.format('.1f')(100.0 * v) + '%' : ''; }
         , keyFormat = function(d){ return d; }
         , delay = 1200
         , xDomain
@@ -10824,7 +10825,7 @@ nv.models.multiBarHorizontal = function() {
             var seriesData = (xDomain && yDomain) ? [] : // if we know xDomain and yDomain, no need to calculate
                 data.map(function(d) {
                     return d.values.map(function(d,i) {
-                        return { x: getX(d,i), y: getY(d,i), y0: d.y0, y1: d.y1 }
+                        return { x: getX(d,i), y: Math.max(getY(d,i), d.previous ? getY(d.previous,i) : 0), y0: d.y0, y1: d.y1 }
                     })
                 });
 
@@ -10868,6 +10869,104 @@ nv.models.multiBarHorizontal = function() {
             groups.watchTransition(renderWatch, 'multibarhorizontal: groups')
                 .style('stroke-opacity', 1)
                 .style('fill-opacity', .75);
+
+            var barRefs = groups.selectAll('g.nv-bar-ref')
+                .data(function(d) { return d.values });
+            barRefs.exit().remove();
+
+            var barRefsEnter = barRefs.enter()
+                .append('g')
+                .classed('nv-bar-ref', true)
+                .attr('transform', function(d,i,j) {
+                    return 'translate(' + y0(stacked ? d.y0 : 0) + ',' + (stacked ? 0 : ((j) * barWidth )/* + x(getX(d,i))*/) + ')'
+                });
+
+            barRefsEnter
+                .filter(function(d){ return d.previous; })
+                .append('rect')
+                .attr('width', 0)
+                .attr('height', barWidth );
+
+            barRefsEnter
+                .filter(function(d){ return d.previous; })
+                .append('svg:title')
+                .text(function(d,i) { return getY(d.previous,i); });
+
+            if (barColor) {
+                if (!disabled) disabled = data.map(function() { return true });
+                barRefs
+                    .style('fill', function(d,i,j) {
+                        // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
+                        return '#ccc';
+                    })
+                    .style('stroke', function(d,i,j) {
+                        // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
+                        return '#ccc';
+                    });
+            }
+
+            if (showValues) {
+                barRefsEnter.filter(function (d) { return d.previous; })
+                    .append('text').classed('nv-bar-ref-value', true);
+
+                barRefs.select('text.nv-bar-ref-value')
+                    .attr('text-anchor', function (d, i) {
+                        return getY(d, i) < 0 ? 'end' : 'start'
+                    })
+                    .attr('y', 15)
+                    .attr('dy', '0.5em')
+                    .classed('positive', function (d, i) {
+                        var v = getY(d, i),
+                            b = getY(d.previous, i);
+
+                        return v > b;
+                    })
+                    .classed('negative', function (d, i) {
+                        var v = getY(d, i),
+                            b = getY(d.previous, i);
+
+                        return v < b;
+                    })
+                    .text(function (d, i) {
+                        var v = getY(d, i),
+                            b = getY(d.previous, i);
+
+                        var t = refFormat(b > 0 ? (v - b) / b : null)
+                            , yerr = getYerr(d, i);
+                        if (yerr === undefined)
+                            return t;
+                        if (!yerr.length)
+                            return t + '±' + valueFormat(Math.abs(yerr));
+                        return t + '+' + valueFormat(Math.abs(yerr[1])) + '-' + valueFormat(Math.abs(yerr[0]));
+                    });
+
+                barRefs.watchTransition(renderWatch, 'multibarhorizontal: bars')
+                    .select('text.nv-bar-ref-value')
+                    .attr('x', function (d, i) {
+                        return y(getY(d, i)) + 4
+                    });
+
+            }
+
+
+            var watch2 = barRefs.watchTransition(renderWatch, 'multibarhorizontal: bars')
+                .filter(function(d){ return d.previous; })
+                .attr('transform', function (d, i) {
+                    //TODO: stacked must be all positive or all negative, not both?
+                    return 'translate(' +
+                        (getY(d.previous, i) < 0 ? y(getY(d.previous, i)) : y(0))
+                        + ',' +
+                        ((d.series) * barWidth + x(getX(d, i)) )
+                        + ')'
+                });
+
+            watch2
+                .select('rect')
+                .attr('height', barWidth /*|| x.rangeBand() / data.length*/)
+                .attr('width', function (d, i) {
+                    return Math.max(Math.abs(y(getY(d.previous, i)) - y(0)), 1) || 0
+                });
+
 
             var bars = groups.selectAll('g.nv-bar')
                 .data(function(d) { return d.values });
@@ -10980,10 +11079,14 @@ nv.models.multiBarHorizontal = function() {
                         return t + '+' + valueFormat(Math.abs(yerr[1])) + '-' + valueFormat(Math.abs(yerr[0]));
                     });
                 bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
-                    .select('text')
-                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) -y(getY(d,i)) - 4 : + 4 })
+                    .select('text.nv-bar-value')
+                    .attr('x', function(d,i) { return getY(d,i) < 0 ? y(0) -y(getY(d,i)) - 4 : + 4 });
+
+
+
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
+                bars.selectAll('text.nv-bar-ref-value').remove();
             }
 
             if (showBarLabels /*&& !stacked*/) {
@@ -11065,6 +11168,12 @@ nv.models.multiBarHorizontal = function() {
                     });
 
                 watch.select('rect')
+                    .attr('width', function (d, i) {
+                        return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
+                    })
+                    .attr('height', barWidth || x.rangeBand());
+
+                watch.select('rect.nv-ref')
                     .attr('width', function (d, i) {
                         return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
                     })
