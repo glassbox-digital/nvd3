@@ -27,6 +27,7 @@
         };
     };
 
+    nv.utils.debounce = debounce;
 
     /*
      Gets the browser window size

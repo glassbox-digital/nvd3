@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-19 */
 (function(){
 
 // set up main nv object
@@ -902,6 +902,7 @@ nv.models.tooltip = function() {
         };
     };
 
+    nv.utils.debounce = debounce;
 
     /*
      Gets the browser window size
@@ -8480,6 +8481,7 @@ nv.models.lineChart = function () {
 
     var lines = nv.models.line()
         , lines2 = nv.models.line()
+        , hasLine2 = false
         , xAxis = nv.models.axis()
         , yAxis = nv.models.axis()
         , legend = nv.models.legend()
@@ -8684,28 +8686,31 @@ nv.models.lineChart = function () {
                     return !data[i].disabled;
                 }));
 
-            lines2
-                .interpolate('cardinal')
-                .clipEdge(true)
-                .width(availableWidth)
-                .height(availableHeight)
-                .color(data.map(function (d, i) {
-                    return d.color || color(d, i);
+            if ( hasLine2 ) {
+                lines2
+                    .interpolate('cardinal')
+                    .clipEdge(true)
+                    .width(availableWidth)
+                    .height(availableHeight)
+                    .color(data.map(function (d, i) {
+                        return d.color || color(d, i);
 
-                }).filter(function (d, i) {
-                    return !data[i].disabled;
-                }));
+                    }).filter(function (d, i) {
+                        return !data[i].disabled;
+                    }));
+            }
 
             var linesWrap = g.select('.nv-linesWrap')
                 .datum(data.filter(function (d) {
                     return !d.disabled;
                 }));
 
-            var lines2Wrap = g.select('.nv-lines2Wrap')
-                .datum(data.filter(function (d) {
-                    return !d.disabled;
-                }));
-
+            if ( hasLine2 ) {
+                var lines2Wrap = g.select('.nv-lines2Wrap')
+                    .datum(data.filter(function (d) {
+                        return !d.disabled;
+                    }));
+            }
 
             // Setup Main (Focus) Axes
             if (showXAxis) {
@@ -8750,7 +8755,9 @@ nv.models.lineChart = function () {
             g.select('.nv-focus .nv-x.nv-axis')
                 .attr('transform', 'translate(0,' + availableHeight + ')');
 
-            lines2Wrap.call(lines2);
+            if ( hasLine2 ) {
+                lines2Wrap.call(lines2);
+            }
             linesWrap.call(lines);
             updateXAxis();
             updateYAxis();
@@ -9111,6 +9118,7 @@ nv.models.lineChart = function () {
             get: function () {
                 return lines2.y();
             }, set: function (_) {
+                hasLine2 = !!_;
                 lines2.y(_);
             }
         },
@@ -15227,6 +15235,8 @@ nv.models.scatter = function() {
             );
 
             // Delay updating the invisible interactive layer for smoother animation
+            nv.utils.debounce(updateInteractiveLayer, interactiveUpdateDelay);
+/*
             if( interactiveUpdateDelay )
             {
                 clearTimeout(timeoutID); // stop repeat calls to updateInteractiveLayer
@@ -15236,6 +15246,7 @@ nv.models.scatter = function() {
             {
                 updateInteractiveLayer();
             }
+*/
 
             //store old scales for use in transitions on update
             x0 = x.copy();
