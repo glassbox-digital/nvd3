@@ -22,9 +22,28 @@
     }
     .value {
       transform: translateY(18px);
+
       > text {
         font-size: 12px;
         text-anchor: middle;
+      }
+    }
+
+    .ref {
+      transform: translateY(36px);
+
+      > text {
+        font-size: 11px;
+        text-anchor: middle;
+      }
+
+      stroke: none;
+      &.positive {
+        fill: #28A02C;
+
+      }
+      &.negative {
+        fill: #BC5050;
       }
     }
   }

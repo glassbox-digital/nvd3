@@ -14,6 +14,7 @@ nv.models.pie = function() {
         , container = null
         , color = nv.utils.defaultColor()
         , valueFormat = d3.format(',.2f')
+        , refFormat = function(v){ return v ? d3.format('.1f')(100.0 * v) + '%' : ''; }
         , showLabels = true
         , showChecks = false
         , labelsOutside = false
@@ -78,6 +79,7 @@ nv.models.pie = function() {
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-pieInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
             gInfoEnter.append('g').classed('value', true).append('text');
+            gInfoEnter.append('g').classed('ref', true).append('text');
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             g.select('.nv-pie').attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
@@ -169,6 +171,18 @@ nv.models.pie = function() {
                 if ( donut ){
                     pieInfo.select('.key text').text(getX(d.data));
                     pieInfo.select('.value text').text( valueFormat(d.value) );
+
+                    if ( d.data.previous ) {
+                        var b = getY(d.data.previous, i);
+                        var t = refFormat(b > 0 ? (d.value - b) / b : null)
+                        pieInfo.select('.ref text').text(t);
+                        pieInfo.select('.ref').classed('positive',  d.value > b );
+                        pieInfo.select('.ref').classed('negative',  d.value < b );
+                    }
+                    else {
+                        pieInfo.select('.ref text').text('');
+                    }
+
                 }
 
                 dispatch.elementMouseover({
@@ -244,6 +258,24 @@ nv.models.pie = function() {
 
                     pieInfo.select('.key text').text( num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : 'click to select..' );
                     pieInfo.select('.value text').text( num > 0 ? valueFormat(sum) : '' );
+
+                    if ( num === 1 && selected.length > 0) {
+                        var d = selected[0];
+
+                        if ( d.data.previous ) {
+                            var b = getY(d.data.previous);
+                            var t = refFormat(b > 0 ? (d.value - b) / b : null)
+                            pieInfo.select('.ref text').text(t);
+                            pieInfo.select('.ref').classed('positive',  d.value > b );
+                            pieInfo.select('.ref').classed('negative',  d.value < b );
+                        }
+                        else {
+                            pieInfo.select('.ref text').text('');
+                        }
+                    }
+                    else {
+                        pieInfo.select('.ref text').text('');
+                    }
                 }
             }
 
