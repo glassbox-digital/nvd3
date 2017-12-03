@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-10-29 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-12-03 */
 (function(){
 
 // set up main nv object
@@ -10921,8 +10921,8 @@ nv.models.multiBarHorizontal = function() {
                     .attr('text-anchor', function (d, i) {
                         return getY(d, i) < 0 ? 'end' : 'start'
                     })
-                    .attr('y', 15)
-                    .attr('dy', '0.5em')
+                    .attr('y', barWidth && barWidth/2 || 15)
+                    .attr('dy', '0.32em')
                     .classed('positive', function (d, i) {
                         var v = getY(d, i),
                             b = getY(d.previous, i);
@@ -10951,7 +10951,7 @@ nv.models.multiBarHorizontal = function() {
                 barRefs.watchTransition(renderWatch, 'multibarhorizontal: bars')
                     .select('text.nv-bar-ref-value')
                     .attr('x', function (d, i) {
-                        return y(getY(d, i)) + 4
+                        return Math.max(50, y(getY(d, i))) + 4
                     });
 
             }
