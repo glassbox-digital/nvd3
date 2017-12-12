@@ -22,6 +22,7 @@ nv.models.line = function() {
         , clipEdge = false // if true, masks lines within x and y scale
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
+        , threshold = null // the threshold
         , interpolate = "linear" // controls the line interpolation
         , duration = 0
         , dispatch = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
@@ -55,7 +56,7 @@ nv.models.line = function() {
                 availableHeight = nv.utils.availableHeight(height, container, margin);
             nv.utils.initSVG(container);
 
-            scatter.forceY(forceY || [0,1]);
+            scatter.forceY(d3.merge([forceY || [0,1], [threshold]]));
 
             // Setup Scales
             x = scatter.xScale();
@@ -167,7 +168,21 @@ nv.models.line = function() {
                     .y(function(d,i) { return nv.utils.NaNtoZero(y(getY(d,i))) })
             );
 
-            //store old scales for use in transitions on update
+            var thresholdPaths = groups.selectAll('line.nv-threshold')
+                .data( threshold ? [threshold] : [] );
+
+            thresholdPaths.enter().append('line')
+                .attr('class', 'nv-threshold');
+
+            thresholdPaths
+                .attr('x1', x.range()[0])
+                .attr('y1', nv.utils.NaNtoZero(y(threshold)))
+                .attr('x2', x.range()[1])
+                .attr('y2', nv.utils.NaNtoZero(y(threshold)));
+
+            thresholdPaths.exit().remove();
+
+        //store old scales for use in transitions on update
             x0 = x.copy();
             y0 = y.copy();
         });
@@ -202,6 +217,7 @@ nv.models.line = function() {
             }
         },
         interpolate:      {get: function(){return interpolate;}, set: function(_){interpolate=_;}},
+        threshold:      {get: function(){return threshold;}, set: function(_){threshold=_;}},
         clipEdge:    {get: function(){return clipEdge;}, set: function(_){clipEdge=_;}},
 
         // options that require extra logic in the setter

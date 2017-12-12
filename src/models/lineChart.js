@@ -648,6 +648,13 @@ nv.models.lineChart = function () {
                 lines2.y(_);
             }
         },
+        threshold: {
+            get: function () {
+                return lines.threshold();
+            }, set: function (_) {
+                lines.threshold(_);
+            }
+        },
         rightAlignYAxis: {
             get: function () {
                 return rightAlignYAxis;
