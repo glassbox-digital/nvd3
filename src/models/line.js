@@ -23,6 +23,7 @@ nv.models.line = function() {
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
         , threshold = null // the threshold
+        , active_since = null // active since
         , interpolate = "linear" // controls the line interpolation
         , duration = 0
         , dispatch = d3.dispatch('elementClick', 'elementMouseover', 'elementMouseout', 'renderEnd')
@@ -182,6 +183,20 @@ nv.models.line = function() {
 
             thresholdPaths.exit().remove();
 
+            var activePaths = groups.selectAll('line.nv-active')
+                .data( active_since ? [active_since] : [] );
+
+            activePaths.enter().append('line')
+                .attr('class', 'nv-active');
+
+            activePaths
+                .attr('x1', nv.utils.NaNtoZero(x(active_since)))
+                .attr('y1', y.range()[0])
+                .attr('x2', nv.utils.NaNtoZero(x(active_since)))
+                .attr('y2', y.range()[1] );
+
+            activePaths.exit().remove();
+
         //store old scales for use in transitions on update
             x0 = x.copy();
             y0 = y.copy();
@@ -218,6 +233,7 @@ nv.models.line = function() {
         },
         interpolate:      {get: function(){return interpolate;}, set: function(_){interpolate=_;}},
         threshold:      {get: function(){return threshold;}, set: function(_){threshold=_;}},
+        activeSince:      {get: function(){return active_since;}, set: function(_){active_since=_;}},
         clipEdge:    {get: function(){return clipEdge;}, set: function(_){clipEdge=_;}},
 
         // options that require extra logic in the setter

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-12-12 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-12-22 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -410,6 +410,11 @@
 }
 .nvd3 .nv-groups line.nv-threshold {
   stroke: darkred;
+  stroke-dasharray: 6, 3;
+  stroke-width: 3px;
+}
+.nvd3 .nv-groups line.nv-active {
+  stroke: lightsteelblue;
   stroke-dasharray: 6, 3;
   stroke-width: 3px;
 }

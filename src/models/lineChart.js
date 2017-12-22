@@ -655,6 +655,13 @@ nv.models.lineChart = function () {
                 lines.threshold(_);
             }
         },
+        activeSince: {
+            get: function () {
+                return lines.activeSince();
+            }, set: function (_) {
+                lines.activeSince(_);
+            }
+        },
         rightAlignYAxis: {
             get: function () {
                 return rightAlignYAxis;
