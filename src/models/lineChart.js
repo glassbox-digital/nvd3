@@ -655,6 +655,13 @@ nv.models.lineChart = function () {
                 lines.threshold(_);
             }
         },
+        pointAlert: {
+            get: function () {
+                return lines.scatter.pointAlert();
+            }, set: function (_) {
+                lines.scatter.pointAlert(_);
+            }
+        },
         activeSince: {
             get: function () {
                 return lines.activeSince();

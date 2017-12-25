@@ -24,6 +24,7 @@ nv.models.scatter = function() {
         , forceSize    = [] // List of numbers to Force into the Size scale
         , interactive  = true // If true, plots a voronoi overlay for advanced point intersection
         , pointActive  = function(d) { return !d.notActive } // any points that return false will be filtered out
+        , pointAlert  = function(d) { return d.alert } // any points that return true will be popped out
         , padData      = false // If true, adds half a data points width to front and back, for lining up a line chart with a bar chart
         , padDataOuter = .1 //outerPadding to imitate ordinal scale outer padding
         , clipEdge     = false // if true, masks points within x and y scale
@@ -77,7 +78,7 @@ nv.models.scatter = function() {
                 d3.merge(
                     data.map(function(d) {
                         return d.values.map(function(d,i) {
-                            return { x: getX(d,i), y: getY(d,i), size: getSize(d,i) }
+                            return { x: getX(d,i), y: getY(d,i), size: getSize(d,i), data:d }
                         })
                     })
                 );
@@ -434,6 +435,46 @@ nv.models.scatter = function() {
                     .size(function(d) { return z(getSize(d[0],d[1])) })
             );
 
+
+            var alerts = groups.selectAll('circle.nv-point')
+                .data(function(d) {
+                    return d.values.map(
+                        function (point, pointIndex) {
+                            return [point, pointIndex]
+                        }).filter(
+                        function(pointArray, pointIndex) {
+                            return pointAlert(pointArray[0], pointIndex)
+                        })
+                });
+            alerts.enter().append('circle')
+                .attr('transform', function(d) {
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x0(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y0(getY(d[0],d[1])) + yOffset) + ')'
+                })
+                .attr('r', 0);
+            alerts.exit().remove();
+            groups.exit().selectAll('circle.nv-alert')
+                .watchTransition(renderWatch, 'scatter exit')
+                .attr('transform', function(d) {
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + ')'
+                })
+                .remove();
+
+            alerts.each(function(d) {
+                d3.select(this)
+                    .classed('nv-alert', true);
+            });
+
+            alerts
+                .watchTransition(renderWatch, 'scatter alerts')
+                .attr('transform', function(d) {
+                    //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                })
+                .attr('r', 7 );
+
+
             // Delay updating the invisible interactive layer for smoother animation
             nv.utils.debounce(updateInteractiveLayer, interactiveUpdateDelay);
 /*
@@ -510,6 +551,7 @@ nv.models.scatter = function() {
         forcePoint:   {get: function(){return forceSize;}, set: function(_){forceSize=_;}},
         interactive:  {get: function(){return interactive;}, set: function(_){interactive=_;}},
         pointActive:  {get: function(){return pointActive;}, set: function(_){pointActive=_;}},
+        pointAlert:  {get: function(){return pointAlert;}, set: function(_){pointAlert=_;}},
         padDataOuter: {get: function(){return padDataOuter;}, set: function(_){padDataOuter=_;}},
         padData:      {get: function(){return padData;}, set: function(_){padData=_;}},
         clipEdge:     {get: function(){return clipEdge;}, set: function(_){clipEdge=_;}},
