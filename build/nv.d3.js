@@ -8416,20 +8416,41 @@ nv.models.line = function() {
                 .attr('y2', nv.utils.NaNtoZero(y(threshold)));
 
             thresholdPaths.exit().remove();
+/*
+        <text x="0" y="338.85825396825396" transform="" style="
+            fill: lightsteelblue;
+            fill-opacity: 1;
+            stroke-opacity: .2;
+            transform: rotate(270deg );
+            text-anchor: end;
+            stroke: lightsteelblue;
+            font-size: 11px;
+            ">Created</text>*/
 
-            var activePaths = groups.selectAll('line.nv-active')
+            var activeMarker = groups.selectAll('g.nv-activeMarker')
                 .data( active_since ? [active_since] : [] );
 
-            activePaths.enter().append('line')
-                .attr('class', 'nv-active');
+            var activeMarkerEnter = activeMarker.enter().append('g')
+                .attr('class', 'nv-activeMarker');
 
-            activePaths
+            activeMarkerEnter.append('line');
+            activeMarkerEnter.append('text');
+
+            activeMarker.selectAll('line')
                 .attr('x1', nv.utils.NaNtoZero(x(active_since)))
                 .attr('y1', y.range()[0])
                 .attr('x2', nv.utils.NaNtoZero(x(active_since)))
                 .attr('y2', y.range()[1] );
 
-            activePaths.exit().remove();
+            activeMarker.selectAll('text')
+                .text('Created'/*function(d){
+                    return 'create on ' + d3.time.format('%b %d %H:%M')(new Date(+d));
+                }*/)
+                .attr('transform', 'rotate(270)')
+                .attr('y', nv.utils.NaNtoZero(x(active_since)) - 5)
+                .attr('x', -availableHeight / 2);
+
+            activeMarker.exit().remove();
 
         //store old scales for use in transitions on update
             x0 = x.copy();

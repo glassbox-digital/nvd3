@@ -8,10 +8,23 @@
     stroke-width: 3px;
 }
 
-.nvd3 .nv-groups line.nv-active {
+.nvd3 .nv-groups .nv-activeMarker {
+    fill: lightsteelblue;
     stroke: lightsteelblue;
-    stroke-dasharray: 6, 3;
-    stroke-width: 3px;
+
+    line {
+        stroke-dasharray: 2, 4;
+        stroke-width: 2px;
+    }
+
+    text {
+        text-anchor: middle;
+        fill-opacity: 1;
+        stroke: none;
+        stroke-opacity: 0.2;
+        font-size: 11px;
+        font-style: italic;
+    }
 }
 
 .nvd3 .nv-groups path.nv-area {
