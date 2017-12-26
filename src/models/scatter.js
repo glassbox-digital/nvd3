@@ -78,8 +78,8 @@ nv.models.scatter = function() {
                 d3.merge(
                     data.map(function(d) {
                         return d.values.map(function(d,i) {
-                            return { x: getX(d,i), y: getY(d,i), size: getSize(d,i), data:d }
-                        })
+                            return { x: getX(d,i), y: getY(d,i), size: getSize(d,i) };
+                        });
                     })
                 );
 
@@ -447,6 +447,7 @@ nv.models.scatter = function() {
                         })
                 });
             alerts.enter().append('circle')
+                .classed('nv-alert', true)
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
                     return 'translate(' + nv.utils.NaNtoZero(x0(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y0(getY(d[0],d[1])) + yOffset) + ')'
@@ -460,11 +461,6 @@ nv.models.scatter = function() {
                 })
                 .remove();
 
-            alerts.each(function(d) {
-                d3.select(this)
-                    .classed('nv-alert', true);
-            });
-
             alerts
                 .watchTransition(renderWatch, 'scatter alerts')
                 .attr('transform', function(d) {
@@ -472,7 +468,7 @@ nv.models.scatter = function() {
                     var yOffset = d[0].singlePoint ? 5 : 0;
                     return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
                 })
-                .attr('r', 7 );
+                .attr('r', 6 );
 
 
             // Delay updating the invisible interactive layer for smoother animation
