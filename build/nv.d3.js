@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2017-12-26 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-01 */
 (function(){
 
 // set up main nv object
@@ -10967,7 +10967,8 @@ nv.models.multiBarHorizontal = function() {
                 .filter(function(d){ return d.previous; })
                 .append('rect')
                 .attr('width', 0)
-                .attr('height', barWidth );
+                .attr('y', barWidth - 6 )
+                .attr('height', 6 );
 
             barRefsEnter
                 .filter(function(d){ return d.previous; })
@@ -10979,11 +10980,11 @@ nv.models.multiBarHorizontal = function() {
                 barRefs
                     .style('fill', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#dedede';
+                        return '#888';
                     })
                     .style('stroke', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#dedede';
+                        return '#888';
                     });
             }
 
@@ -11044,7 +11045,7 @@ nv.models.multiBarHorizontal = function() {
 
             watch2
                 .select('rect')
-                .attr('height', barWidth /*|| x.rangeBand() / data.length*/)
+                /*.attr('height', barWidth /!*|| x.rangeBand() / data.length*!/)*/
                 .attr('width', function (d, i) {
                     return Math.max(Math.abs(y(getY(d.previous, i)) - y(0)), 1) || 0
                 });
