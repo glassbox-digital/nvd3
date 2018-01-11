@@ -70,7 +70,7 @@ nv.models.tooltip = function() {
 
     // Format function for the tooltip header value.
     var headerFormatter = function(d) {
-        return d;
+        return (d.value || d.data);
     };
 
     var keyFormatter = function(d, i) {
@@ -99,7 +99,7 @@ nv.models.tooltip = function() {
                 .attr("colspan", 3)
                 .append("strong")
                 .classed("x-value", true)
-                .html(headerFormatter(d.value || d.data));
+                .html(headerFormatter(d));
         }
 
         var tbodyEnter = table.selectAll("tbody")

@@ -35,7 +35,7 @@ nv.models.lineChart = function () {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 250
-        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(lines.x(d))); }
         ;
 
     // set options on sub-objects for this chart

@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-01 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-11 */
 (function(){
 
 // set up main nv object
@@ -581,7 +581,7 @@ nv.models.tooltip = function() {
 
     // Format function for the tooltip header value.
     var headerFormatter = function(d) {
-        return d;
+        return (d.value || d.data);
     };
 
     var keyFormatter = function(d, i) {
@@ -610,7 +610,7 @@ nv.models.tooltip = function() {
                 .attr("colspan", 3)
                 .append("strong")
                 .classed("x-value", true)
-                .html(headerFormatter(d.value || d.data));
+                .html(headerFormatter(d));
         }
 
         var tbodyEnter = table.selectAll("tbody")
@@ -8562,7 +8562,7 @@ nv.models.lineChart = function () {
         , noData = null
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
         , transitionDuration = 250
-        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
+        , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(lines.x(d))); }
         ;
 
     // set options on sub-objects for this chart
