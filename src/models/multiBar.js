@@ -233,6 +233,8 @@ nv.models.multiBar = function() {
                 .data(function(d) { return (hideable && !data.length) ? hideable.values : d.values });
             bars.exit().remove();
 
+            // i'm here
+            var step = dps.length > 0 ? dps[1] - dps[0] : 0;
 
             var barsEnter = bars.enter().append('rect')
                     .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
@@ -281,7 +283,9 @@ nv.models.multiBar = function() {
                         index: i,
                         color: d3.select(this).style("fill"),
                         event: d3.event,
-                        element: element
+                        element: element,
+                        step: step,
+                        series: data[d.series]
                     });
                     d3.event.stopPropagation();
                 })
@@ -290,7 +294,9 @@ nv.models.multiBar = function() {
                     dispatch.elementDblClick({
                         data: d,
                         index: i,
-                        color: d3.select(this).style("fill")
+                        color: d3.select(this).style("fill"),
+                        step: step,
+                        series: data[d.series]
                     });
                     d3.event.stopPropagation();
                 });

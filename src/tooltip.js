@@ -73,6 +73,10 @@ nv.models.tooltip = function() {
         return (d.value || d.data);
     };
 
+    var footerFormatter = function(d) {
+        return d.footer;
+    };
+
     var keyFormatter = function(d, i) {
         return d;
     };
@@ -150,8 +154,9 @@ nv.models.tooltip = function() {
         });
 
         var html = table.node().outerHTML;
-        if (d.footer !== undefined)
-            html += "<div class='footer'>" + d.footer + "</div>";
+        var footer = footerFormatter(d);
+        if (footer !== undefined)
+            html += "<div class='footer'>" + footer + "</div>";
         return html;
 
     };
@@ -322,6 +327,7 @@ nv.models.tooltip = function() {
         contentGenerator: {get: function(){return contentGenerator;}, set: function(_){contentGenerator=_;}},
         valueFormatter: {get: function(){return valueFormatter;}, set: function(_){valueFormatter=_;}},
         headerFormatter: {get: function(){return headerFormatter;}, set: function(_){headerFormatter=_;}},
+        footerFormatter: {get: function(){return footerFormatter;}, set: function(_){footerFormatter=_;}},
         keyFormatter: {get: function(){return keyFormatter;}, set: function(_){keyFormatter=_;}},
         headerEnabled: {get: function(){return headerEnabled;}, set: function(_){headerEnabled=_;}},
         position: {get: function(){return position;}, set: function(_){position=_;}},

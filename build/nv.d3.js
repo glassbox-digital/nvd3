@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-11 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-15 */
 (function(){
 
 // set up main nv object
@@ -584,6 +584,10 @@ nv.models.tooltip = function() {
         return (d.value || d.data);
     };
 
+    var footerFormatter = function(d) {
+        return d.footer;
+    };
+
     var keyFormatter = function(d, i) {
         return d;
     };
@@ -661,8 +665,9 @@ nv.models.tooltip = function() {
         });
 
         var html = table.node().outerHTML;
-        if (d.footer !== undefined)
-            html += "<div class='footer'>" + d.footer + "</div>";
+        var footer = footerFormatter(d);
+        if (footer !== undefined)
+            html += "<div class='footer'>" + footer + "</div>";
         return html;
 
     };
@@ -833,6 +838,7 @@ nv.models.tooltip = function() {
         contentGenerator: {get: function(){return contentGenerator;}, set: function(_){contentGenerator=_;}},
         valueFormatter: {get: function(){return valueFormatter;}, set: function(_){valueFormatter=_;}},
         headerFormatter: {get: function(){return headerFormatter;}, set: function(_){headerFormatter=_;}},
+        footerFormatter: {get: function(){return footerFormatter;}, set: function(_){footerFormatter=_;}},
         keyFormatter: {get: function(){return keyFormatter;}, set: function(_){keyFormatter=_;}},
         headerEnabled: {get: function(){return headerEnabled;}, set: function(_){headerEnabled=_;}},
         position: {get: function(){return position;}, set: function(_){position=_;}},
@@ -7342,7 +7348,7 @@ nv.models.historicalBarChart = function(bar_model) {
         , state = {}
         , defaultState = null
         , noData = null
-        , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange')
+        , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange', 'drill')
         , transitionDuration = 0
         , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
         ;
@@ -7351,12 +7357,12 @@ nv.models.historicalBarChart = function(bar_model) {
     yAxis.orient( (rightAlignYAxis) ? 'right' : 'left');
     tooltip
         .duration(0)
-        .headerEnabled(false)
+        .headerEnabled(true)
         .valueFormatter(function(d, i) {
             return yAxis.tickFormat()(d, i);
         })
         .headerFormatter(function(d, i) {
-            return headerFormat(d, i);
+            return headerFormat(chart.x()(d.data));
         });
 
 
@@ -7634,11 +7640,15 @@ nv.models.historicalBarChart = function(bar_model) {
 
     bars.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
-            key: chart.x()(evt.data),
+            key: evt.data.key,
             value: chart.y()(evt.data),
             color: evt.color
         };
-        tooltip.data(evt).hidden(false);
+
+        evt.footer = 'PPPP..';
+        tooltip.data(evt)
+            .chartContainer(chart.container.parentNode)
+            .hidden(false);
     });
 
     bars.dispatch.on('elementMouseout.tooltip', function(evt) {
@@ -7647,6 +7657,10 @@ nv.models.historicalBarChart = function(bar_model) {
 
     bars.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
+    });
+
+    bars.dispatch.on('elementClick.drill', function(evt) {
+        dispatch.drill({drill: [evt.data[0], evt.data[0] + evt.step], result: evt.series});
     });
 
     //============================================================
@@ -7720,11 +7734,19 @@ nv.models.historicalBarChart = function(bar_model) {
                 headerFormat = d3.functor(_);
             }
         },
+        footerFormat: {
+            get: function () {
+                return tooltip.footerFormatter();
+            }, set: function (_) {
+                tooltip.footerFormatter(_);
+            }
+        },
         valueFormat: {
             get: function () {
                 return interactiveLayer.tooltip.valueFormatter();
             }, set: function (_) {
                 interactiveLayer.tooltip.valueFormatter(_);
+                tooltip.valueFormatter(_);
             }
         },
         keyFormat: {
@@ -7741,9 +7763,7 @@ nv.models.historicalBarChart = function(bar_model) {
         }},
         useInteractiveGuideline: {get: function(){return useInteractiveGuideline;}, set: function(_){
             useInteractiveGuideline = _;
-            if (_ === true) {
-                bars.interactive(false);
-            }
+            bars.interactive(!useInteractiveGuideline);
         }}
     });
 
@@ -7804,7 +7824,7 @@ nv.models.multiHistoricalBarChart = function () {
     var chart = nv.models.historicalBarChart(nv.models.multiBar().xScale(d3.scale.linear()).stacked(true));
 
     // special default tooltip since we show multiple values per x
-    chart.useInteractiveGuideline(true);
+    chart.useInteractiveGuideline(false);
 
     return chart;
 };nv.models.legend = function() {
@@ -10099,6 +10119,8 @@ nv.models.multiBar = function() {
                 .data(function(d) { return (hideable && !data.length) ? hideable.values : d.values });
             bars.exit().remove();
 
+            // i'm here
+            var step = dps.length > 0 ? dps[1] - dps[0] : 0;
 
             var barsEnter = bars.enter().append('rect')
                     .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
@@ -10147,7 +10169,9 @@ nv.models.multiBar = function() {
                         index: i,
                         color: d3.select(this).style("fill"),
                         event: d3.event,
-                        element: element
+                        element: element,
+                        step: step,
+                        series: data[d.series]
                     });
                     d3.event.stopPropagation();
                 })
@@ -10156,7 +10180,9 @@ nv.models.multiBar = function() {
                     dispatch.elementDblClick({
                         data: d,
                         index: i,
-                        color: d3.select(this).style("fill")
+                        color: d3.select(this).style("fill"),
+                        step: step,
+                        series: data[d.series]
                     });
                     d3.event.stopPropagation();
                 });
