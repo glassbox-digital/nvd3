@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-01-15 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-03-16 */
 (function(){
 
 // set up main nv object
@@ -13413,7 +13413,9 @@ nv.models.parallelCoordinatesChart = function () {
 
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-pieInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
-            gInfoEnter.append('g').classed('value', true).append('text');
+            gInfoEnter.append('g').classed('value', true)
+                .attr('transform', 'translate(' + 0 + ',' + 18 + ')')
+                .append('text');
             gInfoEnter.append('g').classed('ref', true).append('text');
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');

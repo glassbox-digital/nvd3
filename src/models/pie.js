@@ -78,7 +78,9 @@ nv.models.pie = function() {
 
             var gInfoEnter = gEnter.append('g').attr('class', 'nv-pieInfo');
             gInfoEnter.append('g').classed('key', true).append('text');
-            gInfoEnter.append('g').classed('value', true).append('text');
+            gInfoEnter.append('g').classed('value', true)
+                .attr('transform', 'translate(' + 0 + ',' + 18 + ')')
+                .append('text');
             gInfoEnter.append('g').classed('ref', true).append('text');
 
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
