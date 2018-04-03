@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-03-25 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-03 */
 (function(){
 
 // set up main nv object
@@ -13961,8 +13961,14 @@ nv.models.pieChart = function() {
 
             // Legend
             if (showLegend) {
+                legend
+                    .updateState(!pie.showChecks())
+                    .key(pie.x());
+
                 if (legendPosition === "top") {
-                    legend.width( availableWidth ).key(pie.x());
+
+                    legend
+                        .width( availableWidth );
 
                     wrap.select('.nv-legendWrap')
                         .datum(data)
@@ -14001,13 +14007,19 @@ nv.models.pieChart = function() {
             // Event Handling/Dispatching (in chart's scope)
             //------------------------------------------------------------
 
-            legend.dispatch.on('stateChange', function(newState) {
-                for (var key in newState) {
-                    state[key] = newState[key];
-                }
-                dispatch.stateChange(state);
-                chart.update();
-            });
+            legend.dispatch
+                .on('stateChange', function (newState) {
+                    for (var key in newState)
+                        state[key] = newState[key];
+                    dispatch.stateChange(state);
+                    chart.update();
+                })
+                .on('legendClick', function (d, i) {
+                    d.selected = !d.selected;
+                    dispatch.selectChange(d);
+                    // chart.update();
+                });
+
 
             // Update chart from a state object passed to event handler
             dispatch.on('changeState', function(e) {
@@ -14072,8 +14084,10 @@ nv.models.pieChart = function() {
         // simple options, just get/set the necessary values
         noData:         {get: function(){return noData;},         set: function(_){noData=_;}},
         showLegend:     {get: function(){return showLegend;},     set: function(_){showLegend=_;}},
+        showChecks:     {get: function(){return pie.showChecks();},     set: function(_){pie.showChecks(_);}},
         legendPosition: {get: function(){return legendPosition;}, set: function(_){legendPosition=_;}},
         defaultState:   {get: function(){return defaultState;},   set: function(_){defaultState=_;}},
+        keyFormat:      {get: function(){return legend.keyFormat();}, set: function(_){legend.keyFormat(_);}},
 
         // options that require extra logic in the setter
         color: {get: function(){return color;}, set: function(_){
