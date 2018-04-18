@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-03 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-18 */
 (function(){
 
 // set up main nv object
@@ -9915,7 +9915,7 @@ nv.models.multiBar = function() {
         , yDomain
         , xRange
         , yRange
-        , groupSpacing = 0.1
+        , groupSpacing = 0.2
         , barWidth = 30
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
         , interactive = true
@@ -10078,7 +10078,7 @@ nv.models.multiBar = function() {
                 .attr('id', 'nv-edge-clip-' + id)
                 .append('rect');
             wrap.select('#nv-edge-clip-' + id + ' rect')
-                .attr('width', availableWidth)
+                .attr('width', availableWidth + availableBarsWidth)
                 .attr('height', availableHeight);
 
             g.attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + id + ')' : '');
