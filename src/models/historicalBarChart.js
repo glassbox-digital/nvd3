@@ -1,5 +1,5 @@
 
-nv.models.historicalBarChart = function(bar_model) {
+nv.models.historicalBarChart = function(bar_model, bar2_model) {
     "use strict";
 
     //============================================================
@@ -7,12 +7,14 @@ nv.models.historicalBarChart = function(bar_model) {
     //------------------------------------------------------------
 
     var bars = bar_model || nv.models.historicalBar()
+        , bars2 = bar2_model || nv.models.historicalBar()
         , xAxis = nv.models.axis()
         , yAxis = nv.models.axis()
         , legend = nv.models.legend()
         , interactiveLayer = nv.interactiveGuideline()
         , tooltip = nv.models.tooltip()
         , brush = d3.svg.brush()
+        , hasBar2 = false
         ;
 
 
@@ -327,6 +329,7 @@ nv.models.historicalBarChart = function(bar_model) {
         evt['series'] = {
             key: evt.data.key,
             value: chart.y()(evt.data),
+            refValue: hasBar2 ? chart.y2()(evt.data) : null,
             color: evt.color
         };
 
@@ -449,7 +452,16 @@ nv.models.historicalBarChart = function(bar_model) {
         useInteractiveGuideline: {get: function(){return useInteractiveGuideline;}, set: function(_){
             useInteractiveGuideline = _;
             bars.interactive(!useInteractiveGuideline);
-        }}
+        }},
+        y2: {
+            get: function () {
+                return bars2.y();
+            }, set: function (_) {
+                hasBar2 = !!_;
+                bars2.y(_);
+            }
+        }
+
     });
 
     nv.utils.inheritOptions(chart, bars);
@@ -506,7 +518,10 @@ nv.models.candlestickBarChart = function() {
 };
 
 nv.models.multiHistoricalBarChart = function () {
-    var chart = nv.models.historicalBarChart(nv.models.multiBar().xScale(d3.scale.linear()).stacked(true));
+    var chart = nv.models.historicalBarChart(
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true),
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true)
+    );
 
     // special default tooltip since we show multiple values per x
     chart.useInteractiveGuideline(false);
