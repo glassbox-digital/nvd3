@@ -231,8 +231,10 @@ nv.models.lineChart = function () {
                     return !d.disabled;
                 }));
 
+            var lines2Wrap;
+
             if ( hasLine2 ) {
-                var lines2Wrap = g.select('.nv-lines2Wrap')
+                lines2Wrap = g.select('.nv-lines2Wrap')
                     .datum(data.filter(function (d) {
                         return !d.disabled;
                     }));

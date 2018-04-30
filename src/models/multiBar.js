@@ -30,6 +30,7 @@ nv.models.multiBar = function() {
         , yRange
         , groupSpacing = 0.2
         , barWidth = 30
+        , refBars = false
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
         , interactive = true
         ;
@@ -125,7 +126,7 @@ nv.models.multiBar = function() {
             }
             // Setup Scales
             // remap and flatten the data for use in calculating the scales' domains
-            var seriesData = (xDomain && yDomain) ? [] : // if we know xDomain and yDomain, no need to calculate
+            var seriesData = /*(xDomain && yDomain) ? [] :*/ // if we know xDomain and yDomain, no need to calculate
                 data.map(function(d, idx) {
                     return d.values.map(function(d,i) {
                         return { x: getX(d,i), y: getY(d,i), y0: d.y0, y1: d.y1, idx:idx }
@@ -300,15 +301,30 @@ nv.models.multiBar = function() {
                     });
                     d3.event.stopPropagation();
                 });
+
             bars
                 .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
                 .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
+                .classed('nv-bar-ref', refBars);
 
             if (barColor) {
                 if (!disabled) disabled = data.map(function() { return true });
+
                 bars
-                    .style('fill', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); })
-                    .style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); });
+                    .style('fill', function (d, i, j) {
+                        return d3.rgb(barColor(d, i))/*.darker(disabled.map(function (d, i) {
+                            return i
+                        }).filter(function (d, i) {
+                            return !disabled[i]
+                        })[j])*/.toString();
+                    })
+                    .style('stroke', function (d, i, j) {
+                        return d3.rgb(barColor(d, i))/*.darker(disabled.map(function (d, i) {
+                            return i
+                        }).filter(function (d, i) {
+                            return !disabled[i]
+                        })[j])*/.toString();
+                    });
             }
 
             var barSelection =
@@ -374,13 +390,11 @@ nv.models.multiBar = function() {
                     .attr('x', function(d,i) {
                         return d.series * availableBarsWidth / data.length;
                     })
-                    .attr('width', availableBarsWidth / data.length)
+                    .attr('width', refBars ? 6 : availableBarsWidth / data.length)
                     .attr('y', function(d,i) {
                         return getY(d,i) < 0 ?
                             y(0) :
-                                y(0) - y(getY(d,i)) < 1 ?
-                            y(0) - 1 :
-                            y(getY(d,i)) || 0;
+                            y(0) - y(getY(d,i)) < 1 ? y(0) - 1 : y(getY(d,i)) || 0;
                     })
                     .attr('height', function(d,i) {
                         return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
@@ -447,6 +461,7 @@ nv.models.multiBar = function() {
         hideable:    {get: function(){return hideable;}, set: function(_){hideable=_;}},
         groupSpacing:{get: function(){return groupSpacing;}, set: function(_){groupSpacing=_;}},
         barWidth:{get: function(){return barWidth;}, set: function(_){barWidth=_;}},
+        refBars:{get: function(){return refBars;}, set: function(_){refBars=_;}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){

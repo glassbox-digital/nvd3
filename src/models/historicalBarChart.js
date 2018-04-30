@@ -38,6 +38,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange', 'drill')
         , transitionDuration = 0
         , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
+        , footerFormat = function(d){ }
         ;
 
     xAxis.orient('bottom').tickPadding(7);
@@ -63,6 +64,8 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         selection.each(function(data) {
             renderWatch.reset();
             renderWatch.models(bars);
+            renderWatch.models(bars2);
+
             if (showXAxis) renderWatch.models(xAxis);
             if (showYAxis) renderWatch.models(yAxis);
 
@@ -109,10 +112,17 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var xDomain = d3.extent(d3.merge(data.map(function(d, idx) {
                 return d.values.map(function(d,i) {
                     return chart.x()(d,i);
-                })
+                });
             })));
 
-            bars.xDomain(xDomain);
+            var yDomain = d3.extent(d3.merge(data.map(function(d, idx) {
+                return d.values.map(function(d,i) {
+                    return Math.max(chart.y()(d,i) || 0, chart.y2()(d,i) || 0.0);
+                });
+            })));
+
+            bars.xDomain(xDomain).yDomain(yDomain);
+            bars2.xDomain(xDomain).yDomain(yDomain);
 
             y = bars.yScale();
 
@@ -125,6 +135,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             focusEnter.append('g').attr('class', 'nv-background').append('rect');
             focusEnter.append('g').attr('class', 'nv-x nv-axis');
             focusEnter.append('g').attr('class', 'nv-y nv-axis');
+            focusEnter.append('g').attr('class', 'nv-bars2Wrap');
             focusEnter.append('g').attr('class', 'nv-barsWrap');
             focusEnter.append('g').attr('class', 'nv-legendWrap');
             focusEnter.append('g').attr('class', 'nv-interactive');
@@ -180,6 +191,21 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var barsWrap = g.select('.nv-barsWrap')
                 .datum(data.filter(function(d) { return !d.disabled }));
             barsWrap.transition().call(bars);
+
+            if ( hasBar2 ) {
+                bars2
+                    .width(availableWidth)
+                    .height(availableHeight)
+                    .color(data.map(function(d,i) {
+                        return d.color || color(d, i);
+                    }).filter(function(d,i) { return !data[i].disabled }));
+
+                var bars2Wrap = g.select('.nv-bars2Wrap')
+                    .datum(data.filter(function (d) {
+                        return !d.disabled
+                    }));
+                bars2Wrap.transition().call(bars2);
+            }
 
             // Setup Axes
             if (showXAxis) {
@@ -333,8 +359,9 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             color: evt.color
         };
 
-        evt.footer = 'PPPP..';
+
         tooltip.data(evt)
+            .footerFormatter(footerFormat)
             .chartContainer(chart.container.parentNode)
             .hidden(false);
     });
@@ -346,6 +373,28 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
     bars.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
     });
+
+    bars2.dispatch.on('elementMouseover.tooltip', function(evt) {
+        evt['series'] = {
+            key: evt.data.key,
+            value: chart.y2()(evt.data),
+            color: evt.color
+        };
+
+        tooltip.data(evt)
+            .footerFormatter(function () {})
+            .chartContainer(chart.container.parentNode)
+            .hidden(false);
+    });
+
+    bars2.dispatch.on('elementMouseout.tooltip', function(evt) {
+        tooltip.hidden(true);
+    });
+
+    bars2.dispatch.on('elementMousemove.tooltip', function(evt) {
+        tooltip();
+    });
+
 
     bars.dispatch.on('elementClick.drill', function(evt) {
         dispatch.drill({drill: [evt.data[0], evt.data[0] + evt.step], result: evt.series});
@@ -426,6 +475,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             get: function () {
                 return tooltip.footerFormatter();
             }, set: function (_) {
+                footerFormat = d3.functor(_);
                 tooltip.footerFormatter(_);
             }
         },
@@ -452,7 +502,23 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         useInteractiveGuideline: {get: function(){return useInteractiveGuideline;}, set: function(_){
             useInteractiveGuideline = _;
             bars.interactive(!useInteractiveGuideline);
+            bars2.interactive(!useInteractiveGuideline);
         }},
+        x: {
+            get: function () {
+                return bars.x();
+            }, set: function (_) {
+                bars.x(_);
+                bars2.x(_);
+            }
+        },
+        y: {
+            get: function () {
+                return bars.y();
+            }, set: function (_) {
+                bars.y(_);
+            }
+        },
         y2: {
             get: function () {
                 return bars2.y();
@@ -519,8 +585,8 @@ nv.models.candlestickBarChart = function() {
 
 nv.models.multiHistoricalBarChart = function () {
     var chart = nv.models.historicalBarChart(
-        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true),
-        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true)
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(false),
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(false).refBars(true).barColor(function(){ return '#c4ced4'})
     );
 
     // special default tooltip since we show multiple values per x

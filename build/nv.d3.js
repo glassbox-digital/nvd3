@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-29 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-30 */
 (function(){
 
 // set up main nv object
@@ -7353,6 +7353,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'brush', 'stateChange', 'changeState', 'renderEnd', 'selectChange', 'drill')
         , transitionDuration = 0
         , headerFormat = function(d){ return d3.time.format('%b %d %H:%M')(new Date(d)); }
+        , footerFormat = function(d){ }
         ;
 
     xAxis.orient('bottom').tickPadding(7);
@@ -7378,6 +7379,8 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         selection.each(function(data) {
             renderWatch.reset();
             renderWatch.models(bars);
+            renderWatch.models(bars2);
+
             if (showXAxis) renderWatch.models(xAxis);
             if (showYAxis) renderWatch.models(yAxis);
 
@@ -7424,10 +7427,17 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var xDomain = d3.extent(d3.merge(data.map(function(d, idx) {
                 return d.values.map(function(d,i) {
                     return chart.x()(d,i);
-                })
+                });
             })));
 
-            bars.xDomain(xDomain);
+            var yDomain = d3.extent(d3.merge(data.map(function(d, idx) {
+                return d.values.map(function(d,i) {
+                    return Math.max(chart.y()(d,i) || 0, chart.y2()(d,i) || 0.0);
+                });
+            })));
+
+            bars.xDomain(xDomain).yDomain(yDomain);
+            bars2.xDomain(xDomain).yDomain(yDomain);
 
             y = bars.yScale();
 
@@ -7440,6 +7450,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             focusEnter.append('g').attr('class', 'nv-background').append('rect');
             focusEnter.append('g').attr('class', 'nv-x nv-axis');
             focusEnter.append('g').attr('class', 'nv-y nv-axis');
+            focusEnter.append('g').attr('class', 'nv-bars2Wrap');
             focusEnter.append('g').attr('class', 'nv-barsWrap');
             focusEnter.append('g').attr('class', 'nv-legendWrap');
             focusEnter.append('g').attr('class', 'nv-interactive');
@@ -7495,6 +7506,21 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var barsWrap = g.select('.nv-barsWrap')
                 .datum(data.filter(function(d) { return !d.disabled }));
             barsWrap.transition().call(bars);
+
+            if ( hasBar2 ) {
+                bars2
+                    .width(availableWidth)
+                    .height(availableHeight)
+                    .color(data.map(function(d,i) {
+                        return d.color || color(d, i);
+                    }).filter(function(d,i) { return !data[i].disabled }));
+
+                var bars2Wrap = g.select('.nv-bars2Wrap')
+                    .datum(data.filter(function (d) {
+                        return !d.disabled
+                    }));
+                bars2Wrap.transition().call(bars2);
+            }
 
             // Setup Axes
             if (showXAxis) {
@@ -7648,8 +7674,9 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             color: evt.color
         };
 
-        evt.footer = 'PPPP..';
+
         tooltip.data(evt)
+            .footerFormatter(footerFormat)
             .chartContainer(chart.container.parentNode)
             .hidden(false);
     });
@@ -7661,6 +7688,28 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
     bars.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
     });
+
+    bars2.dispatch.on('elementMouseover.tooltip', function(evt) {
+        evt['series'] = {
+            key: evt.data.key,
+            value: chart.y2()(evt.data),
+            color: evt.color
+        };
+
+        tooltip.data(evt)
+            .footerFormatter(function () {})
+            .chartContainer(chart.container.parentNode)
+            .hidden(false);
+    });
+
+    bars2.dispatch.on('elementMouseout.tooltip', function(evt) {
+        tooltip.hidden(true);
+    });
+
+    bars2.dispatch.on('elementMousemove.tooltip', function(evt) {
+        tooltip();
+    });
+
 
     bars.dispatch.on('elementClick.drill', function(evt) {
         dispatch.drill({drill: [evt.data[0], evt.data[0] + evt.step], result: evt.series});
@@ -7741,6 +7790,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             get: function () {
                 return tooltip.footerFormatter();
             }, set: function (_) {
+                footerFormat = d3.functor(_);
                 tooltip.footerFormatter(_);
             }
         },
@@ -7767,7 +7817,23 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         useInteractiveGuideline: {get: function(){return useInteractiveGuideline;}, set: function(_){
             useInteractiveGuideline = _;
             bars.interactive(!useInteractiveGuideline);
+            bars2.interactive(!useInteractiveGuideline);
         }},
+        x: {
+            get: function () {
+                return bars.x();
+            }, set: function (_) {
+                bars.x(_);
+                bars2.x(_);
+            }
+        },
+        y: {
+            get: function () {
+                return bars.y();
+            }, set: function (_) {
+                bars.y(_);
+            }
+        },
         y2: {
             get: function () {
                 return bars2.y();
@@ -7834,8 +7900,8 @@ nv.models.candlestickBarChart = function() {
 
 nv.models.multiHistoricalBarChart = function () {
     var chart = nv.models.historicalBarChart(
-        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true),
-        nv.models.multiBar().xScale(d3.scale.linear()).stacked(true)
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(false),
+        nv.models.multiBar().xScale(d3.scale.linear()).stacked(false).refBars(true).barColor(function(){ return '#c4ced4'})
     );
 
     // special default tooltip since we show multiple values per x
@@ -8794,8 +8860,10 @@ nv.models.lineChart = function () {
                     return !d.disabled;
                 }));
 
+            var lines2Wrap;
+
             if ( hasLine2 ) {
-                var lines2Wrap = g.select('.nv-lines2Wrap')
+                lines2Wrap = g.select('.nv-lines2Wrap')
                     .datum(data.filter(function (d) {
                         return !d.disabled;
                     }));
@@ -9932,6 +10000,7 @@ nv.models.multiBar = function() {
         , yRange
         , groupSpacing = 0.2
         , barWidth = 30
+        , refBars = false
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
         , interactive = true
         ;
@@ -10027,7 +10096,7 @@ nv.models.multiBar = function() {
             }
             // Setup Scales
             // remap and flatten the data for use in calculating the scales' domains
-            var seriesData = (xDomain && yDomain) ? [] : // if we know xDomain and yDomain, no need to calculate
+            var seriesData = /*(xDomain && yDomain) ? [] :*/ // if we know xDomain and yDomain, no need to calculate
                 data.map(function(d, idx) {
                     return d.values.map(function(d,i) {
                         return { x: getX(d,i), y: getY(d,i), y0: d.y0, y1: d.y1, idx:idx }
@@ -10202,15 +10271,30 @@ nv.models.multiBar = function() {
                     });
                     d3.event.stopPropagation();
                 });
+
             bars
                 .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'})
                 .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',0)'; })
+                .classed('nv-bar-ref', refBars);
 
             if (barColor) {
                 if (!disabled) disabled = data.map(function() { return true });
+
                 bars
-                    .style('fill', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); })
-                    .style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString(); });
+                    .style('fill', function (d, i, j) {
+                        return d3.rgb(barColor(d, i))/*.darker(disabled.map(function (d, i) {
+                            return i
+                        }).filter(function (d, i) {
+                            return !disabled[i]
+                        })[j])*/.toString();
+                    })
+                    .style('stroke', function (d, i, j) {
+                        return d3.rgb(barColor(d, i))/*.darker(disabled.map(function (d, i) {
+                            return i
+                        }).filter(function (d, i) {
+                            return !disabled[i]
+                        })[j])*/.toString();
+                    });
             }
 
             var barSelection =
@@ -10276,13 +10360,11 @@ nv.models.multiBar = function() {
                     .attr('x', function(d,i) {
                         return d.series * availableBarsWidth / data.length;
                     })
-                    .attr('width', availableBarsWidth / data.length)
+                    .attr('width', refBars ? 6 : availableBarsWidth / data.length)
                     .attr('y', function(d,i) {
                         return getY(d,i) < 0 ?
                             y(0) :
-                                y(0) - y(getY(d,i)) < 1 ?
-                            y(0) - 1 :
-                            y(getY(d,i)) || 0;
+                            y(0) - y(getY(d,i)) < 1 ? y(0) - 1 : y(getY(d,i)) || 0;
                     })
                     .attr('height', function(d,i) {
                         return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
@@ -10349,6 +10431,7 @@ nv.models.multiBar = function() {
         hideable:    {get: function(){return hideable;}, set: function(_){hideable=_;}},
         groupSpacing:{get: function(){return groupSpacing;}, set: function(_){groupSpacing=_;}},
         barWidth:{get: function(){return barWidth;}, set: function(_){barWidth=_;}},
+        refBars:{get: function(){return refBars;}, set: function(_){refBars=_;}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
@@ -11022,11 +11105,11 @@ nv.models.multiBarHorizontal = function() {
                 barRefs
                     .style('fill', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#888';
+                        return '#c4ced4';
                     })
                     .style('stroke', function(d,i,j) {
                         // return d3.rgb(barColor(d,i)).darker(  disabled.map(function(d,i) { return i }).filter(function(d,i){ return !disabled[i]  })[j]   ).toString();
-                        return '#888';
+                        return '#c4ced4';
                     });
             }
 
