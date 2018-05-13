@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-04-30 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-05-13 */
 (function(){
 
 // set up main nv object
@@ -1696,13 +1696,14 @@ nv.models.tooltip = function() {
     var scale0;
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
 
-    function _unique(values) {
+    function _unique(values, fmt) {
         var vs = [];
+
+
         for (var i = 0; i < values.length; i++) {
-            if (i === 0 || values[i] !== values[i - 1]) {
+            if (i === 0 || fmt(values[i]) !== fmt(values[i - 1])) {
                 vs.push(values[i]);
             }
-
         }
 
         return vs;
@@ -1711,7 +1712,7 @@ nv.models.tooltip = function() {
 
     function _dialate(values, maxLength) {
 
-        values = _unique(values.sort());
+        values = _unique(values.sort(), function(d){ return d;});
 
         if (values.length > (maxLength + 1)) {
 
@@ -1758,8 +1759,9 @@ nv.models.tooltip = function() {
                     axis.tickValues(xValues);
                 }
             }
-            else if (ticks !== null)
+            else if (ticks !== null) {
                 axis.ticks(ticks);
+            }
             else if (axis.orient() == 'top' || axis.orient() == 'bottom')
                 axis.ticks(Math.abs(scale.range()[1] - scale.range()[0]) / 100);
 
@@ -1768,10 +1770,45 @@ nv.models.tooltip = function() {
 
             scale0 = scale0 || axis.scale();
 
+
+
+
+
             var fmt = axis.tickFormat();
             if (fmt == null) {
                 fmt = scale0.tickFormat();
             }
+
+            if ( axis.orient() === 'left' || axis.orient() === 'right') {
+                var ticksData = g.selectAll('.tick').data() || [];
+
+                var uniqTicksData = _unique(ticksData, fmt);
+
+                if ( showMaxMin ){
+                    if ( uniqTicksData.length > 0 ) {
+                        if (uniqTicksData[0] === scale.domain()[0]) {
+                            uniqTicksData.splice(0, 1);
+                        }
+                    }
+
+                    if ( uniqTicksData.length > 0 ) {
+                        if (fmt(uniqTicksData[uniqTicksData.length - 1]) === fmt(scale.domain()[1])) {
+                            uniqTicksData.pop();
+                        }
+                    }
+                }
+
+                // console.log('uniq', ticksData, uniqTicksData);
+                axis.tickValues(uniqTicksData);
+                g.call(axis);
+            }
+
+
+/*
+            // unique tick values
+            g.selectAll('.tick').data(uniqTicksData).exit().remove();
+*/
+
 
             var axisLabel = g.selectAll('text.nv-axislabel')
                 .data([axisLabelText || null]);
