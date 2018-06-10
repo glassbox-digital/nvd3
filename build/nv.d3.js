@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-05-13 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-06-10 */
 (function(){
 
 // set up main nv object
@@ -8803,12 +8803,23 @@ nv.models.lineChart = function () {
                 return chart;
             } else {
                 container.selectAll('.nv-noData').remove();
+
+                if ( hasLine2) {
+                    var forceY = d3.extent(
+                        d3.merge(
+                            [ data[0].values.map(lines.y()), data[0].values.map(lines2.y())])
+                    );
+
+                    lines.forceY(forceY);
+                    lines2.forceY(forceY);
+                }
             }
 
 
             // Setup Scales
             x = lines.xScale();
             y = lines.yScale();
+
 
             // Setup containers and skeleton of chart
             var wrap = container.selectAll('g.nv-wrap.nv-lineChart').data([data]);
