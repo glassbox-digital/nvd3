@@ -91,6 +91,10 @@ nv.models.pieChart = function() {
                 }
             }
 
+            data = data.filter( function(d){
+                return pie.y()(d) > 0.0;
+            });
+
             // Display No Data message if there's nothing to show.
             if (!data || !data.length) {
                 nv.utils.noData(chart, container);

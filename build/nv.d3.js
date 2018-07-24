@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-06-10 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-07-24 */
 (function(){
 
 // set up main nv object
@@ -14088,6 +14088,10 @@ nv.models.pieChart = function() {
                         defaultState[key] = state[key];
                 }
             }
+
+            data = data.filter( function(d){
+                return pie.y()(d) > 0.0;
+            });
 
             // Display No Data message if there's nothing to show.
             if (!data || !data.length) {
