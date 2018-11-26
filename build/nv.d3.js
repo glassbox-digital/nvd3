@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-07-24 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-11-26 */
 (function(){
 
 // set up main nv object
@@ -5198,7 +5198,7 @@ nv.models.funnel = function() {
 
                 bars.watchTransition(renderWatch, 'funnel: bars')
                     .selectAll('g.nv-dropoff text')
-                    .attr('x', function(d,i) { return y(getY(d,i)) - (showChecks ? 30 : 0) + 16 })
+                    .attr('x', function(d,i) { return Math.max(70, y(getY(d,i)) - (showChecks ? 30 : 0)) + 16 })
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();

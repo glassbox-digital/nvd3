@@ -417,7 +417,7 @@ nv.models.funnel = function() {
 
                 bars.watchTransition(renderWatch, 'funnel: bars')
                     .selectAll('g.nv-dropoff text')
-                    .attr('x', function(d,i) { return y(getY(d,i)) - (showChecks ? 30 : 0) + 16 })
+                    .attr('x', function(d,i) { return Math.max(70, y(getY(d,i)) - (showChecks ? 30 : 0)) + 16 })
 
             } else {
                 bars.selectAll('text.nv-bar-value').remove();
