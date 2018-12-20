@@ -1,15 +1,15 @@
 {
   "name": "nvd3",
-  "version": "1.8.1-dev",
+  "version": "1.9.3",
   "description": "A reusable charting library written in d3.js",
-  "url": "https://github.com/novus/nvd3",
+  "url": "https://github.com/shilon5/nvd3",
   "main": "build/nv.d3.js",
   "scripts": {
     "test": "grunt"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/novus/nvd3"
+    "url": "https://github.com/shilon5/nvd3"
   },
   "keywords": [
     "nvd3",

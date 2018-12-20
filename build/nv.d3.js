@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-12-20 */
+/* nvd3 version 1.9.3 (https://github.com/novus/nvd3) 2018-12-20 */
 (function(){
 
 // set up main nv object
@@ -19051,5 +19051,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.8.1-dev";
+nv.version = "1.9.3";
 })();
