@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2018-12-17 */
+/* nvd3 version 1.9.6 (https://github.com/shilon5/nvd3) 2018-12-24 */
 (function(){
 
 // set up main nv object
@@ -14070,6 +14070,8 @@ nv.models.pieChart = function() {
 
             chart.update = function() { container.transition().call(chart); };
             chart.container = this;
+            tooltip.chartContainer(chart.container.parentNode);
+
 
             state.setter(stateSetter(data), chart.update)
                 .getter(stateGetter(data))
@@ -19051,5 +19053,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.8.1-dev";
+nv.version = "1.9.6";
 })();

@@ -72,6 +72,8 @@ nv.models.pieChart = function() {
 
             chart.update = function() { container.transition().call(chart); };
             chart.container = this;
+            tooltip.chartContainer(chart.container.parentNode);
+
 
             state.setter(stateSetter(data), chart.update)
                 .getter(stateGetter(data))
