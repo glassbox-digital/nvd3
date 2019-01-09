@@ -234,7 +234,7 @@ nv.models.tooltip = function() {
         nv.dom.read(function() {
             var pos = position(),
                 gravityOffset = calcGravityOffset(pos),
-                left = pos.left + gravityOffset.left,
+                left = Math.max(0, pos.left + gravityOffset.left),
                 top = pos.top + gravityOffset.top;
 
             // delay hiding a bit to avoid flickering

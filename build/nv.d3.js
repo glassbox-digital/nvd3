@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.6 (https://github.com/shilon5/nvd3) 2018-12-24 */
+/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-01-09 */
 (function(){
 
 // set up main nv object
@@ -745,7 +745,7 @@ nv.models.tooltip = function() {
         nv.dom.read(function() {
             var pos = position(),
                 gravityOffset = calcGravityOffset(pos),
-                left = pos.left + gravityOffset.left,
+                left = Math.max(0, pos.left + gravityOffset.left),
                 top = pos.top + gravityOffset.top;
 
             // delay hiding a bit to avoid flickering
@@ -19053,5 +19053,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.6";
+nv.version = "1.9.7";
 })();
