@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-01-09 */
+/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-02-13 */
 (function(){
 
 // set up main nv object
@@ -4103,7 +4103,10 @@ nv.models.discreteBar = function() {
         , getY = function(d) { return d.y }
         , forceY = [0] // 0 is forced by default.. this makes sense for the majority of bar graphs... user can always do chart.forceY([]) to remove
         , color = nv.utils.defaultColor()
+        , barWidth = null
+        , barColor = null // adding the ability to set the color for each rather than the whole group
         , showValues = false
+        , showChecks = false
         , valueFormat = d3.format(',.2f')
         , xDomain
         , yDomain
@@ -4219,6 +4222,10 @@ nv.models.discreteBar = function() {
                 })
                 .on('click', function(d,i) {
                     var element = this;
+
+                    d.selected = !d.selected;
+                    d3.select(this).classed('selected', d.selected);
+
                     dispatch.elementClick({
                         data: d,
                         index: i,
@@ -4241,30 +4248,49 @@ nv.models.discreteBar = function() {
                 .attr('height', 0)
                 .attr('width', x.rangeBand() * .9 / data.length )
 
+            if ( showChecks ) {
+                barsEnter.filter(function(d,i,j){
+                    return j === 0;
+                }).append('path')
+                    .attr('class', 'nv-check')
+                    .attr('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z');
+            }
+
             if (showValues) {
                 barsEnter.append('text')
                     .attr('text-anchor', 'middle')
+                    .classed('nv-bar-value', true)
                 ;
 
                 bars.select('text')
                     .text(function(d,i) { return valueFormat(getY(d,i)) })
                     .watchTransition(renderWatch, 'discreteBar: bars text')
-                    .attr('x', x.rangeBand() * .9 / 2)
-                    .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : -4 })
+                    .attr('x', barWidth ? barWidth/2 : (x.rangeBand() * .9 / 2) )
+                    .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : /*Math.max(Math.abs(y(getY(d,i)) - y(0)), 1)*/ - 4 })
 
                 ;
             } else {
                 bars.selectAll('text').remove();
             }
 
+
             bars
                 .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive' })
+                .classed('selected', function(d,i){ return d.selected; })
                 .style('fill', function(d,i) { return d.color || color(d,i) })
                 .style('stroke', function(d,i) { return d.color || color(d,i) })
                 .select('rect')
                 .attr('class', rectClass)
                 .watchTransition(renderWatch, 'discreteBar: bars rect')
-                .attr('width', x.rangeBand() * .9 / data.length);
+                .attr('width', barWidth || x.rangeBand() * .9 / data.length);
+
+            if (barColor) {
+
+                bars
+                    .style('fill', function(d,i,j) { return d3.rgb(barColor(d,i)).toString(); })
+                    .style('stroke', function(d,i,j) { return d3.rgb(barColor(d,i)).toString(); });
+            }
+
             bars.watchTransition(renderWatch, 'discreteBar: bars')
                 //.delay(function(d,i) { return i * 1200 / data[0].values.length })
                 .attr('transform', function(d,i) {
@@ -4317,7 +4343,7 @@ nv.models.discreteBar = function() {
         valueFormat:    {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
         id:          {get: function(){return id;}, set: function(_){id=_;}},
         rectClass: {get: function(){return rectClass;}, set: function(_){rectClass=_;}},
-
+        showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
             margin.top    = _.top    !== undefined ? _.top    : margin.top;
@@ -4328,6 +4354,10 @@ nv.models.discreteBar = function() {
         color:  {get: function(){return color;}, set: function(_){
             color = nv.utils.getColor(_);
         }},
+        barColor:  {get: function(){return barColor;}, set: function(_){
+                barColor = _ ? nv.utils.getColor(_) : null;
+            }},
+        barWidth: {get: function(){return barWidth;}, set: function(_){ barWidth = _; }},
         duration: {get: function(){return duration;}, set: function(_){
             duration = _;
             renderWatch.reset(duration);
@@ -4367,7 +4397,7 @@ nv.models.discreteBarChart = function() {
         , x
         , y
         , noData = null
-        , dispatch = d3.dispatch('beforeUpdate','renderEnd')
+        , dispatch = d3.dispatch('beforeUpdate','renderEnd', 'selectChange')
         , duration = 250
         ;
 
@@ -4415,6 +4445,7 @@ nv.models.discreteBarChart = function() {
                 container.transition().duration(duration).call(chart);
             };
             chart.container = this;
+            tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
             if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
@@ -4563,6 +4594,11 @@ nv.models.discreteBarChart = function() {
     discretebar.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
     });
+
+    discretebar.dispatch.on('elementClick.select', function(evt) {
+        dispatch.selectChange(evt);
+    });
+
 
     //============================================================
     // Expose Public Variables

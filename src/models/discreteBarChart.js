@@ -27,7 +27,7 @@ nv.models.discreteBarChart = function() {
         , x
         , y
         , noData = null
-        , dispatch = d3.dispatch('beforeUpdate','renderEnd')
+        , dispatch = d3.dispatch('beforeUpdate','renderEnd', 'selectChange')
         , duration = 250
         ;
 
@@ -75,6 +75,7 @@ nv.models.discreteBarChart = function() {
                 container.transition().duration(duration).call(chart);
             };
             chart.container = this;
+            tooltip.chartContainer(chart.container.parentNode);
 
             // Display No Data message if there's nothing to show.
             if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
@@ -223,6 +224,11 @@ nv.models.discreteBarChart = function() {
     discretebar.dispatch.on('elementMousemove.tooltip', function(evt) {
         tooltip();
     });
+
+    discretebar.dispatch.on('elementClick.select', function(evt) {
+        dispatch.selectChange(evt);
+    });
+
 
     //============================================================
     // Expose Public Variables

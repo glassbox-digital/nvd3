@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-01-09 */
+/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-02-13 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -78,7 +78,7 @@
 .nvd3 .nv-discretebar .nv-groups rect:hover {
   fill-opacity: 1;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-label,
+.nvd3 .nv-discretebar .nv-groups .nv-bar-label,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-label,
 .nvd3 .nv-funnel .nv-groups .nv-bar-label {
   font-weight: bold;
@@ -86,13 +86,13 @@
   stroke: rgba(0, 0, 0, 0);
   /*pointer-events: none;*/
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-href:hover text,
+.nvd3 .nv-discretebar .nv-groups .nv-href:hover text,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-href:hover text,
 .nvd3 .nv-funnel .nv-groups .nv-href:hover text {
   fill: rgba(0, 0, 0, 0.8);
   text-decoration: underline;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-value,
+.nvd3 .nv-discretebar .nv-groups .nv-bar-value,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-value,
 .nvd3 .nv-funnel .nv-groups .nv-bar-value {
   fill: #444;
@@ -101,56 +101,65 @@
   font-weight: normal !important;
   font-size: 12px;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value,
+.nvd3 .nv-discretebar .nv-groups .nv-bar-ref-value,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value,
 .nvd3 .nv-funnel .nv-groups .nv-bar-ref-value {
   stroke-opacity: .3;
   font-weight: normal !important;
   font-size: 10px;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.positive,
+.nvd3 .nv-discretebar .nv-groups .nv-bar-ref-value.positive,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.positive,
 .nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.positive {
   fill: #28A02C;
   stroke: #28A02C;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-bar-ref-value.negative,
+.nvd3 .nv-discretebar .nv-groups .nv-bar-ref-value.negative,
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-bar-ref-value.negative,
 .nvd3 .nv-funnel .nv-groups .nv-bar-ref-value.negative {
   fill: #BC5050;
   stroke: #BC5050;
 }
-.nvd3 .nv-discretebar .nv-groups text .nv-groups .nv-group:not(.nv-series-0),
+.nvd3 .nv-discretebar .nv-groups .nv-group:not(.nv-series-0),
 .nvd3 .nv-multibarHorizontal .nv-groups .nv-group:not(.nv-series-0),
 .nvd3 .nv-funnel .nv-groups .nv-group:not(.nv-series-0) {
   pointer-events: none;
 }
+.nvd3 .nv-discretebar .nv-bar,
 .nvd3 .nv-funnel .nv-bar {
   fill-opacity: .8;
   stroke: none !important;
 }
+.nvd3 .nv-discretebar .nv-bar:hover,
 .nvd3 .nv-funnel .nv-bar:hover {
   fill-opacity: 1;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-check,
 .nvd3 .nv-funnel .nv-bar .nv-check {
   /*opacity: 0.5;*/
   pointer-events: bounding-box;
 }
+.nvd3 .nv-discretebar .nv-bar.selected .nv-check,
 .nvd3 .nv-funnel .nv-bar.selected .nv-check {
   opacity: 1;
 }
+.nvd3 .nv-discretebar .nv-bar.reduced .nv-check,
 .nvd3 .nv-funnel .nv-bar.reduced .nv-check {
   opacity: 1;
   fill: rgba(0, 0, 0, 0.6);
 }
+.nvd3 .nv-discretebar .nv-bar .nv-dropoff,
 .nvd3 .nv-funnel .nv-bar .nv-dropoff {
   opacity: .4;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-dropoff .nv-reducer,
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer,
+.nvd3 .nv-discretebar .nv-bar .nv-dropoff .nv-reducer-arrow,
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-arrow {
   stroke: none;
   fill: rgba(0, 0, 0, 0.6);
 }
+.nvd3 .nv-discretebar .nv-bar .nv-dropoff .nv-reducer-value,
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-value {
   fill: #444;
   stroke: #444;
@@ -158,6 +167,7 @@
   font-weight: normal !important;
   font-size: 12px;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-dropoff .nv-reducer-ratio,
 .nvd3 .nv-funnel .nv-bar .nv-dropoff .nv-reducer-ratio {
   font-size: .7em;
   font-style: italic;
@@ -165,24 +175,31 @@
   stroke-opacity: .4;
   /*stroke: white;*/
 }
+.nvd3 .nv-discretebar .nv-bar:hover .nv-dropoff,
 .nvd3 .nv-funnel .nv-bar:hover .nv-dropoff {
   opacity: 1;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-bar-value,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value {
   fill: #444;
-  stroke-opacity: .6;
+  stroke-opacity: .4;
   stroke: #444;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-continue-ratio,
 .nvd3 .nv-funnel .nv-bar .nv-continue-ratio,
+.nvd3 .nv-discretebar .nv-bar .nv-bar-value2,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   stroke-opacity: .4;
   font-size: .7em;
   font-style: italic;
 }
+.nvd3 .nv-discretebar .nv-bar .nv-bar-value2,
 .nvd3 .nv-funnel .nv-bar .nv-bar-value2 {
   fill: white;
 }
+.nvd3 .nv-discretebar .nv-bar:last-child .nv-continue-ratio,
 .nvd3 .nv-funnel .nv-bar:last-child .nv-continue-ratio,
+.nvd3 .nv-discretebar .nv-bar:last-child .nv-bar-arrow,
 .nvd3 .nv-funnel .nv-bar:last-child .nv-bar-arrow {
   display: none;
   opacity: 0;
@@ -202,14 +219,18 @@
     }
   }
 }*/
+.nvd3 .nv-discretebar .nv-bar path,
 .nvd3 .nv-multibarHorizontal .nv-bar path {
   opacity: 0;
   fill: white;
 }
+.nvd3 .nv-discretebar .nv-bar:hover .nv-reducer,
 .nvd3 .nv-multibarHorizontal .nv-bar:hover .nv-reducer {
   opacity: .8;
 }
+.nvd3 .nv-discretebar .nv-bar.selected path,
 .nvd3 .nv-multibarHorizontal .nv-bar.selected path,
+.nvd3 .nv-discretebar .nv-bar.selected rect,
 .nvd3 .nv-multibarHorizontal .nv-bar.selected rect {
   opacity: 1;
   fill-opacity: 1;
