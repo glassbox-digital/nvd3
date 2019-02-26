@@ -17,6 +17,8 @@ nv.models.scatter = function() {
         , z            = d3.scale.linear() //linear because d3.svg.shape.size is treated as area
         , getX         = function(d) { return d.x } // accessor to get the x value
         , getY         = function(d) { return d.y } // accessor to get the y value
+        , getLowBound  = function(d) { return nv.utils.NaNtoZero(d.low) } // accessor to get the low y value
+        , getHighBound = function(d) { return nv.utils.NaNtoZero(d.high) } // accessor to get the high y value
         , getSize      = function(d) { return d.size || 1} // accessor to get the point size
         , getShape     = function(d) { return d.shape || 'circle' } // accessor to get point shape
         , forceX       = [] // List of numbers to Force into the X scale (ie. 0, or a max / min, etc.)
@@ -78,7 +80,7 @@ nv.models.scatter = function() {
                 d3.merge(
                     data.map(function(d) {
                         return d.values.map(function(d,i) {
-                            return { x: getX(d,i), y: getY(d,i), size: getSize(d,i) };
+                            return { x: getX(d,i), y: getY(d,i), low: getLowBound(d, i), high: getHighBound(d, i), size: getSize(d,i) };
                         });
                     })
                 );
@@ -91,18 +93,22 @@ nv.models.scatter = function() {
             else
                 x.range(xRange || [0, availableWidth]);
 
-             if (chart.yScale().name === "o") {
-                    var min = d3.min(seriesData.map(function(d) { if (d.y !== 0) return d.y; }));
-                    y.clamp(true)
-                        .domain(yDomain || d3.extent(seriesData.map(function(d) {
-                            if (d.y !== 0) return d.y;
-                            else return min * 0.1;
-                        }).concat(forceY)))
-                        .range(yRange || [availableHeight, 0]);
-                } else {
-                        y.domain(yDomain || d3.extent(seriesData.map(function (d) { return d.y;}).concat(forceY)))
-                        .range(yRange || [availableHeight, 0]);
-                }
+            if (chart.yScale().name === "o") {
+                var min = d3.min(seriesData.map(function (d) {
+                    if (d.y !== 0) return d.y;
+                }));
+                y.clamp(true)
+                    .domain(yDomain || d3.extent(seriesData.map(function (d) {
+                        if (d.y !== 0) return d.y;
+                        else return min * 0.1;
+                    }).concat(forceY)))
+                    .range(yRange || [availableHeight, 0]);
+            } else {
+                y.domain(yDomain || d3.extent(seriesData.map(function (d) {
+                    return Math.max(d.y, d.high );
+                }).concat(forceY)))
+                    .range(yRange || [availableHeight, 0]);
+            }
 
             z   .domain(sizeDomain || d3.extent(seriesData.map(function(d) { return d.size }).concat(forceSize)))
                 .range(sizeRange || _sizeRange_def);
@@ -561,6 +567,8 @@ nv.models.scatter = function() {
         // simple functor options
         x:     {get: function(){return getX;}, set: function(_){getX = d3.functor(_);}},
         y:     {get: function(){return getY;}, set: function(_){getY = d3.functor(_);}},
+        low:     {get: function(){return getLowBound;}, set: function(_){getLowBound = d3.functor(_);}},
+        high:     {get: function(){return getHighBound;}, set: function(_){getHighBound = d3.functor(_);}},
         pointSize: {get: function(){return getSize;}, set: function(_){getSize = d3.functor(_);}},
         pointShape: {get: function(){return getShape;}, set: function(_){getShape = d3.functor(_);}},
 

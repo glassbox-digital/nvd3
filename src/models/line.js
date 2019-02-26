@@ -315,9 +315,11 @@ nv.models.line = function() {
             }},
         low: {get: function(){return getLowBound;}, set: function(_){
                 getLowBound = _;
+                scatter.low(_);
             }},
         high: {get: function(){return getHighBound;}, set: function(_){
                 getHighBound = _;
+                scatter.high(_);
             }},
         color:  {get: function(){return color;}, set: function(_){
             color = nv.utils.getColor(_);
