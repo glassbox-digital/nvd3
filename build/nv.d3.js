@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.7 (https://github.com/shilon5/nvd3) 2019-02-13 */
+/* nvd3 version 1.9.8 (https://github.com/shilon5/nvd3) 2019-02-26 */
 (function(){
 
 // set up main nv object
@@ -4617,7 +4617,7 @@ nv.models.discreteBarChart = function() {
         // simple options, just get/set the necessary values
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
-	showLegend: {get: function(){return showLegend;}, set: function(_){showLegend=_;}},
+        showLegend: {get: function(){return showLegend;}, set: function(_){showLegend=_;}},
         staggerLabels: {get: function(){return staggerLabels;}, set: function(_){staggerLabels=_;}},
         rotateLabels:  {get: function(){return rotateLabels;}, set: function(_){rotateLabels=_;}},
         wrapLabels:  {get: function(){return wrapLabels;}, set: function(_){wrapLabels=!!_;}},
@@ -8425,9 +8425,12 @@ nv.models.line = function() {
         , color = nv.utils.defaultColor() // a function that returns a color
         , getX = function(d) { return d.x } // accessor to get the x value from a data point
         , getY = function(d) { return d.y } // accessor to get the y value from a data point
+        , getLowBound = function(d) { return d.low } // accessor to get the low bound value from a data point
+        , getHighBound = function(d) { return d.high } // accessor to get the high bound value from a data point
         , defined = function(d,i) { return !isNaN(getY(d,i)) && getY(d,i) !== null } // allows a line to be not continuous when it is not defined
         , forceY = [0, 1]
         , isArea = function(d) { return d.area } // decides if a line is an area or just a line
+        , isBand = function(d) { return d.band  } // decides if a line is band
         , clipEdge = false // if true, masks lines within x and y scale
         , x //can be accessed via chart.xScale()
         , y //can be accessed via chart.yScale()
@@ -8556,6 +8559,33 @@ nv.models.line = function() {
                         .apply(this, [d.values])
                 });
 
+            var bandPaths = groups.selectAll('path.nv-band')
+                .data(function(d) { return isBand(d) ? [d] : [] }); // this is done differently than lines because I need to check if series has bounds
+            bandPaths.enter().append('path')
+                .attr('class', 'nv-band')
+                .attr('d', function(d) {
+                    return d3.svg.area()
+                        .interpolate(interpolate)
+                        .defined(defined)
+                        .x(function(d,i) { return nv.utils.NaNtoZero(x0(getX(d,i))) })
+                        .y0(function(d,i) { return nv.utils.NaNtoZero(y0(getLowBound(d,i))) })
+                        .y1(function(d,i) { return nv.utils.NaNtoZero(y0(getHighBound(d,i))) })
+                        .apply(this, [d.values])
+                });
+            groups.exit().selectAll('path.nv-band')
+                .remove();
+
+            bandPaths.watchTransition(renderWatch, 'line: bandPaths')
+                .attr('d', function(d) {
+                    return d3.svg.area()
+                        .interpolate(interpolate)
+                        .defined(defined)
+                        .x(function(d,i) { return nv.utils.NaNtoZero(x(getX(d,i))) })
+                        .y0(function(d,i) { return nv.utils.NaNtoZero(y(getLowBound(d,i))) })
+                        .y1(function(d,i) { return nv.utils.NaNtoZero(y(getHighBound(d,i))) })
+                        .apply(this, [d.values])
+                });
+
             var linePaths = groups.selectAll('path.nv-line')
                 .data(function(d) { return [d.values] });
 
@@ -8679,16 +8709,25 @@ nv.models.line = function() {
             scatter.duration(duration);
         }},
         isArea: {get: function(){return isArea;}, set: function(_){
-            isArea = d3.functor(_);
-        }},
+                isArea = d3.functor(_);
+            }},
+        isBand: {get: function(){return isBand;}, set: function(_){
+                isBand = d3.functor(_);
+            }},
         x: {get: function(){return getX;}, set: function(_){
             getX = _;
             scatter.x(_);
         }},
         y: {get: function(){return getY;}, set: function(_){
-            getY = _;
-            scatter.y(_);
-        }},
+                getY = _;
+                scatter.y(_);
+            }},
+        low: {get: function(){return getLowBound;}, set: function(_){
+                getLowBound = _;
+            }},
+        high: {get: function(){return getHighBound;}, set: function(_){
+                getHighBound = _;
+            }},
         color:  {get: function(){return color;}, set: function(_){
             color = nv.utils.getColor(_);
             scatter.color(color);
@@ -19089,5 +19128,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.7";
+nv.version = "1.9.8";
 })();
