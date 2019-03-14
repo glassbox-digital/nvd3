@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.8 (https://github.com/shilon5/nvd3) 2019-03-14 */
+/* nvd3 version 1.9.9 (https://github.com/shilon5/nvd3) 2019-03-14 */
 (function(){
 
 // set up main nv object
@@ -19174,5 +19174,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.8";
+nv.version = "1.9.9";
 })();
