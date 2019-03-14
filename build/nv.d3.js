@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.8 (https://github.com/shilon5/nvd3) 2019-02-26 */
+/* nvd3 version 1.9.8 (https://github.com/shilon5/nvd3) 2019-03-14 */
 (function(){
 
 // set up main nv object
@@ -1598,6 +1598,42 @@ nv.models.tooltip = function() {
             .text(function (t) {
                 return t;
             });
+
+        var iconEnter = noDataText.enter().append('g')
+            .classed('nv-noData-icon', true)
+            .attr('transform', "translate(" + (+x-10) + " " + (+y-50) + ") scale(1.25)")
+            .attr('viewBox', '0 0 20 20');
+
+        iconEnter.append('path')
+            .attr('d', "M9.6,3.29A6.74,6.74,0,1,0,16.34,10,6.74,6.74,0,0,0,9.6,3.29ZM5.5,8.63a1,1,0,1,1,1,1A1,1,0,0,1,5.5,8.63Zm6.52,4L7.54,13.87a.68.68,0,0,1-.85-.48.69.69,0,0,1,.48-.86l4.48-1.24A.7.7,0,1,1,12,12.64Zm.51-3a1,1,0,1,1,1-1A1,1,0,0,1,12.53,9.65Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "none");
+
+        iconEnter.append('path')
+            .attr('d', "M12.53,7.61a1,1,0,1,0,1,1A1,1,0,0,0,12.53,7.61Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "#ddd");
+
+        iconEnter.append('path')
+            .attr('d', "M7.54,8.63a1,1,0,1,0-1,1A1,1,0,0,0,7.54,8.63Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "#ddd");
+
+        iconEnter.append('path')
+            .attr('d', "M7.54,8.63a1,1,0,1,0-1,1A1,1,0,0,0,7.54,8.63Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "#ddd");
+
+        iconEnter.append('path')
+            .attr('d', "M20.69,19l-4.2-3.8a8.59,8.59,0,1,0-1.27,1.37l4.23,3.81a.92.92,0,0,0,1.31-.06A.94.94,0,0,0,20.69,19ZM9.6,16.77A6.74,6.74,0,1,1,16.34,10,6.74,6.74,0,0,1,9.6,16.77Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "#ddd");
+
+        iconEnter.append('path')
+            .attr('d', "M11.65,11.29,7.17,12.53a.69.69,0,0,0-.48.86.68.68,0,0,0,.85.48L12,12.64a.7.7,0,1,0-.37-1.35Z" )
+            .attr('transform', "translate(-1 -1.43)" )
+            .attr('fill', "#ddd");
+
     };
 
     /*
