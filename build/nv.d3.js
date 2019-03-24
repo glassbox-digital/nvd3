@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.10 (https://github.com/shilon5/nvd3) 2019-03-14 */
+/* nvd3 version 1.9.11 (https://github.com/shilon5/nvd3) 2019-03-24 */
 (function(){
 
 // set up main nv object
@@ -1576,7 +1576,7 @@ nv.models.tooltip = function() {
         var opt = chart.options(),
             margin = opt.margin(),
             noData = opt.noData(),
-            data = (noData == null) ? ["No Data Available."] : [noData],
+            data = (noData == null) ? ["No Data Available"] : [noData],
             height = nv.utils.availableHeight(null, container, margin),
             width = nv.utils.availableWidth(null, container, margin),
             x = margin.left + width / 2,
@@ -1589,7 +1589,7 @@ nv.models.tooltip = function() {
 
         noDataText.enter().append('text')
             .attr('class', 'nvd3 nv-noData')
-            .attr('dy', '-.7em')
+            // .attr('dy', '-.7em')
             .style('text-anchor', 'middle');
 
         noDataText
@@ -1601,7 +1601,7 @@ nv.models.tooltip = function() {
 
         var iconEnter = noDataText.enter().append('g')
             .classed('nv-noData-icon', true)
-            .attr('transform', "translate(" + (+x-10) + " " + (+y-50) + ") scale(1.25)")
+            .attr('transform', "translate(" + (+x-10) + " " + (+y-40) + ") scale(1.25)")
             .attr('viewBox', '0 0 20 20');
 
         iconEnter.append('path')
@@ -19174,5 +19174,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.10";
+nv.version = "1.9.11";
 })();
