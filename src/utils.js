@@ -713,14 +713,14 @@
 
         noDataText
             .attr('x', x)
-            .attr('y', y)
+            .attr('y', y+15)
             .text(function (t) {
                 return t;
             });
 
         var iconEnter = noDataText.enter().append('g')
             .classed('nv-noData-icon', true)
-            .attr('transform', "translate(" + (+x-10) + " " + (+y-40) + ") scale(1.25)")
+            .attr('transform', "translate(" + (+x-10) + " " + (+y-25) + ") scale(1.25)")
             .attr('viewBox', '0 0 20 20');
 
         iconEnter.append('path')

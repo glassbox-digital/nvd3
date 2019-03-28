@@ -5,7 +5,7 @@
 Package.describe({
     "name": 'nvd3:nvd3',
     summary: 'nvd3 based charts.',
-    version: '1.9.11',
+    version: '1.9.12',
     git: "https://github.com/shilon5/nvd3.git"
 });
 Package.on_use(function (api) {

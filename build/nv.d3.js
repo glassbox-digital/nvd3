@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.11 (https://github.com/shilon5/nvd3) 2019-03-24 */
+/* nvd3 version 1.9.12 (https://github.com/shilon5/nvd3) 2019-03-28 */
 (function(){
 
 // set up main nv object
@@ -1594,14 +1594,14 @@ nv.models.tooltip = function() {
 
         noDataText
             .attr('x', x)
-            .attr('y', y)
+            .attr('y', y+15)
             .text(function (t) {
                 return t;
             });
 
         var iconEnter = noDataText.enter().append('g')
             .classed('nv-noData-icon', true)
-            .attr('transform', "translate(" + (+x-10) + " " + (+y-40) + ") scale(1.25)")
+            .attr('transform', "translate(" + (+x-10) + " " + (+y-25) + ") scale(1.25)")
             .attr('viewBox', '0 0 20 20');
 
         iconEnter.append('path')
@@ -19174,5 +19174,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.11";
+nv.version = "1.9.12";
 })();
