@@ -60,7 +60,21 @@ nv.models.line = function() {
                 availableHeight = nv.utils.availableHeight(height, container, margin);
             nv.utils.initSVG(container);
 
-            scatter.forceY(d3.merge([forceY || [0,1], [threshold]]));
+            var bandsForceY = data.reduce(function(res, d) {
+
+                if (isBand(d)) {
+                    return d3.extent(
+                        d3.merge([res, d.values.reduce(function (rc, d) {
+                            return d3.extent(d3.merge([rc, [getY(d), getLowBound(d), getHighBound(d)]]));
+                        }, [])]));
+                }
+
+                return res;
+            }, []);
+
+            // console.log('line chart', bandsForceY);
+            scatter.forceY(d3.merge([bandsForceY, forceY || [0,1], [threshold]]));
+
 
             // Setup Scales
             x = scatter.xScale();
