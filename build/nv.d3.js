@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.13 (https://github.com/shilon5/nvd3) 2019-04-21 */
+/* nvd3 version 1.9.14 (https://github.com/shilon5/nvd3) 2019-05-19 */
 (function(){
 
 // set up main nv object
@@ -8516,6 +8516,10 @@ nv.models.line = function() {
 
                 return res;
             }, []);
+
+            if (bandsForceY.length === 0) {
+                bandsForceY = [0, 1];
+            }
 
             // console.log('line chart', bandsForceY);
             scatter.forceY(d3.merge([bandsForceY, forceY || [0,1], [threshold]]));
@@ -19188,5 +19192,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.13";
+nv.version = "1.9.14";
 })();

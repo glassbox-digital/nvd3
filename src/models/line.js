@@ -72,6 +72,10 @@ nv.models.line = function() {
                 return res;
             }, []);
 
+            if (bandsForceY.length === 0) {
+                bandsForceY = [0, 1];
+            }
+
             // console.log('line chart', bandsForceY);
             scatter.forceY(d3.merge([bandsForceY, forceY || [0,1], [threshold]]));
 
