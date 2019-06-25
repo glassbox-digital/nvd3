@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.15 (https://github.com/shilon5/nvd3) 2019-06-25 */
+/* nvd3 version 1.9.16 (https://github.com/shilon5/nvd3) 2019-06-25 */
 (function(){
 
 // set up main nv object
@@ -11126,7 +11126,7 @@ nv.models.multiBarHorizontal = function() {
     var margin = {top: 0, right: 0, bottom: 0, left: 0}
         , width = 960
         , height = 500
-        , rectWidthMin = 30
+        , rectWidthMin = 50
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
         , container = null
         , x = d3.scale.ordinal()
@@ -19197,5 +19197,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.15";
+nv.version = "1.9.16";
 })();
