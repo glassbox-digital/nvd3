@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.14 (https://github.com/shilon5/nvd3) 2019-05-19 */
+/* nvd3 version 1.9.15 (https://github.com/shilon5/nvd3) 2019-06-25 */
 (function(){
 
 // set up main nv object
@@ -11126,6 +11126,7 @@ nv.models.multiBarHorizontal = function() {
     var margin = {top: 0, right: 0, bottom: 0, left: 0}
         , width = 960
         , height = 500
+        , rectWidthMin = 30
         , id = Math.floor(Math.random() * 10000) //Create semi-unique ID in case user doesn't select one
         , container = null
         , x = d3.scale.ordinal()
@@ -11555,15 +11556,11 @@ nv.models.multiBarHorizontal = function() {
                     });
 
                 watch.select('rect')
-                    .attr('width', function (d, i) {
-                        return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
-                    })
+                    .attr('width', _rectWidthStacked)
                     .attr('height', barWidth || x.rangeBand());
 
                 watch.select('rect.nv-ref')
-                    .attr('width', function (d, i) {
-                        return Math.abs(y(getY(d, i) + d.y0) - y(d.y0)) || 0
-                    })
+                    .attr('width', _rectWidthStacked)
                     .attr('height', barWidth || x.rangeBand());
 
                 if ( showChecks ) {
@@ -11576,6 +11573,7 @@ nv.models.multiBarHorizontal = function() {
                 }
             }
             else {
+
                 var watch = bars.watchTransition(renderWatch, 'multibarhorizontal: bars')
                     .attr('transform', function (d, i) {
                         //TODO: stacked must be all positive or all negative, not both?
@@ -11589,14 +11587,12 @@ nv.models.multiBarHorizontal = function() {
                 watch
                     .select('rect')
                     .attr('height', barWidth /*|| x.rangeBand() / data.length*/)
-                    .attr('width', function (d, i) {
-                        return Math.max(Math.abs(y(getY(d, i)) - y(0)), 1) || 0
-                    });
+                    .attr('width', _rectWidth);
 
                 if ( showChecks ) {
                     watch.select('path.nv-check')
                         .attr('transform', function (d, i) {
-                            var width = Math.max(Math.abs(y(getY(d, i)) - y(0)), 1),
+                            var width = _rectWidth(d,i),
                                 height = barWidth || x.rangeBand() / data.length;
                             return 'translate(' + (width - 20) + ',' + (height - 20) / 2 + ' )';
                         });
@@ -11613,6 +11609,15 @@ nv.models.multiBarHorizontal = function() {
         renderWatch.renderEnd('multibarHorizontal immediate');
         return chart;
     }
+
+    function _rectWidth(d, i) {
+        return Math.max(Math.abs(y(getY(d, i)) - y(0)), rectWidthMin) || 0;
+    }
+
+    function _rectWidthStacked(d, i) {
+        return Math.max(Math.abs(y(getY(d, i) + d.y0) - y(d.y0)), rectWidthMin) || 0;
+    }
+
 
     //============================================================
     // Expose Public Variables
@@ -19192,5 +19197,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.14";
+nv.version = "1.9.15";
 })();
