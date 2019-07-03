@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.16 (https://github.com/shilon5/nvd3) 2019-06-25 */
+/* nvd3 version 1.9.16 (https://github.com/shilon5/nvd3) 2019-07-03 */
 (function(){
 
 // set up main nv object
@@ -8557,8 +8557,8 @@ nv.models.line = function() {
 
             wrap.select('#nv-edge-clip-' + scatter.id() + ' rect')
                 .attr('width', availableWidth)
-                .attr('height', (availableHeight > 0) ? availableHeight+10 : 0)
-                .attr('y', (availableHeight > 0) ? -10 : 0);
+                .attr('height', (availableHeight > 0) ? availableHeight+50 : 0)
+                .attr('y', (availableHeight > 0) ? -50 : 0);
 
             g   .attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + scatter.id() + ')' : '');
             scatterWrap
@@ -10342,7 +10342,8 @@ nv.models.multiBar = function() {
                 .append('rect');
             wrap.select('#nv-edge-clip-' + id + ' rect')
                 .attr('width', availableWidth + availableBarsWidth)
-                .attr('height', availableHeight);
+                .attr('height', availableHeight > 0 ? availableHeight+50 : 0)
+                .attr('y', (availableHeight > 0) ? -50 : 0);
 
             g.attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + id + ')' : '');
 
@@ -15396,7 +15397,8 @@ nv.models.scatter = function() {
 
             wrap.select('#nv-edge-clip-' + id + ' rect')
                 .attr('width', availableWidth)
-                .attr('height', (availableHeight > 0) ? availableHeight : 0);
+                .attr('height', (availableHeight > 0) ? availableHeight+50 : 0)
+                .attr('y', (availableHeight > 0) ? -50 : 0);
 
             g.attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + id + ')' : '');
 
@@ -16707,7 +16709,9 @@ nv.models.stackedArea = function() {
 
             wrap.select('#nv-edge-clip-' + id + ' rect')
                 .attr('width', availableWidth)
-                .attr('height', availableHeight);
+                .attr('height', availableHeight > 0 ? availableHeight+50 : 0)
+                .attr('y', availableHeight > 0 ? -50 : 0)
+            ;
 
             g.attr('clip-path', clipEdge ? 'url(#nv-edge-clip-' + id + ')' : '');
 
