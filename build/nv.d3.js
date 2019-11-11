@@ -7474,7 +7474,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             return yAxis.tickFormat()(d, i);
         })
         .headerFormatter(function(d, i) {
-            return headerFormat(chart.x()(d.data));
+            return headerFormat(chart.x()(d.data), d, i);
         });
 
 
