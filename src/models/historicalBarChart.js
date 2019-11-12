@@ -376,6 +376,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
 
     bars2.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt['series'] = {
+            y2: true,
             key: evt.data.key,
             value: chart.y2()(evt.data),
             color: evt.color
