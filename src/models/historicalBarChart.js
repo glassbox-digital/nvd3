@@ -118,7 +118,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var yDomain = d3.extent(d3.merge(data.map(function(d, idx) {
                 return d.values.map(function(d,i) {
                     return Math.max(chart.y()(d,i) || 0, chart.y2()(d,i) || 0.0);
-                });
+                }).concat(chart.forceY());
             })));
 
             bars.xDomain(xDomain).yDomain(yDomain);

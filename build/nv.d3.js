@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.17 (https://github.com/shilon5/nvd3) 2019-07-03 */
+/* nvd3 version 1.9.19 (https://github.com/shilon5/nvd3) 2020-07-18 */
 (function(){
 
 // set up main nv object
@@ -7542,7 +7542,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             var yDomain = d3.extent(d3.merge(data.map(function(d, idx) {
                 return d.values.map(function(d,i) {
                     return Math.max(chart.y()(d,i) || 0, chart.y2()(d,i) || 0.0);
-                });
+                }).concat(chart.forceY());
             })));
 
             bars.xDomain(xDomain).yDomain(yDomain);
@@ -19202,5 +19202,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.17";
+nv.version = "1.9.19";
 })();
