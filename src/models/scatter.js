@@ -375,7 +375,7 @@ nv.models.scatter = function() {
             var groupElements = wrap.select('.nv-groups').selectAll('.nv-group');
 
             groupElements.forEach(function(g){
-                groupElements.selectAll('.nv-alert').remove();
+                d3.selectAll(g).selectAll('.nv-alert').remove();
             });
 
             var groups = groupElements.data(function(d) { return d }, function(d) { return d.key });
