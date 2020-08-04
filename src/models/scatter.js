@@ -371,8 +371,15 @@ nv.models.scatter = function() {
             }
 
             needsUpdate = true;
-            var groups = wrap.select('.nv-groups').selectAll('.nv-group')
-                .data(function(d) { return d }, function(d) { return d.key });
+
+            var groupElements = wrap.select('.nv-groups').selectAll('.nv-group');
+
+            groupElements.forEach(function(g){
+                groupElements.selectAll('.nv-alert').remove();
+            });
+
+            var groups = groupElements.data(function(d) { return d }, function(d) { return d.key });
+
             groups.enter().append('g')
                 .style('stroke-opacity', 1e-6)
                 .style('fill-opacity', 1e-6);
