@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.20 (https://github.com/shilon5/nvd3) 2020-08-05 */
+/* nvd3 version 1.9.21 (https://github.com/shilon5/nvd3) 2020-08-05 */
 (function(){
 
 // set up main nv object
@@ -15612,13 +15612,12 @@ nv.models.scatter = function() {
 
             needsUpdate = true;
 
-            var groupElements = wrap.select('.nv-groups').selectAll('.nv-group');
+            var groups = wrap.select('.nv-groups').selectAll('.nv-group')
+                .data(function(d) { return d }, function(d) { return d.key });
 
-            groupElements.forEach(function(g){
+            groups.forEach(function(g){
                 d3.selectAll(g).selectAll('.nv-alert').remove();
             });
-
-            var groups = groupElements.data(function(d) { return d }, function(d) { return d.key });
 
             groups.enter().append('g')
                 .style('stroke-opacity', 1e-6)
@@ -19209,5 +19208,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.20";
+nv.version = "1.9.21";
 })();
