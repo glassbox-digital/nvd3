@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.21 (https://github.com/shilon5/nvd3) 2020-08-05 */
+/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-08-11 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -841,6 +841,15 @@ svg.nvd3-svg {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+.nvtooltip .has-alert .alert-icon {
+  color: red;
+  background-image: url("anomaly.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  width: 12px;
+  height: 12px;
 }
 .nvtooltip {
   background: rgba(255, 255, 255, 0.8);

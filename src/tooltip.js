@@ -142,6 +142,11 @@ nv.models.tooltip = function() {
             })
             .html(function(p, i) { return refFormatter(p, i) });
 
+        trowEnter.append("td")
+            .classed("has-alert", function(p){
+                return p.data[4] > 0;
+            }).html('<div class="alert-icon"></div>')
+
         trowEnter.selectAll("td").each(function(p) {
             if (p.highlight) {
                 var opacityScale = d3.scale.linear().domain([0,1]).range(["#fff",p.color]);
