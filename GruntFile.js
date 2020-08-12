@@ -83,6 +83,16 @@ module.exports = function (grunt) {
                 files: [
                     {src: 'src/nv.d3.css', dest: 'build/nv.d3.css'}
                 ]
+            },
+            images: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'src/less/',
+                        src: ['**/*.{png,jpg,svg}'],
+                        dest:'build/'
+                    }
+                ]
             }
         },
         cssmin: {

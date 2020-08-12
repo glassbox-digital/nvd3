@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.21 (https://github.com/shilon5/nvd3) 2020-08-05 */
+/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-08-12 */
 (function(){
 
 // set up main nv object
@@ -652,6 +652,11 @@ nv.models.tooltip = function() {
                 return p.value < p.refValue;
             })
             .html(function(p, i) { return refFormatter(p, i) });
+
+        trowEnter.append("td")
+            .classed("has-alert", function(p){
+                return p.data && p.pointAlert && p.pointAlert(p.data);
+            }).html('<div class="alert-icon"></div>')
 
         trowEnter.selectAll("td").each(function(p) {
             if (p.highlight) {
@@ -9161,6 +9166,7 @@ nv.models.lineChart = function () {
                             key: series.key,
                             value: pointYValue,
                             refValue: pointYRefValue,
+                            pointAlert: chart.pointAlert && chart.pointAlert(),
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),
@@ -19208,5 +19214,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.21";
+nv.version = "1.9.22";
 })();

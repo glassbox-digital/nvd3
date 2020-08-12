@@ -363,6 +363,7 @@ nv.models.lineChart = function () {
                             key: series.key,
                             value: pointYValue,
                             refValue: pointYRefValue,
+                            pointAlert: chart.pointAlert && chart.pointAlert(),
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),
