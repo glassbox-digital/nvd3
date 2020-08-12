@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-08-11 */
+/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-08-12 */
 (function(){
 
 // set up main nv object
@@ -655,7 +655,7 @@ nv.models.tooltip = function() {
 
         trowEnter.append("td")
             .classed("has-alert", function(p){
-                return p.data[4] > 0;
+                return p.data && p.pointAlert && p.pointAlert(p.data);
             }).html('<div class="alert-icon"></div>')
 
         trowEnter.selectAll("td").each(function(p) {
@@ -9166,6 +9166,7 @@ nv.models.lineChart = function () {
                             key: series.key,
                             value: pointYValue,
                             refValue: pointYRefValue,
+                            pointAlert: chart.pointAlert && chart.pointAlert(),
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),
