@@ -92,7 +92,9 @@ nv.models.legend = function() {
                 });
             }
 
-            if (href && typeof href === 'function') {
+            var isHrefDefined = href && typeof href === 'function';
+
+            if (isHrefDefined) {
                 var a = seriesEnter
                     .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
@@ -125,7 +127,7 @@ nv.models.legend = function() {
                 .attr('dy', '.32em')
                 .attr('dx', '8');
 
-            seriesShape
+            (isHrefDefined ? seriesShape : series)
                 .on('mouseover', function(d,i) {
                     dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
                 })

@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-08-12 */
+/* nvd3 version 1.9.22 (https://github.com/shilon5/nvd3) 2020-12-23 */
 (function(){
 
 // set up main nv object
@@ -8117,7 +8117,9 @@ nv.models.multiHistoricalBarChart = function () {
                 });
             }
 
-            if (href && typeof href === 'function') {
+            var isHrefDefined = href && typeof href === 'function';
+
+            if (isHrefDefined) {
                 var a = seriesEnter
                     .append('a').attr('class', 'nv-href').attr('xlink:href', function (d) {
                         return href(d);
@@ -8150,7 +8152,7 @@ nv.models.multiHistoricalBarChart = function () {
                 .attr('dy', '.32em')
                 .attr('dx', '8');
 
-            seriesShape
+            (isHrefDefined ? seriesShape : series)
                 .on('mouseover', function(d,i) {
                     dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
                 })
