@@ -361,7 +361,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             color: evt.color
         };
 
-        evt = {...evt, negateTrend: chart.negateTrend()};
+        evt.negateTrend = chart.negateTrend();
 
         tooltip.data(evt)
             .footerFormatter(footerFormat)
