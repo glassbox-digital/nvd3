@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.24 (https://github.com/shilon5/nvd3) 2020-12-23 */
+/* nvd3 version 1.9.26 (https://github.com/shilon5/nvd3) 2021-12-09 */
 (function(){
 
 // set up main nv object
@@ -544,6 +544,7 @@ nv.models.tooltip = function() {
         ,   tooltip = null // d3 select of the tooltip div.
         ,   lastPosition = { left: null, top: null } // Last position the tooltip was in.
         ,   enabled = true  // True -> tooltips are rendered. False -> don't render tooltips.
+        ,   negateTrend = false
         ,   duration = 100 // Tooltip movement duration, in ms.
         ,   headerEnabled = true // If is to show the tooltip header.
         ,   nvPointerEventsClass = "nv-pointer-events-none" // CSS class to specify whether element should not have mouse events.
@@ -646,10 +647,10 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("ref-value",true)
             .classed("positive", function(p ,i){
-                return p.value > p.refValue;
+                return data.negateTrend ? (p.value < p.refValue) : (p.value > p.refValue);
             })
             .classed("negative", function(p ,i){
-                return p.value < p.refValue;
+                return data.negateTrend ? (p.value > p.refValue) : (p.value < p.refValue);
             })
             .html(function(p, i) { return refFormatter(p, i) });
 
@@ -839,6 +840,7 @@ nv.models.tooltip = function() {
         classes: {get: function(){return classes;}, set: function(_){classes=_;}},
         chartContainer: {get: function(){return chartContainer;}, set: function(_){chartContainer=_;}},
         enabled: {get: function(){return enabled;}, set: function(_){enabled=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         hideDelay: {get: function(){return hideDelay;}, set: function(_){hideDelay=_;}},
         contentGenerator: {get: function(){return contentGenerator;}, set: function(_){contentGenerator=_;}},
         valueFormatter: {get: function(){return valueFormatter;}, set: function(_){valueFormatter=_;}},
@@ -7460,6 +7462,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         , x
         , y
         , focusEnable = false
+        , negateTrend = false
         , brushExtent = null
         , state = {}
         , defaultState = null
@@ -7713,6 +7716,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
                         return yAxis.tickFormat()(d);
                     })
                     .data({
+                        negateTrend: chart.negateTrend(),
                         value: xValue,
                         index: pointIndex,
                         series: allData
@@ -7788,6 +7792,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             color: evt.color
         };
 
+        evt.negateTrend = chart.negateTrend();
 
         tooltip.data(evt)
             .footerFormatter(footerFormat)
@@ -7849,6 +7854,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
         // simple options, just get/set the necessary values
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         showLegend: {get: function(){return showLegend;}, set: function(_){showLegend=_;}},
         showChecks: {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
         showXAxis: {get: function(){return showXAxis;}, set: function(_){showXAxis=_;}},
@@ -8023,7 +8029,8 @@ nv.models.multiHistoricalBarChart = function () {
     chart.useInteractiveGuideline(false);
 
     return chart;
-};nv.models.legend = function() {
+};
+nv.models.legend = function() {
     "use strict";
 
     //============================================================
@@ -8834,6 +8841,7 @@ nv.models.lineChart = function () {
         , x
         , y
         , focusEnable = false
+        , negateTrend = false
         , brushExtent = null
         , state = nv.utils.state()
         , defaultState = null
@@ -9190,6 +9198,7 @@ nv.models.lineChart = function () {
                 interactiveLayer.tooltip
                     .chartContainer(chart.container.parentNode)
                     .data({
+                        negateTrend: chart.negateTrend(),
                         value: chart.x()(singlePoint, pointIndex),
                         index: pointIndex,
                         series: allData
@@ -11152,6 +11161,7 @@ nv.models.multiBarHorizontal = function() {
         , disabled // used in conjunction with barColor to communicate from multiBarHorizontalChart what series are disabled
         , stacked = false
         , showValues = false
+        , negateTrend = false
         , showBarLabels = true
         , showChecks = false
         , valuePadding = 60
@@ -11317,13 +11327,13 @@ nv.models.multiBarHorizontal = function() {
                         var v = getY(d, i),
                             b = getY(d.previous, i);
 
-                        return v > b;
+                        return negateTrend ? v < b : v > b;
                     })
                     .classed('negative', function (d, i) {
                         var v = getY(d, i),
                             b = getY(d.previous, i);
 
-                        return v < b;
+                        return negateTrend ? v > b : v < b;
                     })
                     .text(function (d, i) {
                         var v = getY(d, i),
@@ -11548,7 +11558,7 @@ nv.models.multiBarHorizontal = function() {
             }
 
             bars
-                .attr('class', function(d,i) { return getY(d,i) < 0 ? 'nv-bar negative' : 'nv-bar positive'});
+                .attr('class', function(d,i) { return (negateTrend ? getY(d,i) > 0 : getY(d,i) < 0)  ? 'nv-bar negative' : 'nv-bar positive'});
 
             bars.classed('selected', function(d,i){ return d.selected; });
 
@@ -11653,6 +11663,7 @@ nv.models.multiBarHorizontal = function() {
         forceY:  {get: function(){return forceY;}, set: function(_){forceY=_;}},
         stacked: {get: function(){return stacked;}, set: function(_){stacked=_;}},
         showValues: {get: function(){return showValues;}, set: function(_){showValues=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         // this shows the group name, seems pointless?
         showBarLabels:    {get: function(){return showBarLabels;}, set: function(_){showBarLabels=_;}},
         showChecks:    {get: function(){return showChecks;}, set: function(_){showChecks=_;}},
@@ -13656,6 +13667,7 @@ nv.models.parallelCoordinatesChart = function () {
         , startAngle = false
         , padAngle = false
         , endAngle = false
+        , negateTrend = false
         , cornerRadius = 0
         , donutRatio = 0.5
         , arcsRadius = []
@@ -13806,8 +13818,8 @@ nv.models.parallelCoordinatesChart = function () {
                         var b = getY(d.data.previous, i);
                         var t = refFormat(b > 0 ? (d.value - b) / b : null)
                         pieInfo.select('.ref text').text(t);
-                        pieInfo.select('.ref').classed('positive',  d.value > b );
-                        pieInfo.select('.ref').classed('negative',  d.value < b );
+                        pieInfo.select('.ref').classed('positive', negateTrend ? d.value < b : d.value > b );
+                        pieInfo.select('.ref').classed('negative', negateTrend ? d.value > b : d.value < b );
                     }
                     else {
                         pieInfo.select('.ref text').text('');
@@ -13896,8 +13908,8 @@ nv.models.parallelCoordinatesChart = function () {
                             var b = getY(d.data.previous);
                             var t = refFormat(b > 0 ? (d.value - b) / b : null)
                             pieInfo.select('.ref text').text(t);
-                            pieInfo.select('.ref').classed('positive',  d.value > b );
-                            pieInfo.select('.ref').classed('negative',  d.value < b );
+                            pieInfo.select('.ref').classed('positive', negateTrend ? d.value < b : d.value > b );
+                            pieInfo.select('.ref').classed('negative', negateTrend ? d.value > b : d.value < b );
                         }
                         else {
                             pieInfo.select('.ref text').text('');
@@ -14099,6 +14111,7 @@ nv.models.parallelCoordinatesChart = function () {
         startAngle: {get: function(){return startAngle;}, set: function(_){startAngle=_;}},
         padAngle:   {get: function(){return padAngle;}, set: function(_){padAngle=_;}},
         cornerRadius: {get: function(){return cornerRadius;}, set: function(_){cornerRadius=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         donutRatio:   {get: function(){return donutRatio;}, set: function(_){donutRatio=_;}},
         labelsOutside: {get: function(){return labelsOutside;}, set: function(_){labelsOutside=_;}},
         labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
@@ -19216,5 +19229,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.24";
+nv.version = "1.9.26";
 })();

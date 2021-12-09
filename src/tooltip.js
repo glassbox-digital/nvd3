@@ -33,6 +33,7 @@ nv.models.tooltip = function() {
         ,   tooltip = null // d3 select of the tooltip div.
         ,   lastPosition = { left: null, top: null } // Last position the tooltip was in.
         ,   enabled = true  // True -> tooltips are rendered. False -> don't render tooltips.
+        ,   negateTrend = false
         ,   duration = 100 // Tooltip movement duration, in ms.
         ,   headerEnabled = true // If is to show the tooltip header.
         ,   nvPointerEventsClass = "nv-pointer-events-none" // CSS class to specify whether element should not have mouse events.
@@ -135,10 +136,10 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("ref-value",true)
             .classed("positive", function(p ,i){
-                return p.value > p.refValue;
+                return data.negateTrend ? (p.value < p.refValue) : (p.value > p.refValue);
             })
             .classed("negative", function(p ,i){
-                return p.value < p.refValue;
+                return data.negateTrend ? (p.value > p.refValue) : (p.value < p.refValue);
             })
             .html(function(p, i) { return refFormatter(p, i) });
 
@@ -328,6 +329,7 @@ nv.models.tooltip = function() {
         classes: {get: function(){return classes;}, set: function(_){classes=_;}},
         chartContainer: {get: function(){return chartContainer;}, set: function(_){chartContainer=_;}},
         enabled: {get: function(){return enabled;}, set: function(_){enabled=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         hideDelay: {get: function(){return hideDelay;}, set: function(_){hideDelay=_;}},
         contentGenerator: {get: function(){return contentGenerator;}, set: function(_){contentGenerator=_;}},
         valueFormatter: {get: function(){return valueFormatter;}, set: function(_){valueFormatter=_;}},
