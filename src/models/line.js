@@ -13,6 +13,7 @@ nv.models.line = function() {
         , height = 500
         , container = null
         , strokeWidth = 1.5
+        , negateTrend = false
         , color = nv.utils.defaultColor() // a function that returns a color
         , getX = function(d) { return d.x } // accessor to get the x value from a data point
         , getY = function(d) { return d.y } // accessor to get the y value from a data point
@@ -293,6 +294,7 @@ nv.models.line = function() {
         width:      {get: function(){return width;}, set: function(_){width=_;}},
         height:     {get: function(){return height;}, set: function(_){height=_;}},
         defined: {get: function(){return defined;}, set: function(_){defined=_;}},
+        negateTrend: {get: function(){return negateTrend;}, set: function(_){negateTrend=_;}},
         forceY: {
             get: function () {
                 return forceY;
