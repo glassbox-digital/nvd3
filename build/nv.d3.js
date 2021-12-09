@@ -7716,7 +7716,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
                         return yAxis.tickFormat()(d);
                     })
                     .data({
-                        negateTrend: chart.negateTrend(),
+                        negateTrend: chart.negateTrend && chart.negateTrend(),
                         value: xValue,
                         index: pointIndex,
                         series: allData
@@ -7792,7 +7792,7 @@ nv.models.historicalBarChart = function(bar_model, bar2_model) {
             color: evt.color
         };
 
-        evt.negateTrend = chart.negateTrend();
+        evt.negateTrend = chart.negateTrend && chart.negateTrend();
 
         tooltip.data(evt)
             .footerFormatter(footerFormat)
@@ -9200,7 +9200,7 @@ nv.models.lineChart = function () {
                 interactiveLayer.tooltip
                     .chartContainer(chart.container.parentNode)
                     .data({
-                        negateTrend: chart.negateTrend(),
+                        negateTrend: chart.negateTrend && chart.negateTrend(),
                         value: chart.x()(singlePoint, pointIndex),
                         index: pointIndex,
                         series: allData
