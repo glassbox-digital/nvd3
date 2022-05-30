@@ -737,8 +737,7 @@ svg.nvd3-svg {
   fill: none;
   pointer-events: all;
 }
-
-/* scatter */
+  /* scatter */
 .nvd3 .nv-groups .nv-point.hover {
   stroke-width: 20px;
   stroke-opacity: .5;
@@ -752,6 +751,9 @@ svg.nvd3-svg {
   fill: none;
   stroke: darkred;
   stroke-width: 2px;
+}
+.nvd3 .nv-groups .nv-alert.low-confident {
+  stroke: #FF9A0C;
 }
 .nvd3 .nv-groups .nv-alert.hover {
   stroke-opacity: 1 !important;
@@ -849,6 +851,9 @@ svg.nvd3-svg {
   background-size: cover;
   width: 12px;
   height: 12px;
+}
+.nvtooltip .has-alert.low-confident .alert-icon {
+  background-image: url("anomaly-low.svg");
 }
 .nvtooltip {
   background: rgba(255, 255, 255, 0.8);
