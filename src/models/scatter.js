@@ -27,6 +27,7 @@ nv.models.scatter = function() {
         , interactive  = true // If true, plots a voronoi overlay for advanced point intersection
         , pointActive  = function(d) { return !d.notActive } // any points that return false will be filtered out
         , pointAlert  = function(d) { return d.alert } // any points that return true will be popped out
+        , isLowConfidence  = function(d) { return false }
         , padData      = false // If true, adds half a data points width to front and back, for lining up a line chart with a bar chart
         , padDataOuter = .1 //outerPadding to imitate ordinal scale outer padding
         , clipEdge     = false // if true, masks points within x and y scale
@@ -461,6 +462,9 @@ nv.models.scatter = function() {
                 });
             alerts.enter().append('circle')
                 .classed('nv-alert', true)
+                .classed('low-confident', function(d) {
+                    return isLowConfidence(d[0]);
+                })
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
                     return 'translate(' + nv.utils.NaNtoZero(x0(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y0(getY(d[0],d[1])) + yOffset) + ')'
@@ -561,6 +565,7 @@ nv.models.scatter = function() {
         interactive:  {get: function(){return interactive;}, set: function(_){interactive=_;}},
         pointActive:  {get: function(){return pointActive;}, set: function(_){pointActive=_;}},
         pointAlert:  {get: function(){return pointAlert;}, set: function(_){pointAlert=_;}},
+        isLowConfidence:  {get: function(){return isLowConfidence;}, set: function(_){isLowConfidence=_;}},
         padDataOuter: {get: function(){return padDataOuter;}, set: function(_){padDataOuter=_;}},
         padData:      {get: function(){return padData;}, set: function(_){padData=_;}},
         clipEdge:     {get: function(){return clipEdge;}, set: function(_){clipEdge=_;}},

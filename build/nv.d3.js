@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.26 (https://github.com/shilon5/nvd3) 2021-12-09 */
+/* nvd3 version 1.9.26 (https://github.com/shilon5/nvd3) 2022-05-31 */
 (function(){
 
 // set up main nv object
