@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.26 (https://github.com/shilon5/nvd3) 2021-12-09 */
+/* nvd3 version 1.9.28 (https://github.com/shilon5/nvd3) 2022-05-31 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -747,6 +747,9 @@ svg.nvd3-svg {
 .nvd3 .nv-scatter .nv-point.nv-single-point {
   fill-opacity: 1 !important;
 }
+.nvd3 .nv-groups .nv-alert.low-confident {
+  stroke: #FF9A0C;
+}
 .nvd3 .nv-groups .nv-alert {
   stroke-opacity: .5;
   fill: none;
@@ -849,6 +852,9 @@ svg.nvd3-svg {
   background-size: cover;
   width: 12px;
   height: 12px;
+}
+.nvtooltip .has-alert.low-confident .alert-icon {
+  background-image: url("anomaly-low.svg");
 }
 .nvtooltip {
   background: rgba(255, 255, 255, 0.8);

@@ -146,7 +146,11 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("has-alert", function(p){
                 return p.data && p.pointAlert && p.pointAlert(p.data);
-            }).html('<div class="alert-icon"></div>')
+            })
+            .classed('low-confident', function(p) {
+                return p.isLowConfidence(p.data)
+            })
+            .html('<div class="alert-icon"></div>')
 
         trowEnter.selectAll("td").each(function(p) {
             if (p.highlight) {

@@ -365,6 +365,7 @@ nv.models.lineChart = function () {
                             value: pointYValue,
                             refValue: pointYRefValue,
                             pointAlert: chart.pointAlert && chart.pointAlert(),
+                            isLowConfidence:  chart.isLowConfidence && chart.isLowConfidence(),
                             color: (function (d, i) {
                                 return d.color || color(d, i);
                             })(series, series.seriesIndex),
@@ -676,6 +677,13 @@ nv.models.lineChart = function () {
                 return lines.scatter.pointAlert();
             }, set: function (_) {
                 lines.scatter.pointAlert(_);
+            }
+        },
+        isLowConfidence: {
+            get: function () {
+                return lines.scatter.isLowConfidence();
+            }, set: function (_) {
+                lines.scatter.isLowConfidence(_);
             }
         },
         activeSince: {
