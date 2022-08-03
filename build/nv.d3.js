@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.30 (https://github.com/shilon5/nvd3) 2022-06-07 */
+/* nvd3 version 1.9.32 (https://github.com/shilon5/nvd3) 2022-08-03 */
 (function(){
 
 // set up main nv object
@@ -659,7 +659,7 @@ nv.models.tooltip = function() {
                 return p.data && p.pointAlert && p.pointAlert(p.data);
             })
             .classed('low-confident', function(p) {
-                return p.isLowConfidence(p.data)
+                return p.data && p.isLowConfidence && p.isLowConfidence(p.data)
             })
             .html('<div class="alert-icon"></div>')
 
@@ -19248,5 +19248,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.30";
+nv.version = "1.9.32";
 })();

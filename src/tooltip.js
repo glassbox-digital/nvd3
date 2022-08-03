@@ -148,7 +148,7 @@ nv.models.tooltip = function() {
                 return p.data && p.pointAlert && p.pointAlert(p.data);
             })
             .classed('low-confident', function(p) {
-                return p.isLowConfidence(p.data)
+                return p.data && p.isLowConfidence && p.isLowConfidence(p.data)
             })
             .html('<div class="alert-icon"></div>')
 
