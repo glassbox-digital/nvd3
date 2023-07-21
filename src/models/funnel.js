@@ -32,6 +32,7 @@ nv.models.funnel = function() {
         , valuePadding = 60
         , groupSpacing = 0.1
         , valueFormat = d3.format(',.2f')
+        , ratioFormat = d3.format('.1%')
         , delay = 1200
         , xDomain
         , yDomain
@@ -377,7 +378,7 @@ nv.models.funnel = function() {
                     .text(function(d,i) {
                         var v = getY(d,i),
                             vc = getYC(d,i),
-                            t = v > 0 ? d3.format('.1%')(1 - vc/v) : '';
+                            t = v > 0 ? ratioFormat(1 - vc/v) : '';
                         return t;
                     });
 
@@ -407,7 +408,7 @@ nv.models.funnel = function() {
                     .text(function(d,i) {
                         var v = getY(d,i),
                             vc = getYC(d,i),
-                            t = v > 0 && vc > 0 ? d3.format('.1%')(vc/v) : '';
+                            t = v > 0 && vc > 0 ? ratioFormat(vc/v) : '';
                         return t;
                     });
 
@@ -789,6 +790,7 @@ nv.models.funnel = function() {
         disabled:     {get: function(){return disabled;}, set: function(_){disabled=_;}},
         id:           {get: function(){return id;}, set: function(_){id=_;}},
         valueFormat:  {get: function(){return valueFormat;}, set: function(_){valueFormat=_;}},
+        ratioFormat:  {get: function(){return ratioFormat;}, set: function(_){ratioFormat=_;}},
         valuePadding: {get: function(){return valuePadding;}, set: function(_){valuePadding=_;}},
         groupSpacing:{get: function(){return groupSpacing;}, set: function(_){groupSpacing=_;}},
 
