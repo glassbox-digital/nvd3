@@ -33,10 +33,27 @@ nv.models.pie = function() {
         , donutRatio = 0.5
         , arcsRadius = []
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
-        ;
+        , showTotal = false;
 
     var arcs = [];
     var arcsOver = [];
+    var pieInfo;
+    var dispatchElementMouseover = true;
+
+    var slicePathByData = function (data) {
+        return d3.selectAll('.nv-slice').filter(function (sd) {
+            return sd.data === data;
+        });
+    };
+
+    var sliceExplode = function (d, explode) {
+        var slice = slicePathByData(d.data);
+        if (slice.length && slice[0][0] === undefined) return;
+
+        dispatchElementMouseover = !explode;
+
+        slice[0][0].dispatchEvent(new MouseEvent(explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
+    }
 
     //============================================================
     // chart function
@@ -156,7 +173,7 @@ nv.models.pie = function() {
 
             var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pieData);
             var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pieData);
-            var pieInfo = wrap.select('.nv-pieInfo').datum(pieData);
+            pieInfo = wrap.select('.nv-pieInfo').datum(pieData);
 
             slices.exit().remove();
             pieLabels.exit().remove();
@@ -172,7 +189,7 @@ nv.models.pie = function() {
                 }
 
                 if ( donut ){
-                    pieInfo.select('.key text').text(getX(d.data));
+                    pieInfo.select('.key text').text(getX(d.data)).each(pieInfoTextWrap);
                     pieInfo.select('.value text').text( valueFormat(d.value) );
 
                     if ( d.data.previous ) {
@@ -182,18 +199,22 @@ nv.models.pie = function() {
                         pieInfo.select('.ref').classed('positive', negateTrend ? d.value < b : d.value > b );
                         pieInfo.select('.ref').classed('negative', negateTrend ? d.value > b : d.value < b );
                     }
-                    else {
-                        pieInfo.select('.ref text').text('');
+     
+                    var selectedData = getSelectedData();
+                    if (!d.data.previous && !selectedData.length) {
+                        pieInfo.select('.ref text').text('Click to filter');
+                        pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + (availableHeight - 30) / 2 + ')');
                     }
-
                 }
 
-                dispatch.elementMouseover({
-                    data: d.data,
-                    index: i,
-                    color: d3.select(this).style("fill"),
-                    element: this
-                });
+                if (dispatchElementMouseover) {
+                    dispatch.elementMouseover({
+                        data: d.data,
+                        index: i,
+                        color: d3.select(this).style('fill'),
+                        element: this
+                    });
+                }
             });
 
             ae.on('mouseout', function(d, i) {
@@ -205,7 +226,7 @@ nv.models.pie = function() {
                 }
 
                 donutInfo();
-
+                pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
                 dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
             ae.on('mousemove', function(d, i) {
@@ -252,6 +273,35 @@ nv.models.pie = function() {
 
             donutInfo();
 
+            function pieInfoTextWrap() {
+                var self = d3.select(this),
+                    textLength = self.node().getComputedTextLength(),
+                    text = self.text();
+                while (textLength > radius - 8 && text.length > 0) {
+                    text = text.slice(0, -1);
+                    self.text(text + '...');
+                    textLength = self.node().getComputedTextLength();
+                }
+            }
+
+            function getTotalOfData(pieData) {
+                return d3.sum(pieData, function (d) {
+                    return d.value;
+                });
+            }
+
+            function getSelectedData() {
+                var pieData = pieInfo.datum(),
+                    selected =
+                        pieData.length > 1
+                            ? pieData.filter(function (d) {
+                                  return d.data.selected;
+                              })
+                            : pieData;
+
+                return selected;
+            }
+
             function donutInfo(){
                 if ( donut) {
                     var pieData = pieInfo.datum(),
@@ -259,8 +309,15 @@ nv.models.pie = function() {
                         num = selected.length,
                         sum = d3.sum( selected, function(d){ return d.value;});
 
-                    pieInfo.select('.key text').text( num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : 'click to select..' );
-                    pieInfo.select('.value text').text( num > 0 ? valueFormat(sum) : '' );
+                    var keyText = showTotal ? 'Total' : 'Click to filter...';
+                    var valueText = showTotal ? valueFormat(getTotalOfData(pieData)) : '';
+
+                    pieInfo
+                        .select('.key text')
+                        .text(num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : keyText)
+                        .each(pieInfoTextWrap);
+
+                    pieInfo.select('.value text').text(num > 0 ? valueFormat(sum) : valueText);
 
                     if ( num === 1 && selected.length > 0) {
                         var d = selected[0];
@@ -478,7 +535,22 @@ nv.models.pie = function() {
         labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
         donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
         growOnHover:        {get: function(){return growOnHover;}, set: function(_){growOnHover=_;}},
-
+        sliceExplode: {
+            get: function () {
+                return sliceExplode;
+            },
+            set: function (_) {
+                sliceExplode(_);
+            }
+        },
+        showTotal: {
+            get: function () {
+                return showTotal;
+            },
+            set: function (_) {
+                showTotal = _;
+            }
+        },
         // depreciated after 1.7.1
         pieLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
             labelsOutside=_;

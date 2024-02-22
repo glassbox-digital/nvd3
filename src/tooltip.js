@@ -8,7 +8,7 @@
  */
 nv.models.tooltip = function() {
     "use strict";
-
+    
     /*
     Tooltip data. If data is given in the proper format, a consistent tooltip is generated.
     Example Format of data:
@@ -129,9 +129,12 @@ nv.models.tooltip = function() {
             .classed("total",function(p) { return !!p.total})
             .html(function(p, i) { return keyFormatter(p.key, i)});
 
-        trowEnter.append("td")
-            .classed("value",true)
-            .html(function(p, i) { return valueFormatter(p.value, i) });
+        trowEnter
+            .append('td')
+            .classed('value', true)
+            .html(function (p, i) {
+                return '(' + valueFormatter(p.value, i) + ')';
+            });
 
         trowEnter.append("td")
             .classed("ref-value",true)

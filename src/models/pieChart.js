@@ -8,6 +8,15 @@ nv.models.pieChart = function() {
     var pie = nv.models.pie();
     var legend = nv.models.legend();
     var tooltip = nv.models.tooltip();
+    var legendTooltip = nv.models
+        .tooltip()
+        .gravity('')
+        .classes('nv-legend-tooltip')
+        .headerEnabled(false)
+        .duration(0)
+        .valueFormatter(function (d, i) {
+            return pie.valueFormat()(d, i);
+    });
 
     var margin = {top: 30, right: 20, bottom: 20, left: 20}
         , width = null
@@ -21,14 +30,16 @@ nv.models.pieChart = function() {
         , noData = null
         , duration = 250
         , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
-        ;
+        , showLegendTooltips = true
+        , pieDataTotal = 0;
 
     tooltip
         .duration(0)
         .headerEnabled(false)
         .valueFormatter(function(d, i) {
-            return pie.valueFormat()(d, i);
+            return d;
         });
+    legend.showNativeTooltip(false);
 
     //============================================================
     // Private Variables
@@ -74,7 +85,6 @@ nv.models.pieChart = function() {
             chart.container = this;
             tooltip.chartContainer(chart.container.parentNode);
 
-
             state.setter(stateSetter(data), chart.update)
                 .getter(stateGetter(data))
                 .update();
@@ -97,6 +107,10 @@ nv.models.pieChart = function() {
                 return pie.y()(d) > 0.0;
             });
 
+            pieDataTotal = data.reduce(function (acc, d) {
+                return (acc += pie.y()(d));
+            }, 0);
+
             // Display No Data message if there's nothing to show.
             if (!data || !data.length) {
                 nv.utils.noData(chart, container);
@@ -117,8 +131,9 @@ nv.models.pieChart = function() {
             if (showLegend) {
                 legend
                     .updateState(!pie.showChecks())
-                    .key(pie.x());
-
+                    .key(pie.x())
+                    .value(pie.y());
+                
                 if (legendPosition === "top") {
 
                     legend
@@ -148,6 +163,16 @@ nv.models.pieChart = function() {
                         .datum(data)
                         .call(legend)
                         .attr('transform', 'translate(' + (availableWidth) +',0)');
+                } else if (legendPosition === 'bottom') {
+                    legend.width(availableWidth);
+
+                    legend.height(availableHeight / 2);
+
+                    availableHeight = availableHeight / 2;
+                    margin.top = 0;
+
+                    wrap.select('.nv-legendWrap').datum(data).call(legend);
+                    wrap.select('.nv-legendWrap').attr('transform', 'translate(0,' + availableHeight + ')');
                 }
             }
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
@@ -171,7 +196,34 @@ nv.models.pieChart = function() {
                 .on('legendClick', function (d, i) {
                     d.selected = !d.selected;
                     dispatch.selectChange(d);
+                    legendTooltip.hidden(true);
                     // chart.update();
+                })
+                .on('legendMouseover', function (d) {
+                    if (!showLegendTooltips) return;
+
+                    d['series'] = {
+                        key: d.data[0],
+                        value: d.data[1],
+                        color: d.color
+                    };
+
+                    var pos = d.element.getBoundingClientRect();
+
+                    legendTooltip.position(function () {
+                        return {
+                            top: pos.y - 40,
+                            left: pos.x + 40
+                        };
+                    });
+                    
+                    legendTooltip.data(d).hidden(false);
+                    pie.sliceExplode(d, true);
+                })
+                .on('legendMouseout', function (d) {
+                    if (!showLegendTooltips) return;
+                    legendTooltip.hidden(true);
+                    pie.sliceExplode(d, false);
                 });
 
 
@@ -196,13 +248,15 @@ nv.models.pieChart = function() {
     //------------------------------------------------------------
 
     pie.dispatch.on('elementMouseover.tooltip', function(evt) {
-        if (!showTooltips)
-            return;
+        if (!showTooltips) return;
+        var percentage = d3.format('.0%')(chart.y()(evt.data) / pieDataTotal);
+
         evt['series'] = {
             key: chart.x()(evt.data),
-            value: chart.y()(evt.data),
+            value: percentage,
             color: evt.color
         };
+
         tooltip.data(evt).hidden(false);
     });
 
@@ -242,7 +296,22 @@ nv.models.pieChart = function() {
         legendPosition: {get: function(){return legendPosition;}, set: function(_){legendPosition=_;}},
         defaultState:   {get: function(){return defaultState;},   set: function(_){defaultState=_;}},
         keyFormat:      {get: function(){return legend.keyFormat();}, set: function(_){legend.keyFormat(_);}},
-
+        showLegendValues: {
+            get: function () {
+                return legend.showLegendValues();
+            },
+            set: function (_) {
+                legend.showLegendValues(_);
+            }
+        },
+        showLegendTooltips: {
+            get: function () {
+                return showLegendTooltips;
+            },
+            set: function (_) {
+                showLegendTooltips = _;
+            }
+        },
         // options that require extra logic in the setter
         color: {get: function(){return color;}, set: function(_){
             color = _;

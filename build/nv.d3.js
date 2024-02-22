@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.34 (https://github.com/shilon5/nvd3) 2023-07-21 */
+/* nvd3 version 1.9.36 (https://github.com/shilon5/nvd3) 2024-02-22 */
 (function(){
 
 // set up main nv object
@@ -519,7 +519,7 @@ nv.nearestValueIndex = function (values, searchVal, threshold) {
  */
 nv.models.tooltip = function() {
     "use strict";
-
+    
     /*
     Tooltip data. If data is given in the proper format, a consistent tooltip is generated.
     Example Format of data:
@@ -640,9 +640,12 @@ nv.models.tooltip = function() {
             .classed("total",function(p) { return !!p.total})
             .html(function(p, i) { return keyFormatter(p.key, i)});
 
-        trowEnter.append("td")
-            .classed("value",true)
-            .html(function(p, i) { return valueFormatter(p.value, i) });
+        trowEnter
+            .append('td')
+            .classed('value', true)
+            .html(function (p, i) {
+                return '(' + valueFormatter(p.value, i) + ')';
+            });
 
         trowEnter.append("td")
             .classed("ref-value",true)
@@ -8059,7 +8062,11 @@ nv.models.legend = function() {
         , expanded = false
         , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout', 'stateChange')
         , vers = 'classic' //Options are "classic" and "furious"
-        ;
+        , getValue = function (d) {
+            return d.value;
+        }
+        , showLegendValues = false
+        , showNativeTooltip = true;
 
     function chart(selection) {
         selection.each(function(data) {
@@ -8167,10 +8174,20 @@ nv.models.legend = function() {
 
             (isHrefDefined ? seriesShape : series)
                 .on('mouseover', function(d,i) {
-                    dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
+                    dispatch.legendMouseover({
+                        data: d,
+                        index: i,
+                        color: setBGColor(d, i),
+                        element: this
+                    });
                 })
                 .on('mouseout', function(d,i) {
-                    dispatch.legendMouseout(d,i);
+                    dispatch.legendMouseout({
+                        data: d,
+                        index: i,
+                        color: setBGColor(d, i),
+                        element: this
+                    });
                 })
                 .on('click', function(d,i) {
                     dispatch.legendClick(d,i);
@@ -8242,30 +8259,44 @@ nv.models.legend = function() {
                 .classed('selected', function(d) { return d.selected });
             series.exit().remove();
 
-            seriesText
-                .attr('fill', setTextColor)
-                .text(function(d,i){ return keyFormat(getKey(d)); });
+            seriesText.attr('fill', setTextColor).text(function (d, i) {
+                if (showLegendValues) {
+                    return keyFormat(getKey(d)) + ' (' + getPercentageValue(d, data) + ')';
+                }
+
+                return keyFormat(getKey(d));
+            });
 
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
             var legendWidth = 0;
             if (align) {
-
+                seriesShape;
                 var seriesWidths = [];
                 series.each(function(d,i) {
                     var legendText;
                     var k = getKey(d),
                         fk = keyFormat(k);
 
-                    if (fk && fk.length > maxKeyLength) {
-                        var trimmedKey = fk.substring(0, maxKeyLength);
-                        legendText = d3.select(this).select('text').text(trimmedKey + "...");
+                    var keyLength = showLegendValues ? maxKeyLength - 6 : maxKeyLength;
+
+                    if (fk && fk.length > keyLength) {
+                        var trimmedKey = fk.substring(0, keyLength);
+                        var trimmedText = trimmedKey;
+
+                        if (showLegendValues) {
+                            trimmedText = trimmedKey + ' (' + getPercentageValue(d, data) + ')';
+                        }
+
+                        legendText = d3.select(this).select('text').text(trimmedText + "...");
 
                     } else {
                         legendText = d3.select(this).select('text');
                     }
 
-                    d3.select(this).append("svg:title").text(k);
+                    if (showNativeTooltip) {
+                        d3.select(this).append('svg:title').text(k);
+                    }
 
                     var nodeTextLength;
                     try {
@@ -8392,6 +8423,15 @@ nv.models.legend = function() {
                 .style('stroke', setBGColor);
         });
 
+        function getPercentageValue(d, series) {
+            var total = d3.sum(series, function (d) {
+                return getValue(d);
+            });
+
+            var v = getValue(d) / total;
+
+            return d3.format('.0%')(v);
+        }
 
         function setTextColor(d,i) {
             if(vers != 'furious') return '#000';
@@ -8444,7 +8484,30 @@ nv.models.legend = function() {
         radioButtonMode:    {get: function(){return radioButtonMode;}, set: function(_){radioButtonMode=_;}},
         expanded:   {get: function(){return expanded;}, set: function(_){expanded=_;}},
         vers:   {get: function(){return vers;}, set: function(_){vers=_;}},
-
+        value: {
+            get: function () {
+                return getValue;
+            },
+            set: function (_) {
+                getValue = _;
+            }
+        },
+        showLegendValues: {
+            get: function () {
+                return showLegendValues;
+            },
+            set: function (_) {
+                showLegendValues = _;
+            }
+        },
+        showNativeTooltip: {
+            get: function () {
+                return showNativeTooltip;
+            },
+            set: function (_) {
+                showNativeTooltip = _;
+            }
+        },
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
             margin.top    = _.top    !== undefined ? _.top    : margin.top;
@@ -13688,10 +13751,27 @@ nv.models.parallelCoordinatesChart = function () {
         , donutRatio = 0.5
         , arcsRadius = []
         , dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout', 'elementMousemove', 'renderEnd')
-        ;
+        , showTotal = false;
 
     var arcs = [];
     var arcsOver = [];
+    var pieInfo;
+    var dispatchElementMouseover = true;
+
+    var slicePathByData = function (data) {
+        return d3.selectAll('.nv-slice').filter(function (sd) {
+            return sd.data === data;
+        });
+    };
+
+    var sliceExplode = function (d, explode) {
+        var slice = slicePathByData(d.data);
+        if (slice.length && slice[0][0] === undefined) return;
+
+        dispatchElementMouseover = !explode;
+
+        slice[0][0].dispatchEvent(new MouseEvent(explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
+    }
 
     //============================================================
     // chart function
@@ -13811,7 +13891,7 @@ nv.models.parallelCoordinatesChart = function () {
 
             var slices = wrap.select('.nv-pie').selectAll('.nv-slice').data(pieData);
             var pieLabels = wrap.select('.nv-pieLabels').selectAll('.nv-label').data(pieData);
-            var pieInfo = wrap.select('.nv-pieInfo').datum(pieData);
+            pieInfo = wrap.select('.nv-pieInfo').datum(pieData);
 
             slices.exit().remove();
             pieLabels.exit().remove();
@@ -13827,7 +13907,7 @@ nv.models.parallelCoordinatesChart = function () {
                 }
 
                 if ( donut ){
-                    pieInfo.select('.key text').text(getX(d.data));
+                    pieInfo.select('.key text').text(getX(d.data)).each(pieInfoTextWrap);
                     pieInfo.select('.value text').text( valueFormat(d.value) );
 
                     if ( d.data.previous ) {
@@ -13837,18 +13917,22 @@ nv.models.parallelCoordinatesChart = function () {
                         pieInfo.select('.ref').classed('positive', negateTrend ? d.value < b : d.value > b );
                         pieInfo.select('.ref').classed('negative', negateTrend ? d.value > b : d.value < b );
                     }
-                    else {
-                        pieInfo.select('.ref text').text('');
+     
+                    var selectedData = getSelectedData();
+                    if (!d.data.previous && !selectedData.length) {
+                        pieInfo.select('.ref text').text('Click to filter');
+                        pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + (availableHeight - 30) / 2 + ')');
                     }
-
                 }
 
-                dispatch.elementMouseover({
-                    data: d.data,
-                    index: i,
-                    color: d3.select(this).style("fill"),
-                    element: this
-                });
+                if (dispatchElementMouseover) {
+                    dispatch.elementMouseover({
+                        data: d.data,
+                        index: i,
+                        color: d3.select(this).style('fill'),
+                        element: this
+                    });
+                }
             });
 
             ae.on('mouseout', function(d, i) {
@@ -13860,7 +13944,7 @@ nv.models.parallelCoordinatesChart = function () {
                 }
 
                 donutInfo();
-
+                pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
                 dispatch.elementMouseout({data: d.data, index: i, element: this});
             });
             ae.on('mousemove', function(d, i) {
@@ -13907,6 +13991,35 @@ nv.models.parallelCoordinatesChart = function () {
 
             donutInfo();
 
+            function pieInfoTextWrap() {
+                var self = d3.select(this),
+                    textLength = self.node().getComputedTextLength(),
+                    text = self.text();
+                while (textLength > radius - 8 && text.length > 0) {
+                    text = text.slice(0, -1);
+                    self.text(text + '...');
+                    textLength = self.node().getComputedTextLength();
+                }
+            }
+
+            function getTotalOfData(pieData) {
+                return d3.sum(pieData, function (d) {
+                    return d.value;
+                });
+            }
+
+            function getSelectedData() {
+                var pieData = pieInfo.datum(),
+                    selected =
+                        pieData.length > 1
+                            ? pieData.filter(function (d) {
+                                  return d.data.selected;
+                              })
+                            : pieData;
+
+                return selected;
+            }
+
             function donutInfo(){
                 if ( donut) {
                     var pieData = pieInfo.datum(),
@@ -13914,8 +14027,15 @@ nv.models.parallelCoordinatesChart = function () {
                         num = selected.length,
                         sum = d3.sum( selected, function(d){ return d.value;});
 
-                    pieInfo.select('.key text').text( num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : 'click to select..' );
-                    pieInfo.select('.value text').text( num > 0 ? valueFormat(sum) : '' );
+                    var keyText = showTotal ? 'Total' : 'Click to filter...';
+                    var valueText = showTotal ? valueFormat(getTotalOfData(pieData)) : '';
+
+                    pieInfo
+                        .select('.key text')
+                        .text(num > 0 ? (num === 1 ? getX(selected[0].data) : num + ' selected') : keyText)
+                        .each(pieInfoTextWrap);
+
+                    pieInfo.select('.value text').text(num > 0 ? valueFormat(sum) : valueText);
 
                     if ( num === 1 && selected.length > 0) {
                         var d = selected[0];
@@ -14133,7 +14253,22 @@ nv.models.parallelCoordinatesChart = function () {
         labelSunbeamLayout: {get: function(){return labelSunbeamLayout;}, set: function(_){labelSunbeamLayout=_;}},
         donut:              {get: function(){return donut;}, set: function(_){donut=_;}},
         growOnHover:        {get: function(){return growOnHover;}, set: function(_){growOnHover=_;}},
-
+        sliceExplode: {
+            get: function () {
+                return sliceExplode;
+            },
+            set: function (_) {
+                sliceExplode(_);
+            }
+        },
+        showTotal: {
+            get: function () {
+                return showTotal;
+            },
+            set: function (_) {
+                showTotal = _;
+            }
+        },
         // depreciated after 1.7.1
         pieLabelsOutside: {get: function(){return labelsOutside;}, set: function(_){
             labelsOutside=_;
@@ -14181,6 +14316,15 @@ nv.models.pieChart = function() {
     var pie = nv.models.pie();
     var legend = nv.models.legend();
     var tooltip = nv.models.tooltip();
+    var legendTooltip = nv.models
+        .tooltip()
+        .gravity('')
+        .classes('nv-legend-tooltip')
+        .headerEnabled(false)
+        .duration(0)
+        .valueFormatter(function (d, i) {
+            return pie.valueFormat()(d, i);
+    });
 
     var margin = {top: 30, right: 20, bottom: 20, left: 20}
         , width = null
@@ -14194,14 +14338,16 @@ nv.models.pieChart = function() {
         , noData = null
         , duration = 250
         , dispatch = d3.dispatch('stateChange', 'changeState','renderEnd', 'selectChange')
-        ;
+        , showLegendTooltips = true
+        , pieDataTotal = 0;
 
     tooltip
         .duration(0)
         .headerEnabled(false)
         .valueFormatter(function(d, i) {
-            return pie.valueFormat()(d, i);
+            return d;
         });
+    legend.showNativeTooltip(false);
 
     //============================================================
     // Private Variables
@@ -14247,7 +14393,6 @@ nv.models.pieChart = function() {
             chart.container = this;
             tooltip.chartContainer(chart.container.parentNode);
 
-
             state.setter(stateSetter(data), chart.update)
                 .getter(stateGetter(data))
                 .update();
@@ -14270,6 +14415,10 @@ nv.models.pieChart = function() {
                 return pie.y()(d) > 0.0;
             });
 
+            pieDataTotal = data.reduce(function (acc, d) {
+                return (acc += pie.y()(d));
+            }, 0);
+
             // Display No Data message if there's nothing to show.
             if (!data || !data.length) {
                 nv.utils.noData(chart, container);
@@ -14290,8 +14439,9 @@ nv.models.pieChart = function() {
             if (showLegend) {
                 legend
                     .updateState(!pie.showChecks())
-                    .key(pie.x());
-
+                    .key(pie.x())
+                    .value(pie.y());
+                
                 if (legendPosition === "top") {
 
                     legend
@@ -14321,6 +14471,16 @@ nv.models.pieChart = function() {
                         .datum(data)
                         .call(legend)
                         .attr('transform', 'translate(' + (availableWidth) +',0)');
+                } else if (legendPosition === 'bottom') {
+                    legend.width(availableWidth);
+
+                    legend.height(availableHeight / 2);
+
+                    availableHeight = availableHeight / 2;
+                    margin.top = 0;
+
+                    wrap.select('.nv-legendWrap').datum(data).call(legend);
+                    wrap.select('.nv-legendWrap').attr('transform', 'translate(0,' + availableHeight + ')');
                 }
             }
             wrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
@@ -14344,7 +14504,34 @@ nv.models.pieChart = function() {
                 .on('legendClick', function (d, i) {
                     d.selected = !d.selected;
                     dispatch.selectChange(d);
+                    legendTooltip.hidden(true);
                     // chart.update();
+                })
+                .on('legendMouseover', function (d) {
+                    if (!showLegendTooltips) return;
+
+                    d['series'] = {
+                        key: d.data[0],
+                        value: d.data[1],
+                        color: d.color
+                    };
+
+                    var pos = d.element.getBoundingClientRect();
+
+                    legendTooltip.position(function () {
+                        return {
+                            top: pos.y - 40,
+                            left: pos.x + 40
+                        };
+                    });
+                    
+                    legendTooltip.data(d).hidden(false);
+                    pie.sliceExplode(d, true);
+                })
+                .on('legendMouseout', function (d) {
+                    if (!showLegendTooltips) return;
+                    legendTooltip.hidden(true);
+                    pie.sliceExplode(d, false);
                 });
 
 
@@ -14369,13 +14556,15 @@ nv.models.pieChart = function() {
     //------------------------------------------------------------
 
     pie.dispatch.on('elementMouseover.tooltip', function(evt) {
-        if (!showTooltips)
-            return;
+        if (!showTooltips) return;
+        var percentage = d3.format('.0%')(chart.y()(evt.data) / pieDataTotal);
+
         evt['series'] = {
             key: chart.x()(evt.data),
-            value: chart.y()(evt.data),
+            value: percentage,
             color: evt.color
         };
+
         tooltip.data(evt).hidden(false);
     });
 
@@ -14415,7 +14604,22 @@ nv.models.pieChart = function() {
         legendPosition: {get: function(){return legendPosition;}, set: function(_){legendPosition=_;}},
         defaultState:   {get: function(){return defaultState;},   set: function(_){defaultState=_;}},
         keyFormat:      {get: function(){return legend.keyFormat();}, set: function(_){legend.keyFormat(_);}},
-
+        showLegendValues: {
+            get: function () {
+                return legend.showLegendValues();
+            },
+            set: function (_) {
+                legend.showLegendValues(_);
+            }
+        },
+        showLegendTooltips: {
+            get: function () {
+                return showLegendTooltips;
+            },
+            set: function (_) {
+                showLegendTooltips = _;
+            }
+        },
         // options that require extra logic in the setter
         color: {get: function(){return color;}, set: function(_){
             color = _;
@@ -19250,5 +19454,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.34";
+nv.version = "1.9.36";
 })();

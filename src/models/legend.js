@@ -21,7 +21,11 @@ nv.models.legend = function() {
         , expanded = false
         , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout', 'stateChange')
         , vers = 'classic' //Options are "classic" and "furious"
-        ;
+        , getValue = function (d) {
+            return d.value;
+        }
+        , showLegendValues = false
+        , showNativeTooltip = true;
 
     function chart(selection) {
         selection.each(function(data) {
@@ -129,10 +133,20 @@ nv.models.legend = function() {
 
             (isHrefDefined ? seriesShape : series)
                 .on('mouseover', function(d,i) {
-                    dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
+                    dispatch.legendMouseover({
+                        data: d,
+                        index: i,
+                        color: setBGColor(d, i),
+                        element: this
+                    });
                 })
                 .on('mouseout', function(d,i) {
-                    dispatch.legendMouseout(d,i);
+                    dispatch.legendMouseout({
+                        data: d,
+                        index: i,
+                        color: setBGColor(d, i),
+                        element: this
+                    });
                 })
                 .on('click', function(d,i) {
                     dispatch.legendClick(d,i);
@@ -204,30 +218,44 @@ nv.models.legend = function() {
                 .classed('selected', function(d) { return d.selected });
             series.exit().remove();
 
-            seriesText
-                .attr('fill', setTextColor)
-                .text(function(d,i){ return keyFormat(getKey(d)); });
+            seriesText.attr('fill', setTextColor).text(function (d, i) {
+                if (showLegendValues) {
+                    return keyFormat(getKey(d)) + ' (' + getPercentageValue(d, data) + ')';
+                }
+
+                return keyFormat(getKey(d));
+            });
 
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
             var legendWidth = 0;
             if (align) {
-
+                seriesShape;
                 var seriesWidths = [];
                 series.each(function(d,i) {
                     var legendText;
                     var k = getKey(d),
                         fk = keyFormat(k);
 
-                    if (fk && fk.length > maxKeyLength) {
-                        var trimmedKey = fk.substring(0, maxKeyLength);
-                        legendText = d3.select(this).select('text').text(trimmedKey + "...");
+                    var keyLength = showLegendValues ? maxKeyLength - 6 : maxKeyLength;
+
+                    if (fk && fk.length > keyLength) {
+                        var trimmedKey = fk.substring(0, keyLength);
+                        var trimmedText = trimmedKey;
+
+                        if (showLegendValues) {
+                            trimmedText = trimmedKey + ' (' + getPercentageValue(d, data) + ')';
+                        }
+
+                        legendText = d3.select(this).select('text').text(trimmedText + "...");
 
                     } else {
                         legendText = d3.select(this).select('text');
                     }
 
-                    d3.select(this).append("svg:title").text(k);
+                    if (showNativeTooltip) {
+                        d3.select(this).append('svg:title').text(k);
+                    }
 
                     var nodeTextLength;
                     try {
@@ -354,6 +382,15 @@ nv.models.legend = function() {
                 .style('stroke', setBGColor);
         });
 
+        function getPercentageValue(d, series) {
+            var total = d3.sum(series, function (d) {
+                return getValue(d);
+            });
+
+            var v = getValue(d) / total;
+
+            return d3.format('.0%')(v);
+        }
 
         function setTextColor(d,i) {
             if(vers != 'furious') return '#000';
@@ -406,7 +443,30 @@ nv.models.legend = function() {
         radioButtonMode:    {get: function(){return radioButtonMode;}, set: function(_){radioButtonMode=_;}},
         expanded:   {get: function(){return expanded;}, set: function(_){expanded=_;}},
         vers:   {get: function(){return vers;}, set: function(_){vers=_;}},
-
+        value: {
+            get: function () {
+                return getValue;
+            },
+            set: function (_) {
+                getValue = _;
+            }
+        },
+        showLegendValues: {
+            get: function () {
+                return showLegendValues;
+            },
+            set: function (_) {
+                showLegendValues = _;
+            }
+        },
+        showNativeTooltip: {
+            get: function () {
+                return showNativeTooltip;
+            },
+            set: function (_) {
+                showNativeTooltip = _;
+            }
+        },
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
             margin.top    = _.top    !== undefined ? _.top    : margin.top;
