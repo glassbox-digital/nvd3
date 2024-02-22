@@ -131,10 +131,9 @@ nv.models.pieChart = function() {
             if (showLegend) {
                 legend
                     .updateState(!pie.showChecks())
-                    .key(pie.x());
+                    .key(pie.x())
+                    .value(pie.y());
                 
-                legend.updateState(!pie.showChecks()).value(pie.y());
-
                 if (legendPosition === "top") {
 
                     legend

@@ -22,7 +22,7 @@ nv.models.legend = function() {
         , dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout', 'stateChange')
         , vers = 'classic' //Options are "classic" and "furious"
         , getValue = function (d) {
-            return d.value || d.value;
+            return d.value;
         }
         , showLegendValues = false
         , showNativeTooltip = true;
