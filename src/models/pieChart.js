@@ -208,7 +208,7 @@ nv.models.pieChart = function() {
                         color: d.color
                     };
 
-                    let pos = d.element.getBoundingClientRect();
+                    var pos = d.element.getBoundingClientRect();
 
                     legendTooltip.position(function () {
                         return {
