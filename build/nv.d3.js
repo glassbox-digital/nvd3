@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.36 (https://github.com/shilon5/nvd3) 2024-02-23 */
+/* nvd3 version 1.9.38 (https://github.com/shilon5/nvd3) 2024-02-23 */
 (function(){
 
 // set up main nv object
@@ -19460,5 +19460,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.36";
+nv.version = "1.9.38";
 })();
