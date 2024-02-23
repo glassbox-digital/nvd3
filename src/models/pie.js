@@ -46,13 +46,13 @@ nv.models.pie = function() {
         });
     };
 
-    var sliceExplode = function (d, explode) {
-        var slice = slicePathByData(d.data);
+    var sliceExplode = function (data) {
+        var slice = slicePathByData(data.data);
         if (slice.length && slice[0][0] === undefined) return;
 
-        dispatchElementMouseover = !explode;
+        dispatchElementMouseover = !data.explode;
 
-        slice[0][0].dispatchEvent(new MouseEvent(explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
+        slice[0][0].dispatchEvent(new MouseEvent(data.explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
     }
 
     //============================================================

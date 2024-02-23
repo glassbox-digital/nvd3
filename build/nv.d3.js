@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.36 (https://github.com/shilon5/nvd3) 2024-02-22 */
+/* nvd3 version 1.9.36 (https://github.com/shilon5/nvd3) 2024-02-23 */
 (function(){
 
 // set up main nv object
@@ -13764,13 +13764,13 @@ nv.models.parallelCoordinatesChart = function () {
         });
     };
 
-    var sliceExplode = function (d, explode) {
-        var slice = slicePathByData(d.data);
+    var sliceExplode = function (data) {
+        var slice = slicePathByData(data.data);
         if (slice.length && slice[0][0] === undefined) return;
 
-        dispatchElementMouseover = !explode;
+        dispatchElementMouseover = !data.explode;
 
-        slice[0][0].dispatchEvent(new MouseEvent(explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
+        slice[0][0].dispatchEvent(new MouseEvent(data.explode ? 'mouseover' : 'mouseout', {emitEvent: false}));
     }
 
     //============================================================
@@ -14526,12 +14526,18 @@ nv.models.pieChart = function() {
                     });
                     
                     legendTooltip.data(d).hidden(false);
-                    pie.sliceExplode(d, true);
+                    pie.sliceExplode({
+                        data: d.data,
+                        explode: true
+                    });
                 })
                 .on('legendMouseout', function (d) {
                     if (!showLegendTooltips) return;
                     legendTooltip.hidden(true);
-                    pie.sliceExplode(d, false);
+                    pie.sliceExplode({
+                        data: d.data,
+                        explode: false
+                    });
                 });
 
 

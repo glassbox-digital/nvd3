@@ -218,12 +218,18 @@ nv.models.pieChart = function() {
                     });
                     
                     legendTooltip.data(d).hidden(false);
-                    pie.sliceExplode(d, true);
+                    pie.sliceExplode({
+                        data: d.data,
+                        explode: true
+                    });
                 })
                 .on('legendMouseout', function (d) {
                     if (!showLegendTooltips) return;
                     legendTooltip.hidden(true);
-                    pie.sliceExplode(d, false);
+                    pie.sliceExplode({
+                        data: d.data,
+                        explode: false
+                    });
                 });
 
 
