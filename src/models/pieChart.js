@@ -188,7 +188,7 @@ nv.models.pieChart = function() {
 
                     newLegend
                         .style('top', '0')
-                        .style('right', '0')
+                        .style('left', availableWidth + 'px')
                         .style('width', legendWidth + 'px');
 
                     newLegendWrap.select('.nv-legendWrap')

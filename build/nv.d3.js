@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.38 (https://github.com/shilon5/nvd3) 2024-03-04 */
+/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-03-04 */
 (function(){
 
 // set up main nv object
@@ -13937,7 +13937,17 @@ nv.models.parallelCoordinatesChart = function () {
      
                     var selectedData = getSelectedData();
                     if (!d.data.previous && !selectedData.length) {
-                        pieInfo.select('.ref text').text('Click to filter');
+                        pieInfo
+                            .select('.ref text')
+                            .text('Click to filter');
+
+                        if((Math.min(availableWidth, availableHeight)) * donutRatio < 100) {
+                            pieInfo
+                                .select('.ref text')
+                                .attr('transform', 'translate(0, -4)')
+                                .style("font-size", "10px")
+                        }
+
                         pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
                     }
                 }
@@ -14513,7 +14523,7 @@ nv.models.pieChart = function() {
 
                     newLegend
                         .style('top', '0')
-                        .style('right', '0')
+                        .style('left', availableWidth + 'px')
                         .style('width', legendWidth + 'px');
 
                     newLegendWrap.select('.nv-legendWrap')
@@ -19535,5 +19545,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.38";
+nv.version = "1.9.40";
 })();
