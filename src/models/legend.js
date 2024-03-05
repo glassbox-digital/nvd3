@@ -219,12 +219,23 @@ nv.models.legend = function() {
             series.exit().remove();
 
             seriesText.attr('fill', setTextColor).text(function (d, i) {
-                if (showLegendValues) {
-                    return keyFormat(getKey(d)) + ' (' + getPercentageValue(d, data) + ')';
-                }
-
                 return keyFormat(getKey(d));
             });
+
+            if(showLegendValues) {
+                series.each(function(d) {
+                    var legendTextLength = d3.select(this).select('text.nv-legend-text').node().getComputedTextLength();
+
+                    d3.select(this)
+                        .append('text')
+                        .attr('class', 'nv-legend-text-value')
+                        .attr('fill', '#6A7379')
+                        .attr('text-anchor', 'start')
+                        .attr('dy', '.32em')
+                        .attr('dx', Math.ceil(legendTextLength) + 12)
+                        .text(' (' + getPercentageValue(d, data) + ')');
+                })
+            }
 
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
@@ -241,16 +252,22 @@ nv.models.legend = function() {
 
                     if (fk && fk.length > keyLength) {
                         var trimmedKey = fk.substring(0, keyLength);
-                        var trimmedText = trimmedKey;
+                        var trimmedText = trimmedKey + '...';
 
-                        if (showLegendValues) {
-                            trimmedText = trimmedKey + ' (' + getPercentageValue(d, data) + ')';
+                        legendText = d3.select(this).select('text.nv-legend-text').text(trimmedText);
+
+                        if(showLegendValues) {
+                            var legendTextLength = d3.select(this).select('text.nv-legend-text').node().getComputedTextLength();
+        
+                            d3.select(this)
+                                .select('.nv-legend-text-value')
+                                .attr('dy', '.32em')
+                                .attr('dx', Math.ceil(legendTextLength) + 12)
+                                .text(' (' + getPercentageValue(d, data) + ')');
                         }
 
-                        legendText = d3.select(this).select('text').text(trimmedText + "...");
-
                     } else {
-                        legendText = d3.select(this).select('text');
+                        legendText = d3.select(this).select('text.nv-legend-text');
                     }
 
                     if (showNativeTooltip) {
@@ -267,7 +284,7 @@ nv.models.legend = function() {
                         nodeTextLength = nv.utils.calcApproxTextWidth(legendText);
                     }
 
-                    seriesWidths.push(nodeTextLength + padding);
+                    seriesWidths.push(nodeTextLength + padding + 18);
                 });
 
                 var seriesPerRow = 0;
@@ -307,7 +324,7 @@ nv.models.legend = function() {
 
                 //position legend as far right as possible within the total width
                 if (rightAlign) {
-                    g.attr('transform', 'translate(' + (width - margin.right - legendWidth) + ',' + margin.top + ')');
+                    g.attr('transform', 'translate(' + (width - margin.right - legendWidth) / 2 + ',' + margin.top + ')');
                 }
                 else {
                     g.attr('transform', 'translate(0' + ',' + margin.top + ')');

@@ -202,8 +202,18 @@ nv.models.pie = function() {
      
                     var selectedData = getSelectedData();
                     if (!d.data.previous && !selectedData.length) {
-                        pieInfo.select('.ref text').text('Click to filter');
-                        pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + (availableHeight - 30) / 2 + ')');
+                        pieInfo
+                            .select('.ref text')
+                            .text('Click to filter');
+
+                        if((Math.min(availableWidth, availableHeight)) * donutRatio < 100) {
+                            pieInfo
+                                .select('.ref text')
+                                .attr('transform', 'translate(0, -4)')
+                                .style("font-size", "10px")
+                        }
+
+                        pieInfo.attr('transform', 'translate(' + availableWidth / 2 + ',' + availableHeight / 2 + ')');
                     }
                 }
 
