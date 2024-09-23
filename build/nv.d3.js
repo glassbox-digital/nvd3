@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-03-04 */
+/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-09-23 */
 (function(){
 
 // set up main nv object
@@ -659,7 +659,8 @@ nv.models.tooltip = function() {
 
         trowEnter.append("td")
             .classed("has-alert", function(p){
-                return p.data && p.pointAlert && p.pointAlert(p.data);
+                return p.data && p.pointAlert && p.pointAlert(p.data)
+                 || p.data && p.pointAlertGroup && p.pointAlertGroup(p.data);
             })
             .classed('low-confident', function(p) {
                 return p.data && p.isLowConfidence && p.isLowConfidence(p.data)
@@ -9265,6 +9266,7 @@ nv.models.lineChart = function () {
                             value: pointYValue,
                             refValue: pointYRefValue,
                             pointAlert: chart.pointAlert && chart.pointAlert(),
+                            pointAlertGroup: chart.pointAlertGroup && chart.pointAlertGroup(),
                             isLowConfidence:  chart.isLowConfidence && chart.isLowConfidence(),
                             color: (function (d, i) {
                                 return d.color || color(d, i);
@@ -9577,6 +9579,13 @@ nv.models.lineChart = function () {
                 return lines.scatter.pointAlert();
             }, set: function (_) {
                 lines.scatter.pointAlert(_);
+            }
+        },
+        pointAlertGroup: {
+            get: function () {
+                return lines.scatter.pointAlertGroup();
+            }, set: function (_) {
+                lines.scatter.pointAlertGroup(_);
             }
         },
         isLowConfidence: {
@@ -15599,6 +15608,7 @@ nv.models.scatter = function() {
         , interactive  = true // If true, plots a voronoi overlay for advanced point intersection
         , pointActive  = function(d) { return !d.notActive } // any points that return false will be filtered out
         , pointAlert  = function(d) { return d.alert } // any points that return true will be popped out
+        , pointAlertGroup  = function(d) { return d.alertGroup } // any points that return true will be popped out
         , isLowConfidence  = function(d) { return false }
         , padData      = false // If true, adds half a data points width to front and back, for lining up a line chart with a bar chart
         , padDataOuter = .1 //outerPadding to imitate ordinal scale outer padding
@@ -15949,7 +15959,7 @@ nv.models.scatter = function() {
                 .data(function(d) { return d }, function(d) { return d.key });
 
             groups.forEach(function(g){
-                d3.selectAll(g).selectAll('.nv-alert').remove();
+                d3.selectAll(g).selectAll('.nv-alert,.nv-alert-group').remove();
             });
 
             groups.enter().append('g')
@@ -16032,6 +16042,19 @@ nv.models.scatter = function() {
                             return pointAlert(pointArray[0], pointIndex)
                         })
                 });
+
+            var alertsGroups = groups.selectAll('circle.nv-point')
+                .data(function(d) {
+                    return d.values.map(
+                        function (point, pointIndex) {
+                            return [point, pointIndex]
+                        }).filter(
+                        function(pointArray, pointIndex) {
+                            return pointAlertGroup(pointArray[0], pointIndex)
+                        })
+                });
+            alertsGroups.exit().remove();
+
             alerts.enter().append('circle')
                 .classed('nv-alert', true)
                 .classed('low-confident', function(d) {
@@ -16043,7 +16066,32 @@ nv.models.scatter = function() {
                 })
                 .attr('r', 0);
             alerts.exit().remove();
-            groups.exit().selectAll('circle.nv-alert')
+
+            alertsGroups.enter()
+                .append('circle')
+                .classed('nv-alert-group', true)
+                .classed('low-confident', function(d) {
+                    return isLowConfidence(d[0]);
+                })
+                .attr('r', 6)                
+                .attr('transform', function(d) {
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                });
+
+            alertsGroups.enter()
+                .append('circle')
+                .classed('nv-alert-group', true)
+                .classed('low-confident', function(d) {
+                    return isLowConfidence(d[0]);
+                })
+                .attr('r', 3)                
+                .attr('transform', function(d) {
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                });
+
+            groups.exit().selectAll('circle.nv-alert,circle.nv-alert-group')
                 .watchTransition(renderWatch, 'scatter exit')
                 .attr('transform', function(d) {
                     return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + ')'
@@ -16059,6 +16107,12 @@ nv.models.scatter = function() {
                 })
                 .attr('r', 6 );
 
+            alertsGroups
+                .watchTransition(renderWatch, 'scatter alertsGroups')
+                .attr('transform', function(d) {
+                    var yOffset = d[0].singlePoint ? 5 : 0;
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                });
 
             // Delay updating the invisible interactive layer for smoother animation
             nv.utils.debounce(updateInteractiveLayer, interactiveUpdateDelay);
@@ -16137,6 +16191,7 @@ nv.models.scatter = function() {
         interactive:  {get: function(){return interactive;}, set: function(_){interactive=_;}},
         pointActive:  {get: function(){return pointActive;}, set: function(_){pointActive=_;}},
         pointAlert:  {get: function(){return pointAlert;}, set: function(_){pointAlert=_;}},
+        pointAlertGroup:  {get: function(){return pointAlertGroup;}, set: function(_){pointAlertGroup=_;}},
         isLowConfidence:  {get: function(){return isLowConfidence;}, set: function(_){isLowConfidence=_;}},
         padDataOuter: {get: function(){return padDataOuter;}, set: function(_){padDataOuter=_;}},
         padData:      {get: function(){return padData;}, set: function(_){padData=_;}},

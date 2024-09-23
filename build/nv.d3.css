@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-03-04 */
+/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-09-23 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -763,6 +763,19 @@ svg.nvd3-svg {
   stroke-width: 2px;
 }
 .nvd3 .nv-groups .nv-alert.hover {
+  stroke-opacity: 1 !important;
+  stroke-width: 3px;
+}
+.nvd3 .nv-groups .nv-alert-group.low-confident {
+  stroke: #FF9A0C;
+}
+.nvd3 .nv-groups .nv-alert-group {
+  stroke-opacity: .5;
+  fill: none;
+  stroke: #FF2E5D;
+  stroke-width: 2px;
+}
+.nvd3 .nv-groups .nv-alert-group.hover {
   stroke-opacity: 1 !important;
   stroke-width: 3px;
 }

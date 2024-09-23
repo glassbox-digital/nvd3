@@ -148,7 +148,8 @@ nv.models.tooltip = function() {
 
         trowEnter.append("td")
             .classed("has-alert", function(p){
-                return p.data && p.pointAlert && p.pointAlert(p.data);
+                return p.data && p.pointAlert && p.pointAlert(p.data)
+                 || p.data && p.pointAlertGroup && p.pointAlertGroup(p.data);
             })
             .classed('low-confident', function(p) {
                 return p.data && p.isLowConfidence && p.isLowConfidence(p.data)
