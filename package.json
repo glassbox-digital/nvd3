@@ -1,15 +1,15 @@
 {
   "name": "gb-nvd3",
-  "version": "1.9.40",
+  "version": "1.9.44",
   "description": "A reusable charting library written in d3.js",
-  "url": "https://github.com/shilon5/nvd3",
+  "url": "https://github.com/glassbox-front-end/nvd3",
   "main": "build/nv.d3.js",
   "scripts": {
     "test": "grunt"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shilon5/nvd3"
+    "url": "https://github.com/glassbox-front-end/nvd3"
   },
   "keywords": [
     "nvd3",
