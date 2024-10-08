@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.40 (https://github.com/shilon5/nvd3) 2024-09-23 */
+/* nvd3 version 1.9.46 (https://github.com/glassbox-front-end/nvd3) 2024-10-08 */
 (function(){
 
 // set up main nv object
@@ -16023,7 +16023,7 @@ nv.models.scatter = function() {
                 .attr('transform', function(d) {
                     //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 })
                 .attr('d',
                     nv.utils.symbol()
@@ -16076,7 +16076,7 @@ nv.models.scatter = function() {
                 .attr('r', 6)                
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             alertsGroups.enter()
@@ -16088,7 +16088,7 @@ nv.models.scatter = function() {
                 .attr('r', 3)                
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             groups.exit().selectAll('circle.nv-alert,circle.nv-alert-group')
@@ -16103,7 +16103,7 @@ nv.models.scatter = function() {
                 .attr('transform', function(d) {
                     //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 })
                 .attr('r', 6 );
 
@@ -16111,7 +16111,7 @@ nv.models.scatter = function() {
                 .watchTransition(renderWatch, 'scatter alertsGroups')
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             // Delay updating the invisible interactive layer for smoother animation
@@ -19600,5 +19600,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.40";
+nv.version = "1.9.46";
 })();
