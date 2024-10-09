@@ -442,7 +442,7 @@ nv.models.scatter = function() {
                 .attr('transform', function(d) {
                     //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 })
                 .attr('d',
                     nv.utils.symbol()
@@ -495,7 +495,7 @@ nv.models.scatter = function() {
                 .attr('r', 6)                
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             alertsGroups.enter()
@@ -507,7 +507,7 @@ nv.models.scatter = function() {
                 .attr('r', 3)                
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             groups.exit().selectAll('circle.nv-alert,circle.nv-alert-group')
@@ -522,7 +522,7 @@ nv.models.scatter = function() {
                 .attr('transform', function(d) {
                     //nv.log(d, getX(d[0],d[1]), x(getX(d[0],d[1])));
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 })
                 .attr('r', 6 );
 
@@ -530,7 +530,7 @@ nv.models.scatter = function() {
                 .watchTransition(renderWatch, 'scatter alertsGroups')
                 .attr('transform', function(d) {
                     var yOffset = d[0].singlePoint ? 5 : 0;
-                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset + ')'
+                    return 'translate(' + nv.utils.NaNtoZero(x(getX(d[0],d[1]))) + ',' + (nv.utils.NaNtoZero(y(getY(d[0],d[1]))) + yOffset) + ')'
                 });
 
             // Delay updating the invisible interactive layer for smoother animation
