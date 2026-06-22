@@ -25,7 +25,8 @@ nv.models.legend = function() {
             return d.value;
         }
         , showLegendValues = false
-        , showNativeTooltip = true;
+        , showNativeTooltip = true
+        , columnCount = 'auto';
 
     function chart(selection) {
         selection.each(function(data) {
@@ -291,24 +292,52 @@ nv.models.legend = function() {
                 var columnWidths = [];
                 legendWidth = 0;
 
-                while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
-                    columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
-                    legendWidth += seriesWidths[seriesPerRow++];
-                }
-                if (seriesPerRow === 0) seriesPerRow = 1; //minimum of one series per row
-
-                while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
-                    columnWidths = [];
-                    seriesPerRow--;
-
+                var buildFixedColumnLayout = function (perRow) {
+                    var widths = [];
                     for (var k = 0; k < seriesWidths.length; k++) {
-                        if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
-                            columnWidths[k % seriesPerRow] = seriesWidths[k];
+                        if (seriesWidths[k] > (widths[k % perRow] || 0))
+                            widths[k % perRow] = seriesWidths[k];
+                    }
+                    return {
+                        seriesPerRow: perRow,
+                        columnWidths: widths,
+                        legendWidth: widths.reduce(function(prev, cur) { return prev + cur; }, 0)
+                    };
+                };
+
+                if (columnCount === 'adaptive' || columnCount === 'adaptive-fit' || (typeof columnCount === 'number' && columnCount > 0)) {
+                    var perRow;
+
+                    if (columnCount === 'adaptive' || columnCount === 'adaptive-fit') {
+                        var singleColHeight = margin.top + margin.bottom + seriesWidths.length * versPadding;
+                        perRow = (seriesWidths.length <= 1 || singleColHeight <= height) ? 1 : 2;
+                        if (perRow === 2) {
+                            var twoColLayout = buildFixedColumnLayout(2);
+                            if (twoColLayout.legendWidth > availableWidth) {
+                                perRow = 1;
+                            }
+                        }
+                    } else {
+                        perRow = Math.min(columnCount, seriesWidths.length) || 1;
                     }
 
-                    legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
-                        return prev + cur;
-                    });
+                    var layout = buildFixedColumnLayout(perRow);
+                    seriesPerRow = layout.seriesPerRow;
+                    columnWidths = layout.columnWidths;
+                    legendWidth = layout.legendWidth;
+                } else {
+                    while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
+                        columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
+                        legendWidth += seriesWidths[seriesPerRow++];
+                    }
+                    if (seriesPerRow === 0) seriesPerRow = 1; //minimum of one series per row
+
+                    while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
+                        seriesPerRow--;
+                        var shrunkLayout = buildFixedColumnLayout(seriesPerRow);
+                        columnWidths = shrunkLayout.columnWidths;
+                        legendWidth = shrunkLayout.legendWidth;
+                    }
                 }
 
                 var xPositions = [];
@@ -324,7 +353,7 @@ nv.models.legend = function() {
 
                 //position legend as far right as possible within the total width
                 if (rightAlign) {
-                    g.attr('transform', 'translate(' + (width - margin.right - legendWidth) / 2 + ',' + margin.top + ')');
+                    g.attr('transform', 'translate(' + Math.max(0, (width - margin.right - legendWidth) / 2) + ',' + margin.top + ')');
                 }
                 else {
                     g.attr('transform', 'translate(0' + ',' + margin.top + ')');
@@ -482,6 +511,14 @@ nv.models.legend = function() {
             },
             set: function (_) {
                 showNativeTooltip = _;
+            }
+        },
+        columnCount: {
+            get: function () {
+                return columnCount;
+            },
+            set: function (_) {
+                columnCount = _;
             }
         },
         // options that require extra logic in the setter
