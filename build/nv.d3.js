@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.49 (https://github.com/glassbox-front-end/nvd3) 2026-06-25 */
+/* nvd3 version 1.9.50 (https://github.com/glassbox-front-end/nvd3) 2026-06-25 */
 (function(){
 
 // set up main nv object
@@ -19816,5 +19816,5 @@ nv.models.wordcloudChart = function() {
     return chart;
 };
 
-nv.version = "1.9.49";
+nv.version = "1.9.50";
 })();
