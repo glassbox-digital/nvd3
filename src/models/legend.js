@@ -26,7 +26,8 @@ nv.models.legend = function() {
         }
         , showLegendValues = false
         , showNativeTooltip = true
-        , columnCount = 'auto';
+        , columnCount = 'auto'
+        , lastLayoutWidth = 0;
 
     function chart(selection) {
         selection.each(function(data) {
@@ -226,10 +227,15 @@ nv.models.legend = function() {
             if(showLegendValues) {
                 series.each(function(d) {
                     var legendTextLength = d3.select(this).select('text.nv-legend-text').node().getComputedTextLength();
+                    var valueText = d3.select(this).select('text.nv-legend-text-value');
 
-                    d3.select(this)
-                        .append('text')
-                        .attr('class', 'nv-legend-text-value')
+                    if (valueText.empty()) {
+                        valueText = d3.select(this)
+                            .append('text')
+                            .attr('class', 'nv-legend-text-value');
+                    }
+
+                    valueText
                         .attr('fill', '#6A7379')
                         .attr('text-anchor', 'start')
                         .attr('dy', '.32em')
@@ -241,6 +247,7 @@ nv.models.legend = function() {
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
             var legendWidth = 0;
+            var maxwidth = 0;
             if (align) {
                 seriesShape;
                 var seriesWidths = [];
@@ -272,7 +279,11 @@ nv.models.legend = function() {
                     }
 
                     if (showNativeTooltip) {
-                        d3.select(this).append('svg:title').text(k);
+                        var titleEl = d3.select(this).select('title');
+                        if (titleEl.empty()) {
+                            titleEl = d3.select(this).append('svg:title');
+                        }
+                        titleEl.text(k);
                     }
 
                     var nodeTextLength;
@@ -285,7 +296,16 @@ nv.models.legend = function() {
                         nodeTextLength = nv.utils.calcApproxTextWidth(legendText);
                     }
 
-                    seriesWidths.push(nodeTextLength + padding + 18);
+                    var entryWidth = nodeTextLength + padding + 18;
+
+                    if (showLegendValues) {
+                        var valueNode = d3.select(this).select('text.nv-legend-text-value').node();
+                        if (valueNode) {
+                            entryWidth += valueNode.getComputedTextLength() + 12;
+                        }
+                    }
+
+                    seriesWidths.push(entryWidth);
                 });
 
                 var seriesPerRow = 0;
@@ -365,7 +385,6 @@ nv.models.legend = function() {
 
                 var ypos = 5,
                     newxpos = 5,
-                    maxwidth = 0,
                     xpos;
                 series
                     .attr('transform', function(d, i) {
@@ -426,6 +445,8 @@ nv.models.legend = function() {
                 .style('fill', setBGColor)
                 .style('fill-opacity', setBGOpacity)
                 .style('stroke', setBGColor);
+
+            lastLayoutWidth = align ? legendWidth : maxwidth;
         });
 
         function getPercentageValue(d, series) {
@@ -474,6 +495,7 @@ nv.models.legend = function() {
 
     chart.dispatch = dispatch;
     chart.options = nv.utils.optionsFunc.bind(chart);
+    chart.layoutWidth = function() { return lastLayoutWidth; };
 
     chart._options = Object.create({}, {
         // simple options, just get/set the necessary values

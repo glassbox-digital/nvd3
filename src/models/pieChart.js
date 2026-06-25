@@ -141,6 +141,7 @@ nv.models.pieChart = function() {
                     margin: margin,
                     height: height,
                     rightColumnCount: 'adaptive-fit',
+                    rightAlign: false,
                     shrinkChartWidth: true
                 });
 
