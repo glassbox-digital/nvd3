@@ -821,7 +821,7 @@
     };
 
     nv.utils.removeExternalLegend = function (containerEl) {
-        d3.select(containerEl.parentNode).select('.nv-legendContainer').remove();
+        d3.select(containerEl.parentNode).selectAll('.nv-legendContainer').remove();
     };
 
     /*
@@ -851,10 +851,8 @@
             return availableHeight / 2;
         }
 
-        function getRightLegendWidth() {
-            var legendWidth = legend.width();
-            return availableWidth / 2 < legendWidth ? availableWidth / 2 : legendWidth;
-        }
+        var maxLegendWidth;
+        var legendWidth;
 
         var newLegendWrap = d3.select(containerEl.parentNode);
         var newLegend = newLegendWrap.append('div').attr('class', 'nv-legendContainer');
@@ -874,26 +872,13 @@
             });
 
         } else if (legendPosition === 'right') {
-            var legendWidth = getRightLegendWidth();
+            maxLegendWidth = availableWidth / 2;
 
             legend
                 .height(availableHeight)
-                .width(legendWidth)
-                .columnCount(rightColumnCount);
-
-            if (rightAlign !== undefined) {
-                legend.rightAlign(rightAlign);
-            }
-
-            if (shrinkChartWidth) {
-                availableWidth -= legend.width();
-            }
-
-            nv.utils.styleExternalLegendContainer(newLegend, {
-                top: 0,
-                left: availableWidth,
-                width: legendWidth
-            });
+                .width(maxLegendWidth)
+                .columnCount(rightColumnCount)
+                .rightAlign(rightAlign !== undefined ? rightAlign : false);
 
             legendTransform = 'translate(10, 10)';
 
@@ -909,13 +894,30 @@
             });
         }
 
-        newLegendWrap
+        newLegend
             .select('.nv-legendWrap')
             .datum(legendData)
             .call(legend)
             .attr('transform', legendTransform);
 
         newLegendSvg.style('height', legend.height() + 20 + 'px');
+
+        if (legendPosition === 'right') {
+            var measuredWidth = legend.layoutWidth();
+            legendWidth = Math.min(maxLegendWidth, Math.ceil(measuredWidth > 0 ? measuredWidth : maxLegendWidth) + 20);
+
+            if (shrinkChartWidth) {
+                availableWidth -= legendWidth;
+            }
+
+            newLegendSvg.style('width', legendWidth + 'px');
+
+            nv.utils.styleExternalLegendContainer(newLegend, {
+                top: 0,
+                left: availableWidth,
+                width: legendWidth
+            });
+        }
 
         if (legendPosition === 'top' && margin.top != legend.height()) {
             margin.top = availableHeight;
