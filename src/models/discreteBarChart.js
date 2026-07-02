@@ -79,6 +79,13 @@ nv.models.discreteBarChart = function() {
         });
     }
 
+    function calcMinBarChartWidth(barCount) {
+        var barGap = 25;
+        var minBarWidth = 25;
+
+        return barCount > 0 ? barCount * minBarWidth + (barCount - 1) * barGap : 40;
+    }
+
     function chart(selection) {
         renderWatch.reset();
         renderWatch.models(discretebar);
@@ -138,7 +145,10 @@ nv.models.discreteBarChart = function() {
                     height: height,
                     rightColumnCount: 'adaptive',
                     rightAlign: false,
-                    shrinkChartWidth: legendPosition === 'right'
+                    shrinkChartWidth: legendPosition === 'right',
+                    minChartWidth: legendPosition === 'right'
+                        ? calcMinBarChartWidth(legendData.length)
+                        : undefined
                 });
 
                 newLegend = legendLayout.legendElement;
@@ -166,7 +176,7 @@ nv.models.discreteBarChart = function() {
                             : d.data.value;
 
                         nv.utils.showLegendTooltipAt(legendTooltip, d, {
-                            key: d.key,
+                            key: d.data.key,
                             value: percentage,
                             color: d.color
                         });

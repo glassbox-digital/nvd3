@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.50 (https://github.com/glassbox-front-end/nvd3) 2026-06-25 */
+/* nvd3 version 1.9.50 (https://github.com/glassbox-front-end/nvd3) 2026-07-02 */
 (function(){
 
 // set up main nv object
@@ -1737,7 +1737,12 @@ nv.models.tooltip = function() {
         var rightColumnCount = options.rightColumnCount !== undefined ? options.rightColumnCount : 2;
         var shrinkChartWidth = !!options.shrinkChartWidth;
         var rightAlign = options.rightAlign;
+        var minChartWidth = options.minChartWidth;
         var legendTransform = 'translate(0,0)';
+
+        if (minChartWidth === undefined) {
+            minChartWidth = shrinkChartWidth ? Math.floor(availableWidth / 2) : 0;
+        }
 
         function configureStackedLegend() {
             legend
@@ -1768,7 +1773,7 @@ nv.models.tooltip = function() {
             });
 
         } else if (legendPosition === 'right') {
-            maxLegendWidth = availableWidth / 2;
+            maxLegendWidth = Math.max(0, availableWidth - minChartWidth);
 
             legend
                 .height(availableHeight)
@@ -4359,8 +4364,26 @@ nv.models.discreteBar = function() {
                     })
                 });
 
-            x   .domain(xDomain || d3.merge(seriesData).map(function(d) { return d.x }))
-                .rangeBands(xRange || [0, availableWidth], .1);
+            var categories = xDomain || d3.merge(seriesData).map(function(d) { return d.x });
+            var barGap = 25;
+            var barOffset;
+            var defaultBarWidth;
+
+            x.domain(categories);
+
+            if (xRange) {
+                x.rangeBands(xRange, .1);
+                barOffset = x.rangeBand() * .05;
+                defaultBarWidth = x.rangeBand() * .9 / data.length;
+            } else {
+                var n = categories.length;
+                var bw = barWidth || (n ? Math.max(0, (availableWidth - (n - 1) * barGap) / n) : 0);
+                var step = bw + barGap;
+                x.rangeBands([0, n * step], barGap / step);
+                barOffset = 0;
+                defaultBarWidth = x.rangeBand();
+            }
+
             y   .domain(yDomain || d3.extent(d3.merge(seriesData).map(function(d) { return d.y }).concat(forceY)));
 
             // If showValues, pad the Y axis range to account for label height
@@ -4405,7 +4428,7 @@ nv.models.discreteBar = function() {
 
             var barsEnter = bars.enter().append('g')
                 .attr('transform', function(d,i,j) {
-                    return 'translate(' + (x(getX(d,i)) + x.rangeBand() * .05 ) + ', ' + y(0) + ')'
+                    return 'translate(' + (x(getX(d,i)) + barOffset) + ', ' + y(0) + ')'
                 })
                 .on('mouseover', function(d,i) { //TODO: figure out why j works above, but not here
                     d3.select(this).classed('hover', true);
@@ -4456,7 +4479,7 @@ nv.models.discreteBar = function() {
 
             barsEnter.append('rect')
                 .attr('height', 0)
-                .attr('width', x.rangeBand() * .9 / data.length )
+                .attr('width', defaultBarWidth)
 
             if ( showChecks ) {
                 barsEnter.filter(function(d,i,j){
@@ -4475,7 +4498,7 @@ nv.models.discreteBar = function() {
                 bars.select('text')
                     .text(function(d,i) { return valueFormat(getY(d,i)) })
                     .watchTransition(renderWatch, 'discreteBar: bars text')
-                    .attr('x', barWidth ? barWidth/2 : (x.rangeBand() * .9 / 2) )
+                    .attr('x', barWidth ? barWidth/2 : defaultBarWidth / 2)
                     .attr('y', function(d,i) { return getY(d,i) < 0 ? y(getY(d,i)) - y(0) + 12 : /*Math.max(Math.abs(y(getY(d,i)) - y(0)), 1)*/ - 4 })
 
                 ;
@@ -4492,7 +4515,7 @@ nv.models.discreteBar = function() {
                 .select('rect')
                 .attr('class', rectClass)
                 .watchTransition(renderWatch, 'discreteBar: bars rect')
-                .attr('width', barWidth || x.rangeBand() * .9 / data.length);
+                .attr('width', barWidth || defaultBarWidth);
 
             if (barColor) {
 
@@ -4504,7 +4527,7 @@ nv.models.discreteBar = function() {
             bars.watchTransition(renderWatch, 'discreteBar: bars')
                 //.delay(function(d,i) { return i * 1200 / data[0].values.length })
                 .attr('transform', function(d,i) {
-                    var left = x(getX(d,i)) + x.rangeBand() * .05,
+                    var left = x(getX(d,i)) + barOffset,
                         top = getY(d,i) < 0 ?
                             y(0) :
                                 y(0) - y(getY(d,i)) < 1 ?
@@ -4659,6 +4682,13 @@ nv.models.discreteBarChart = function() {
         });
     }
 
+    function calcMinBarChartWidth(barCount) {
+        var barGap = 25;
+        var minBarWidth = 25;
+
+        return barCount > 0 ? barCount * minBarWidth + (barCount - 1) * barGap : 40;
+    }
+
     function chart(selection) {
         renderWatch.reset();
         renderWatch.models(discretebar);
@@ -4718,7 +4748,10 @@ nv.models.discreteBarChart = function() {
                     height: height,
                     rightColumnCount: 'adaptive',
                     rightAlign: false,
-                    shrinkChartWidth: legendPosition === 'right'
+                    shrinkChartWidth: legendPosition === 'right',
+                    minChartWidth: legendPosition === 'right'
+                        ? calcMinBarChartWidth(legendData.length)
+                        : undefined
                 });
 
                 newLegend = legendLayout.legendElement;
@@ -4746,7 +4779,7 @@ nv.models.discreteBarChart = function() {
                             : d.data.value;
 
                         nv.utils.showLegendTooltipAt(legendTooltip, d, {
-                            key: d.key,
+                            key: d.data.key,
                             value: percentage,
                             color: d.color
                         });

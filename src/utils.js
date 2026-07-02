@@ -841,7 +841,12 @@
         var rightColumnCount = options.rightColumnCount !== undefined ? options.rightColumnCount : 2;
         var shrinkChartWidth = !!options.shrinkChartWidth;
         var rightAlign = options.rightAlign;
+        var minChartWidth = options.minChartWidth;
         var legendTransform = 'translate(0,0)';
+
+        if (minChartWidth === undefined) {
+            minChartWidth = shrinkChartWidth ? Math.floor(availableWidth / 2) : 0;
+        }
 
         function configureStackedLegend() {
             legend
@@ -872,7 +877,7 @@
             });
 
         } else if (legendPosition === 'right') {
-            maxLegendWidth = availableWidth / 2;
+            maxLegendWidth = Math.max(0, availableWidth - minChartWidth);
 
             legend
                 .height(availableHeight)
