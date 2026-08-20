@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.48 (https://github.com/glassbox-front-end/nvd3) 2025-03-03 */
+/* nvd3 version 1.9.52 (https://github.com/glassbox-front-end/nvd3) 2026-08-20 */
 .nvd3 .nv-axis {
   pointer-events: none;
   opacity: 1;
@@ -553,6 +553,12 @@ svg.nvd3-svg {
   position: absolute;
   width: 100%;
   height: 100%;
+}
+.nv-chartScrollHorizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  height: auto;
 }
 .nvd3 .nv-legend .nv-series {
   cursor: pointer;
