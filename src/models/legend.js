@@ -25,9 +25,7 @@ nv.models.legend = function() {
             return d.value;
         }
         , showLegendValues = false
-        , showNativeTooltip = true
-        , columnCount = 'auto'
-        , lastLayoutWidth = 0;
+        , showNativeTooltip = true;
 
     function chart(selection) {
         selection.each(function(data) {
@@ -227,15 +225,10 @@ nv.models.legend = function() {
             if(showLegendValues) {
                 series.each(function(d) {
                     var legendTextLength = d3.select(this).select('text.nv-legend-text').node().getComputedTextLength();
-                    var valueText = d3.select(this).select('text.nv-legend-text-value');
 
-                    if (valueText.empty()) {
-                        valueText = d3.select(this)
-                            .append('text')
-                            .attr('class', 'nv-legend-text-value');
-                    }
-
-                    valueText
+                    d3.select(this)
+                        .append('text')
+                        .attr('class', 'nv-legend-text-value')
                         .attr('fill', '#6A7379')
                         .attr('text-anchor', 'start')
                         .attr('dy', '.32em')
@@ -247,7 +240,6 @@ nv.models.legend = function() {
             //TODO: implement fixed-width and max-width options (max-width is especially useful with the align option)
             // NEW ALIGNING CODE, TODO: clean up
             var legendWidth = 0;
-            var maxwidth = 0;
             if (align) {
                 seriesShape;
                 var seriesWidths = [];
@@ -279,11 +271,7 @@ nv.models.legend = function() {
                     }
 
                     if (showNativeTooltip) {
-                        var titleEl = d3.select(this).select('title');
-                        if (titleEl.empty()) {
-                            titleEl = d3.select(this).append('svg:title');
-                        }
-                        titleEl.text(k);
+                        d3.select(this).append('svg:title').text(k);
                     }
 
                     var nodeTextLength;
@@ -296,68 +284,31 @@ nv.models.legend = function() {
                         nodeTextLength = nv.utils.calcApproxTextWidth(legendText);
                     }
 
-                    var entryWidth = nodeTextLength + padding + 18;
-
-                    if (showLegendValues) {
-                        var valueNode = d3.select(this).select('text.nv-legend-text-value').node();
-                        if (valueNode) {
-                            entryWidth += valueNode.getComputedTextLength() + 12;
-                        }
-                    }
-
-                    seriesWidths.push(entryWidth);
+                    seriesWidths.push(nodeTextLength + padding + 18);
                 });
 
                 var seriesPerRow = 0;
                 var columnWidths = [];
                 legendWidth = 0;
 
-                var buildFixedColumnLayout = function (perRow) {
-                    var widths = [];
+                while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
+                    columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
+                    legendWidth += seriesWidths[seriesPerRow++];
+                }
+                if (seriesPerRow === 0) seriesPerRow = 1; //minimum of one series per row
+
+                while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
+                    columnWidths = [];
+                    seriesPerRow--;
+
                     for (var k = 0; k < seriesWidths.length; k++) {
-                        if (seriesWidths[k] > (widths[k % perRow] || 0))
-                            widths[k % perRow] = seriesWidths[k];
-                    }
-                    return {
-                        seriesPerRow: perRow,
-                        columnWidths: widths,
-                        legendWidth: widths.reduce(function(prev, cur) { return prev + cur; }, 0)
-                    };
-                };
-
-                if (columnCount === 'adaptive' || columnCount === 'adaptive-fit' || (typeof columnCount === 'number' && columnCount > 0)) {
-                    var perRow;
-
-                    if (columnCount === 'adaptive' || columnCount === 'adaptive-fit') {
-                        var singleColHeight = margin.top + margin.bottom + seriesWidths.length * versPadding;
-                        perRow = (seriesWidths.length <= 1 || singleColHeight <= height) ? 1 : 2;
-                        if (perRow === 2) {
-                            var twoColLayout = buildFixedColumnLayout(2);
-                            if (twoColLayout.legendWidth > availableWidth) {
-                                perRow = 1;
-                            }
-                        }
-                    } else {
-                        perRow = Math.min(columnCount, seriesWidths.length) || 1;
+                        if (seriesWidths[k] > (columnWidths[k % seriesPerRow] || 0) )
+                            columnWidths[k % seriesPerRow] = seriesWidths[k];
                     }
 
-                    var layout = buildFixedColumnLayout(perRow);
-                    seriesPerRow = layout.seriesPerRow;
-                    columnWidths = layout.columnWidths;
-                    legendWidth = layout.legendWidth;
-                } else {
-                    while ( legendWidth < availableWidth && seriesPerRow < seriesWidths.length) {
-                        columnWidths[seriesPerRow] = seriesWidths[seriesPerRow];
-                        legendWidth += seriesWidths[seriesPerRow++];
-                    }
-                    if (seriesPerRow === 0) seriesPerRow = 1; //minimum of one series per row
-
-                    while ( legendWidth > availableWidth && seriesPerRow > 1 ) {
-                        seriesPerRow--;
-                        var shrunkLayout = buildFixedColumnLayout(seriesPerRow);
-                        columnWidths = shrunkLayout.columnWidths;
-                        legendWidth = shrunkLayout.legendWidth;
-                    }
+                    legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
+                        return prev + cur;
+                    });
                 }
 
                 var xPositions = [];
@@ -373,7 +324,7 @@ nv.models.legend = function() {
 
                 //position legend as far right as possible within the total width
                 if (rightAlign) {
-                    g.attr('transform', 'translate(' + Math.max(0, (width - margin.right - legendWidth) / 2) + ',' + margin.top + ')');
+                    g.attr('transform', 'translate(' + (width - margin.right - legendWidth) / 2 + ',' + margin.top + ')');
                 }
                 else {
                     g.attr('transform', 'translate(0' + ',' + margin.top + ')');
@@ -385,6 +336,7 @@ nv.models.legend = function() {
 
                 var ypos = 5,
                     newxpos = 5,
+                    maxwidth = 0,
                     xpos;
                 series
                     .attr('transform', function(d, i) {
@@ -445,8 +397,6 @@ nv.models.legend = function() {
                 .style('fill', setBGColor)
                 .style('fill-opacity', setBGOpacity)
                 .style('stroke', setBGColor);
-
-            lastLayoutWidth = align ? legendWidth : maxwidth;
         });
 
         function getPercentageValue(d, series) {
@@ -495,7 +445,6 @@ nv.models.legend = function() {
 
     chart.dispatch = dispatch;
     chart.options = nv.utils.optionsFunc.bind(chart);
-    chart.layoutWidth = function() { return lastLayoutWidth; };
 
     chart._options = Object.create({}, {
         // simple options, just get/set the necessary values
@@ -533,14 +482,6 @@ nv.models.legend = function() {
             },
             set: function (_) {
                 showNativeTooltip = _;
-            }
-        },
-        columnCount: {
-            get: function () {
-                return columnCount;
-            },
-            set: function (_) {
-                columnCount = _;
             }
         },
         // options that require extra logic in the setter
