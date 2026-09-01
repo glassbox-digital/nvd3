@@ -1,4 +1,4 @@
-/* nvd3 version 1.9.54 (https://github.com/glassbox-front-end/nvd3) 2026-08-20 */
+/* nvd3 version 1.9.54 (https://github.com/glassbox-front-end/nvd3) 2026-09-01 */
 (function(){
 
 // set up main nv object
@@ -4478,7 +4478,7 @@ nv.models.discreteBarChart = function() {
 
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
     var chartHeight = 125;
-    var layoutGap = 10;
+    var layoutGap = 4;
     var scrollClass = 'nv-chartScrollHorizontal';
 
     function isChartScroll(node) {
@@ -4587,7 +4587,7 @@ nv.models.discreteBarChart = function() {
             .style('width', containerWidth + 'px');
 
         legendSvg
-            .style('height', Math.max(legend.height() + 20, legendBoxHeight) + 'px')
+            .style('height', Math.max(legend.height(), legendBoxHeight) + 'px')
             .style('width', (containerWidth - 10) + 'px');
     }
 
