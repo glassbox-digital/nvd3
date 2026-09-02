@@ -44,8 +44,9 @@ nv.models.discreteBarChart = function() {
     tooltip
         .duration(0)
         .headerEnabled(false)
+        .position(tooltipPosition)
         .valueFormatter(function(d, i) {
-            return yAxis.tickFormat()(d, i);
+            return discretebar.valueFormat()(d, i);
         })
         .keyFormatter(function(d, i) {
             return xAxis.tickFormat()(d, i);
@@ -58,6 +59,7 @@ nv.models.discreteBarChart = function() {
     var renderWatch = nv.utils.renderWatch(dispatch, duration);
     var chartHeight = 125;
     var layoutGap = 4;
+    var scrollGap = 10;
     var scrollClass = 'nv-chartScrollHorizontal';
 
     function isChartScroll(node) {
@@ -70,7 +72,27 @@ nv.models.discreteBarChart = function() {
         return isChartScroll(parent) ? parent.parentNode : parent;
     }
 
-    function setChartScroll(svgNode, enabled, blockHeight) {
+    function tooltipPosition() {
+        if (!d3.event) {
+            return { left: 0, top: 0 };
+        }
+
+        var node = tooltip.chartContainer();
+        if (!node) {
+            return {
+                left: d3.event.offsetX,
+                top: d3.event.offsetY
+            };
+        }
+
+        var box = node.getBoundingClientRect();
+        return {
+            left: d3.event.clientX - box.left,
+            top: d3.event.clientY - box.top
+        };
+    }
+
+    function setChartScroll(svgNode, enabled) {
         var parent = svgNode.parentNode;
 
         if (!enabled) {
@@ -90,8 +112,10 @@ nv.models.discreteBarChart = function() {
         }
 
         d3.select(scrollNode)
-            .style('height', (blockHeight + layoutGap) + 'px')
-            .style('overflow-x', 'auto');
+            .style('height', 'auto')
+            .style('padding-bottom', scrollGap + 'px')
+            .style('overflow-x', 'auto')
+            .style('overflow-y', 'hidden');
     }
 
     function getBarColor(bar, i) {
@@ -217,13 +241,18 @@ nv.models.discreteBarChart = function() {
                 .style('height', chartBlockHeight + 'px')
                 .attr('height', chartBlockHeight);
 
-            setChartScroll(this, needsScroll, chartBlockHeight);
+            setChartScroll(this, needsScroll);
             if (needsScroll) {
                 container
                     .style('width', computedChartWidth + 'px')
                     .attr('width', computedChartWidth);
             } else {
                 container.style('width', '100%').attr('width', null);
+            }
+
+            var legendAnchorHeight = chartBlockHeight;
+            if (needsScroll && isChartScroll(this.parentNode)) {
+                legendAnchorHeight = this.parentNode.offsetHeight;
             }
 
             x = discretebar.xScale();
@@ -245,7 +274,7 @@ nv.models.discreteBarChart = function() {
 
             renderExternalLegend(widgetNode, data, containerWidth, {
                 parentHeight: parentHeight,
-                chartBlockHeight: chartBlockHeight
+                chartBlockHeight: legendAnchorHeight
             });
 
             g.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
