@@ -44,6 +44,7 @@ nv.models.discreteBarChart = function() {
     tooltip
         .duration(0)
         .headerEnabled(false)
+        .position(tooltipPosition)
         .valueFormatter(function(d, i) {
             return discretebar.valueFormat()(d, i);
         })
@@ -69,6 +70,26 @@ nv.models.discreteBarChart = function() {
     function getWidgetNode(svgNode) {
         var parent = svgNode.parentNode;
         return isChartScroll(parent) ? parent.parentNode : parent;
+    }
+
+    function tooltipPosition() {
+        if (!d3.event) {
+            return { left: 0, top: 0 };
+        }
+
+        var node = tooltip.chartContainer();
+        if (!node) {
+            return {
+                left: d3.event.offsetX,
+                top: d3.event.offsetY
+            };
+        }
+
+        var box = node.getBoundingClientRect();
+        return {
+            left: d3.event.clientX - box.left,
+            top: d3.event.clientY - box.top
+        };
     }
 
     function setChartScroll(svgNode, enabled) {
