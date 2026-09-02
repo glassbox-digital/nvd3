@@ -1,6 +1,6 @@
 {
   "name": "gb-nvd3",
-  "version": "1.9.52",
+  "version": "1.9.54",
   "description": "A reusable charting library written in d3.js",
   "url": "https://github.com/glassbox-front-end/nvd3",
   "main": "build/nv.d3.js",
